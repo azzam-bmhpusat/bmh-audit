@@ -189,6 +189,24 @@ export function TotalsAdminSummaryCard({
   data,
   title = "Ringkasan Penilaian Auditor SIA",
 }: TotalsSummaryCardProps) {
+  const itemDinilai = React.useMemo(() => {
+    let count = 0;
+    for (const p of data.pilarList) {
+      for (const v of p.variabelList) {
+        for (const item of v.items) {
+          if (
+            "skor_auditor" in item &&
+            item.skor_auditor !== null &&
+            item.skor_auditor !== undefined
+          ) {
+            count++;
+          }
+        }
+      }
+    }
+    return count;
+  }, [data.pilarList]);
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
@@ -201,7 +219,7 @@ export function TotalsAdminSummaryCard({
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">Dinilai Auditor</span>
             <div className="text-xl font-bold tabular-nums">
-              {data.itemDinilai} / {data.totalItem} item
+              {itemDinilai} / {data.totalItem} item
             </div>
           </div>
 
@@ -215,7 +233,7 @@ export function TotalsAdminSummaryCard({
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">Nilai Skor SIA</span>
             <div className="text-xl font-bold tabular-nums">
-              {formatAngka(data.totalNilaiSkorAuditor)}{" "}
+              {formatAngka(data.totalNilaiSkorAuditor ?? 0)}{" "}
               <span className="text-xs font-normal text-muted-foreground">
                 / {formatAngka(data.skorMaksimumIdeal)}
               </span>
@@ -225,7 +243,7 @@ export function TotalsAdminSummaryCard({
           <div className="space-y-1">
             <span className="text-xs text-muted-foreground">Capaian SIA</span>
             <div className="text-xl font-bold tabular-nums">
-              {formatPersen(data.persenAuditor)}
+              {formatPersen(data.persenAuditor ?? 0)}
             </div>
           </div>
         </div>

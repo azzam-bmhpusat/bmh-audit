@@ -332,9 +332,9 @@ VERIFY_WRITE=1 npm run verify:backend
 
 ## Fase 8 — Opsional (hanya setelah Fase 7 lulus dan atas persetujuan pemilik)
 
-- [ ] `[S]` Tampilan kartu per item pada layar < 1024 px (pertanyaan, regulasi, bobot, daftar 5 poin, input, nilai) memakai komponen shadcn yang sama.
-- [ ] `[C]` Halaman ringkasan semua cabang (progres isian + persen auditor) dari `v_audit_total_admin` tanpa filter cabang.
-- [ ] `[C]` Gaya `@media print` untuk tabel.
+- [x] `[S]` Tampilan kartu per item pada layar < 1024 px (pertanyaan, regulasi, bobot, daftar 5 poin, input, nilai) memakai komponen shadcn yang sama.
+- [x] `[C]` Halaman ringkasan semua cabang (progres isian + persen auditor) dari `v_audit_total_admin` tanpa filter cabang.
+- [x] `[C]` Gaya `@media print` untuk tabel.
 - **Tidak dikerjakan:** mode gelap (lihat §1), export Excel/PDF, UI kelola user/cabang, upload berkas, audit trail, notifikasi email (PRD §2 dan §15).
 
 ---

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import {
   Combobox,
@@ -17,7 +18,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { BarChart3Icon } from "lucide-react";
 import type { Cabang, Periode } from "@/types/audit";
 
 interface CabangPickerProps {
@@ -138,6 +141,19 @@ export function CabangPicker({
           </Select>
         </div>
       )}
+
+      {/* 3. Pintasan ke Halaman Ringkasan Semua Cabang */}
+      <div className="shrink-0 ml-auto">
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-9 text-xs gap-1.5"
+          render={<Link href="/ringkasan" />}
+        >
+          <BarChart3Icon className="size-3.5" />
+          <span>Ringkasan Semua Cabang</span>
+        </Button>
+      </div>
     </div>
   );
 }

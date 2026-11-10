@@ -1,6 +1,8 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,6 +26,7 @@ interface AppHeaderProps {
 }
 
 export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
+  const pathname = usePathname();
   const [isGantiPasswordOpen, setIsGantiPasswordOpen] = React.useState(false);
   const [isLoggingOut, setIsLoggingOut] = React.useState(false);
 
@@ -38,7 +41,7 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
   return (
     <header className="border-b bg-background">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4 sm:gap-6">
           <div className="flex flex-col">
             <span className="text-lg font-bold tracking-tight text-foreground">
               BMH Audit
@@ -47,6 +50,28 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
               Satuan Internal Audit (SIA)
             </span>
           </div>
+
+          {/* Navigasi khusus Auditor SIA */}
+          {role === "admin" && (
+            <nav className="flex items-center gap-1.5" aria-label="Navigasi Utama">
+              <Button
+                variant={pathname.startsWith("/nilai-audit") ? "default" : "ghost"}
+                size="sm"
+                className="h-8 text-xs font-medium"
+                render={<Link href="/nilai-audit" />}
+              >
+                Penilaian Cabang
+              </Button>
+              <Button
+                variant={pathname.startsWith("/ringkasan") ? "default" : "ghost"}
+                size="sm"
+                className="h-8 text-xs font-medium"
+                render={<Link href="/ringkasan" />}
+              >
+                Ringkasan Nasional
+              </Button>
+            </nav>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
@@ -116,3 +141,4 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
     </header>
   );
 }
+

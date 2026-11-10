@@ -55,6 +55,7 @@ export async function updateSession(request: NextRequest) {
   const isProtectedPath =
     pathname.startsWith("/audit") ||
     pathname.startsWith("/nilai-audit") ||
+    pathname.startsWith("/ringkasan") ||
     pathname.startsWith("/dashboard");
 
   // Jika belum login dan mengakses area terproteksi
@@ -99,8 +100,8 @@ export async function updateSession(request: NextRequest) {
     return createRedirectResponse("/nilai-audit");
   }
 
-  // Pastikan /nilai-audit hanya untuk admin
-  if (pathname.startsWith("/nilai-audit") && role !== "admin") {
+  // Pastikan /nilai-audit dan /ringkasan hanya untuk admin
+  if ((pathname.startsWith("/nilai-audit") || pathname.startsWith("/ringkasan")) && role !== "admin") {
     return createRedirectResponse("/audit");
   }
 

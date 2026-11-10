@@ -10,6 +10,14 @@ Aplikasi web internal untuk Satuan Internal Audit (SIA) Lembaga Amil Zakat Nasio
 - **Dua Peran Pengguna (Role)**:
   - **Audite Cabang (`user`)**: Mengisi Skor Mandiri (1–5) dan melampirkan link evidence (Google Drive/Cloud) untuk cabangnya sendiri. Data cabang lain dan penilaian auditor terisolasi penuh (tidak terlihat).
   - **Auditor SIA (`admin`)**: Memilih cabang perwakilan, memvalidasi bukti, memberikan Skor Auditor (1–5), mengedit Bobot item pertanyaan secara global, dan mencatat catatan audit.
+- **Tampilan Responsif Ganda**:
+  - Tampilan **Tabel Matriks Lengkap** pada layar desktop (&ge; 1024 px).
+  - Tampilan **Kartu Interaktif Responsif** pada layar ponsel dan tablet (< 1024 px) dengan kontrol yang sama persis.
+  - Opsi tombol pengalih tampilan manual (Tabel / Kartu) di toolbar.
+- **Dashboard Ringkasan Nasional (`/ringkasan`)**:
+  - Halaman khusus Auditor SIA untuk melihat agregat progres pengisian dan persentase capaian seluruh cabang tanpa filter, dilengkapi pencarian dan tautan cepat.
+- **Dukungan Cetak Dokumen (`@media print`)**:
+  - Tombol pintas "Cetak" dan penyesuaian CSS cetak bersih tanpa navbar/tombol interaktif untuk menghasilkan PDF / cetakan laporan rapi.
 - **Perhitungan Otomatis**:
   $$\text{Nilai Skor} = \text{Skor} \times \text{Bobot}$$
   $$\text{Skor Maksimum Ideal} = 5 \times \sum \text{Bobot}$$

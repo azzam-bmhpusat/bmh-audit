@@ -12,7 +12,6 @@ import type {
   MatrixTree,
 } from "@/types/audit";
 import type { SaveStatus } from "./save-indicator";
-import { cn } from "cn";
 
 interface CardListProps {
   tree: MatrixTree<MatrixRowCabang | MatrixRowAdmin>;
@@ -60,18 +59,18 @@ export function CardList({
               <div className="flex items-center gap-2 text-xs">
                 <span className="text-muted-foreground">Subtotal Bobot:</span>
                 <span className="font-semibold text-foreground tabular-nums">
-                  {pilar.subtotalBobot}
+                  {pilar.totalBobot}
                 </span>
                 <span className="text-muted-foreground">| Nilai:</span>
                 <span className="font-semibold text-foreground tabular-nums">
-                  {pilar.subtotalNilaiSkor !== null ? formatAngka(pilar.subtotalNilaiSkor) : "—"}
+                  {pilar.totalNilaiSkor !== null ? formatAngka(pilar.totalNilaiSkor) : "—"}
                 </span>
                 {mode === "admin" && (
                   <>
                     <span className="text-muted-foreground">| Nilai SIA:</span>
                     <span className="font-semibold text-foreground tabular-nums">
-                      {pilar.subtotalNilaiSkorAuditor !== null
-                        ? formatAngka(pilar.subtotalNilaiSkorAuditor)
+                      {pilar.totalNilaiSkorAuditor !== null
+                        ? formatAngka(pilar.totalNilaiSkorAuditor)
                         : "—"}
                     </span>
                   </>
@@ -110,11 +109,11 @@ export function CardList({
 
                     <div className="flex items-center gap-2 text-xs">
                       <Badge variant="outline" className="text-[11px] font-normal">
-                        {variabel.terisiCount}/{variabel.totalItem} terisi
+                        {variabel.itemTerisi}/{variabel.totalItem} terisi
                       </Badge>
 
                       <span className="text-muted-foreground hidden sm:inline-block">
-                        Bobot: <strong className="text-foreground tabular-nums">{variabel.subtotalBobot}</strong>
+                        Bobot: <strong className="text-foreground tabular-nums">{variabel.totalBobot}</strong>
                       </span>
                     </div>
                   </div>
@@ -122,7 +121,7 @@ export function CardList({
                   {/* Isi Item-item Variabel jika expanded */}
                   {isExpanded && (
                     <div className="p-3 space-y-3">
-                      {variabel.itemList.map((item) => (
+                      {variabel.items.map((item) => (
                         <ItemCard
                           key={item.nomor}
                           item={item}

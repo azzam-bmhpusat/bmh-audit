@@ -112,6 +112,20 @@ function MatrixTableView({
 
   const isAllExpanded = expandedVariabel.size === allVariabelCodes.length;
 
+  // Mode tampilan: auto (tabel di desktop >=1024px, kartu di mobile <1024px), atau paksa tabel/kartu
+  const [viewMode, setViewMode] = React.useState<"auto" | "table" | "card">("auto");
+
+  const toggleViewMode = React.useCallback(() => {
+    setViewMode((prev) => {
+      if (prev === "auto") return "card";
+      if (prev === "card") return "table";
+      return "auto";
+    });
+  }, []);
+
+  const viewModeLabel =
+    viewMode === "auto" ? "Tampilan: Otomatis" : viewMode === "card" ? "Tampilan: Kartu" : "Tampilan: Tabel";
+
   return (
     <div className="space-y-4">
       {/* Ringkasan status audite live di atas tabel (hanya mode cabang) */}
@@ -120,7 +134,7 @@ function MatrixTableView({
       )}
 
       {/* Toolbar kontrol atas tabel */}
-      <div className="flex flex-wrap items-center justify-between gap-2">
+      <div className="flex flex-wrap items-center justify-between gap-2 no-print">
         <div className="text-xs text-muted-foreground">
           Total instrumen:{" "}
           <span className="font-semibold text-foreground">
@@ -129,7 +143,27 @@ function MatrixTableView({
           ({activeTree.pilarList.length} pilar, {allVariabelCodes.length} variabel)
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Tombol pengalih tampilan tabel / kartu */}
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={toggleViewMode}
+            className="h-8 text-xs gap-1.5"
+            aria-label={`Ubah mode tampilan (saat ini ${viewModeLabel})`}
+          >
+            {viewMode === "card" ? (
+              <LayoutGridIcon className="size-3.5" />
+            ) : (
+              <TablePropertiesIcon className="size-3.5" />
+            )}
+            <span>{viewModeLabel}</span>
+          </Button>
+
+          {/* Tombol cetak */}
+          <PrintButton />
+
           {isAllExpanded ? (
             <Button
               type="button"
@@ -158,57 +192,94 @@ function MatrixTableView({
         </div>
       </div>
 
-      {/* Wadah tabel dengan scroll horizontal & vertikal mandiri */}
-      <div className="relative w-full overflow-auto rounded-md border max-h-[75vh] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring">
-        <Table className="w-full text-xs">
-          {/* Header kolom sticky */}
-          <TableHeader className="sticky top-0 z-20 bg-background border-b shadow-xs">
-            <TableRow className="hover:bg-transparent">
-              {columns.map((col) => {
-                const isStickyLeft = col.stickyLeft;
-                return (
-                  <TableHead
-                    key={col.id}
-                    className={cn(
-                      "h-12 px-3 text-xs font-semibold uppercase tracking-wider text-foreground align-middle whitespace-normal",
-                      col.width,
-                      col.minWidth,
-                      col.align === "center" && "text-center",
-                      col.align === "right" && "text-right",
-                      isStickyLeft &&
-                        "sticky left-0 top-0 z-30 bg-muted border-r text-center shadow-xs"
-                    )}
-                  >
-                    {col.label}
-                  </TableHead>
-                );
-              })}
-            </TableRow>
-          </TableHeader>
+      {/* 1. Wadah tabel matriks (desktop / saat mode tabel aktif) */}
+      {(viewMode === "auto" || viewMode === "table") && (
+        <div
+          className={cn(
+            "relative w-full overflow-auto rounded-md border max-h-[75vh] focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring",
+            viewMode === "auto" && "hidden lg:block"
+          )}
+        >
+          <Table className="w-full text-xs">
+            {/* Header kolom sticky */}
+            <TableHeader className="sticky top-0 z-20 bg-background border-b shadow-xs">
+              <TableRow className="hover:bg-transparent">
+                {columns.map((col) => {
+                  const isStickyLeft = col.stickyLeft;
+                  return (
+                    <TableHead
+                      key={col.id}
+                      className={cn(
+                        "h-12 px-3 text-xs font-semibold uppercase tracking-wider text-foreground align-middle whitespace-normal",
+                        col.width,
+                        col.minWidth,
+                        col.align === "center" && "text-center",
+                        col.align === "right" && "text-right",
+                        isStickyLeft &&
+                          "sticky left-0 top-0 z-30 bg-muted border-r text-center shadow-xs"
+                      )}
+                    >
+                      {col.label}
+                    </TableHead>
+                  );
+                })}
+              </TableRow>
+            </TableHeader>
 
-          {/* Isi baris grup dan item */}
-          <TableBody>
-            {activeTree.pilarList.map((pilar) => (
-              <PilarGroup
-                key={pilar.kode}
-                pilar={pilar}
-                mode={mode}
-                expandedVariabel={expandedVariabel}
-                onToggleVariabel={toggleVariabel}
-                readOnly={readOnly}
-                onSaveField={onSaveField}
-                onSaveAdminField={onSaveAdminField}
-                onSaveBobot={onSaveBobot}
-                saveStatuses={saveStatuses}
-                onRetry={onRetry}
-              />
-            ))}
-          </TableBody>
+            {/* Isi baris grup dan item */}
+            <TableBody>
+              {activeTree.pilarList.map((pilar) => (
+                <PilarGroup
+                  key={pilar.kode}
+                  pilar={pilar}
+                  mode={mode}
+                  expandedVariabel={expandedVariabel}
+                  onToggleVariabel={toggleVariabel}
+                  readOnly={readOnly}
+                  onSaveField={onSaveField}
+                  onSaveAdminField={onSaveAdminField}
+                  onSaveBobot={onSaveBobot}
+                  saveStatuses={saveStatuses}
+                  onRetry={onRetry}
+                />
+              ))}
+            </TableBody>
 
-          {/* Baris Total di bagian bawah */}
-          <TotalsFooter data={activeTree} mode={mode} />
-        </Table>
-      </div>
+            {/* Baris Total di bagian bawah */}
+            <TotalsFooter data={activeTree} mode={mode} />
+          </Table>
+        </div>
+      )}
+
+      {/* 2. Wadah daftar kartu responsif (mobile < 1024px / saat mode kartu aktif) */}
+      {(viewMode === "auto" || viewMode === "card") && (
+        <div
+          className={cn(
+            "space-y-6",
+            viewMode === "auto" && "block lg:hidden"
+          )}
+        >
+          <CardList
+            tree={activeTree}
+            mode={mode}
+            expandedVariabel={expandedVariabel}
+            onToggleVariabel={toggleVariabel}
+            readOnly={readOnly}
+            onSaveField={onSaveField}
+            onSaveAdminField={onSaveAdminField}
+            onSaveBobot={onSaveBobot}
+            saveStatuses={saveStatuses}
+            onRetry={onRetry}
+          />
+
+          {/* Baris total untuk tampilan kartu */}
+          {mode === "admin" ? (
+            <TotalsAdminSummaryCard data={activeTree} />
+          ) : (
+            !showSummaryCard && <TotalsSummaryCard data={activeTree} />
+          )}
+        </div>
+      )}
     </div>
   );
 }
