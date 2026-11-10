@@ -12,7 +12,7 @@ import { Button } from "@/components/ui/button";
 import { getColumns } from "./columns";
 import { PilarGroup } from "./pilar-group";
 import { CardList } from "./card-list";
-import { PrintButton } from "./print-button";
+import { ExportExcelButton } from "./export-excel-button";
 import { TotalsFooter, TotalsSummaryCard, TotalsAdminSummaryCard } from "./totals-bar";
 import { useMatrixJawaban } from "./use-matrix-jawaban";
 import { useMatrixAdmin } from "./use-matrix-admin";
@@ -46,6 +46,8 @@ interface MatrixTableProps {
   headerInfo?: {
     title?: string;
     subtitle?: string;
+    cabangNama?: string;
+    periodeNama?: string;
   };
   onSavedSuccess?: () => void;
 }
@@ -58,6 +60,8 @@ interface MatrixTableViewProps {
   headerInfo?: {
     title?: string;
     subtitle?: string;
+    cabangNama?: string;
+    periodeNama?: string;
   };
   onSaveField?: (
     itemNomor: number,
@@ -327,8 +331,12 @@ function MatrixTableView({
               <span>{viewModeLabel}</span>
             </Button>
 
-            {/* Tombol cetak */}
-            <PrintButton />
+            {/* Tombol export excel */}
+            <ExportExcelButton
+              tree={activeTree}
+              mode={mode}
+              headerInfo={headerInfo}
+            />
 
             {isAllExpanded ? (
               <Button
@@ -469,6 +477,8 @@ function MatrixTableCabangContainer({
   headerInfo?: {
     title?: string;
     subtitle?: string;
+    cabangNama?: string;
+    periodeNama?: string;
   };
 }) {
   const { tree, saveStatuses, saveField, retry } = useMatrixJawaban({
@@ -511,6 +521,8 @@ function MatrixTableAdminContainer({
   headerInfo?: {
     title?: string;
     subtitle?: string;
+    cabangNama?: string;
+    periodeNama?: string;
   };
   onSavedSuccess?: () => void;
 }) {

@@ -138,6 +138,8 @@ export default async function AuditPage() {
         headerInfo={{
           title: `BMH Perwakilan ${cabangNama || "—"}`,
           subtitle: `Periode: ${periodeAktif.nama}`,
+          cabangNama: cabangNama || "—",
+          periodeNama: periodeAktif.nama,
         }}
       />
     </main>

@@ -77,7 +77,7 @@ export default async function NilaiAuditPage(props: PageProps) {
           <CardHeader className="text-center py-10 space-y-2">
             <SearchIcon className="size-8 mx-auto text-muted-foreground" />
             <CardTitle className="text-base font-semibold">
-              Pilih cabang untuk mulai menilai.
+              Pilih Perwakilan BMH untuk mulai menilai.
             </CardTitle>
           </CardHeader>
           <CardContent className="text-center pb-8">
@@ -221,6 +221,8 @@ export default async function NilaiAuditPage(props: PageProps) {
         headerInfo={{
           title: `Penilaian: ${cabang.nama}`,
           subtitle: `Periode: ${periodeAktif.nama}`,
+          cabangNama: cabang.nama,
+          periodeNama: periodeAktif.nama,
         }}
       />
     </main>

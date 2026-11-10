@@ -1,25 +1,33 @@
 "use client";
 
-import * as React from "react";
-import { Button } from "@/components/ui/button";
-import { PrinterIcon } from "lucide-react";
+import {
+  ExportExcelButton,
+  type ExportExcelButtonProps,
+} from "./export-excel-button";
 
-export function PrintButton() {
-  const handlePrint = () => {
-    window.print();
-  };
+/**
+ * @deprecated Gunakan ExportExcelButton untuk mengekspor data matriks ke format Excel (.xlsx).
+ */
+export function PrintButton(props: Partial<ExportExcelButtonProps>) {
+  if (props.tree && props.mode) {
+    return (
+      <ExportExcelButton
+        tree={props.tree}
+        mode={props.mode}
+        headerInfo={props.headerInfo}
+        className={props.className}
+      />
+    );
+  }
 
   return (
-    <Button
+    <button
       type="button"
-      variant="outline"
-      size="sm"
-      onClick={handlePrint}
-      className="h-8 text-xs gap-1.5"
-      aria-label="Cetak lembar audit"
-    >
-      <PrinterIcon className="size-3.5" />
-      <span>Cetak</span>
-    </Button>
+      onClick={() => window.print()}
+      className="hidden"
+      aria-hidden="true"
+    />
   );
 }
+
+export { ExportExcelButton };
