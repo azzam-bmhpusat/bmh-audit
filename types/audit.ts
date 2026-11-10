@@ -139,6 +139,91 @@ export interface TotalAdmin {
 }
 
 /**
+ * Master standar predikat hasil audit (view v_audit_predikat).
+ */
+export interface AuditPredikat {
+  nilai: "A" | "B" | "C" | "D" | "E" | string;
+  predikat: string;
+  status_kepatuhan: string;
+  keterangan: string;
+  wajib_ptk: boolean;
+  batas_bawah: number;
+  batas_atas: number;
+  rentang_teks: string;
+}
+
+/**
+ * Rekapitulasi penilaian lembaga untuk role user cabang (view v_penilaian_cabang).
+ */
+export interface PenilaianCabang {
+  periode_id: number;
+  cabang_id: number;
+  nama_lembaga: string;
+  entitas_audit: string;
+  periode_audit: string;
+  jumlah_indikator: number;
+  total_bobot: number;
+  skor_maksimum_ideal: number;
+  jumlah_butir_terisi: number;
+  jumlah_butir_belum_terisi: number;
+  jumlah_butir_terisi_teks: string;
+  persen_kelengkapan: number;
+  jumlah_butir_berlampiran: number;
+  total_nilai_skor: number;
+  nilai_akhir: number;
+  nilai_kepatuhan: string;
+  predikat_kepatuhan: string;
+  status_kepatuhan: string;
+  wajib_ptk: boolean;
+  keterangan_tindak_lanjut: string;
+}
+
+/**
+ * Rekapitulasi penilaian untuk role admin auditor (view v_penilaian_admin).
+ */
+export interface PenilaianAdmin {
+  periode_id: number;
+  cabang_id: number;
+  nama_lembaga: string;
+  entitas_audit: string;
+  periode_audit: string;
+  jumlah_indikator: number;
+  total_bobot: number;
+  skor_maksimum_ideal: number;
+
+  // Blok 1: Isian Cabang (Audite)
+  jumlah_butir_terisi: number;
+  jumlah_butir_belum_terisi: number;
+  jumlah_butir_terisi_teks: string;
+  persen_kelengkapan: number;
+  jumlah_butir_berlampiran: number;
+  jumlah_bukti_diunggah: number;
+  total_nilai_skor_audite: number;
+  nilai_akhir_audite: number;
+  nilai_kepatuhan_audite: string;
+  predikat_kepatuhan_audite: string;
+  status_kepatuhan_audite: string;
+
+  // Blok 2: Sudah Di Audit (Auditor)
+  status_audit: "Belum Diaudit" | "Sedang Diaudit" | "Sudah Diaudit" | string;
+  jumlah_butir_diaudit: number;
+  jumlah_butir_diaudit_teks: string;
+  jumlah_terisi_belum_diaudit: number;
+  jumlah_bukti_tervalidasi: number;
+  total_nilai_skor_auditor: number;
+  nilai_akhir_auditor: number;
+  nilai_kepatuhan_auditor: string;
+  predikat_kepatuhan_auditor: string;
+  status_kepatuhan_auditor: string;
+  wajib_ptk_auditor: boolean;
+  keterangan_tindak_lanjut: string;
+
+  // Selisih
+  selisih_skor: number;
+  selisih_nilai_akhir: number;
+}
+
+/**
  * Struktur hierarkis matriks (Pilar -> Variabel -> Item + Poin).
  */
 export type ItemWithPoin<T extends MatrixRowCabang = MatrixRowCabang> = T & {

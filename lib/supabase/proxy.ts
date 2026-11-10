@@ -54,6 +54,8 @@ export async function updateSession(request: NextRequest) {
 
   const isProtectedPath =
     pathname.startsWith("/audit") ||
+    pathname.startsWith("/penilaian") ||
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/nilai-audit") ||
     pathname.startsWith("/ringkasan") ||
     pathname.startsWith("/manajemen-user") ||
@@ -97,17 +99,22 @@ export async function updateSession(request: NextRequest) {
     return createRedirectResponse(roleHome);
   }
 
-  // Pastikan rute user (/dashboard/user dan /audit) hanya untuk role user (cabang)
+  // Pastikan rute user (/dashboard/user, /audit, /penilaian) hanya untuk role user (cabang)
   if (
-    (pathname.startsWith("/dashboard/user") || pathname.startsWith("/audit")) &&
+    (pathname.startsWith("/dashboard/user") ||
+      pathname.startsWith("/audit") ||
+      pathname.startsWith("/penilaian")) &&
     role !== "user"
   ) {
-    return createRedirectResponse("/dashboard/admin");
+    return createRedirectResponse(
+      pathname.startsWith("/penilaian") ? "/admin/penilaian" : "/dashboard/admin"
+    );
   }
 
-  // Pastikan rute admin (/dashboard/admin, /nilai-audit, /ringkasan, /manajemen-user, /manajemen-perwakilan) hanya untuk role admin
+  // Pastikan rute admin (/admin, /dashboard/admin, /nilai-audit, /ringkasan, /manajemen-user, /manajemen-perwakilan) hanya untuk role admin
   if (
-    (pathname.startsWith("/dashboard/admin") ||
+    (pathname.startsWith("/admin") ||
+      pathname.startsWith("/dashboard/admin") ||
       pathname.startsWith("/nilai-audit") ||
       pathname.startsWith("/ringkasan") ||
       pathname.startsWith("/manajemen-user") ||

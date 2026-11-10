@@ -174,3 +174,133 @@ export async function simpanPenilaian(
 
   return { ok: true, row: upsertData as Record<string, unknown> };
 }
+
+export interface SavePenilaianAuditorInput {
+  periodeId: number;
+  cabangId: number;
+  itemNomor: number;
+  skorAuditor?: number | null;
+  validasi?: Record<string, boolean>;
+  catatan?: string | null;
+  clientUpdatedAt?: string;
+}
+
+export type SavePenilaianAuditorResult =
+  | { ok: true; row: Record<string, unknown> }
+  | { ok: false; error: string; conflict?: boolean };
+
+/**
+ * Server Action komprehensif untuk menyimpan penilaian auditor per butir:
+ * - Skor Auditor (1-5 atau null)
+ * - Validasi 5 bukti (objek jsonb dengan kunci "1".."5")
+ * - Catatan auditor
+ * - Deteksi konflik konkuren (optimistic locking berdasarkan updated_at)
+ */
+export async function savePenilaianAuditor(
+  input: SavePenilaianAuditorInput
+): Promise<SavePenilaianAuditorResult> {
+  const supabase = await createClient();
+
+  // 1. Verifikasi autentikasi & role admin
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { ok: false, error: "Sesi telah berakhir. Silakan login kembali." };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile || profile.role !== "admin") {
+    return {
+      ok: false,
+      error: "Hanya akun auditor (admin) yang berwenang memberikan penilaian.",
+    };
+  }
+
+  // 2. Validasi input
+  if (input.skorAuditor !== undefined && input.skorAuditor !== null) {
+    if (input.skorAuditor < 1 || input.skorAuditor > 5) {
+      return { ok: false, error: "Skor auditor harus berada dalam rentang 1–5." };
+    }
+  }
+
+  if (input.catatan && input.catatan.length > 1000) {
+    return { ok: false, error: "Catatan auditor maksimal 1000 karakter." };
+  }
+
+  // 3. Deteksi konflik konkuren jika clientUpdatedAt disertakan
+  const { data: existingRow } = await supabase
+    .from("audit_penilaian_auditor")
+    .select("updated_at, validasi, skor_auditor, catatan")
+    .eq("periode_id", input.periodeId)
+    .eq("cabang_id", input.cabangId)
+    .eq("item_nomor", input.itemNomor)
+    .maybeSingle();
+
+  if (existingRow?.updated_at && input.clientUpdatedAt) {
+    const serverTime = new Date(existingRow.updated_at).getTime();
+    const clientTime = new Date(input.clientUpdatedAt).getTime();
+    if (serverTime > clientTime) {
+      return {
+        ok: false,
+        conflict: true,
+        error:
+          "Penilaian butir ini telah diubah oleh auditor lain. Halaman akan diperbarui.",
+      };
+    }
+  }
+
+  // 4. Susun payload upsert
+  const payload: {
+    periode_id: number;
+    cabang_id: number;
+    item_nomor: number;
+    skor_auditor?: number | null;
+    validasi?: Record<string, boolean>;
+    catatan?: string | null;
+  } = {
+    periode_id: input.periodeId,
+    cabang_id: input.cabangId,
+    item_nomor: input.itemNomor,
+  };
+
+  if (input.skorAuditor !== undefined) {
+    payload.skor_auditor = input.skorAuditor;
+  }
+
+  if (input.validasi !== undefined) {
+    // Sanitasi kunci hanya "1" .. "5"
+    const sanitizedValidasi: Record<string, boolean> = {};
+    for (const key of ["1", "2", "3", "4", "5"]) {
+      if (typeof input.validasi[key] === "boolean") {
+        sanitizedValidasi[key] = input.validasi[key];
+      }
+    }
+    payload.validasi = sanitizedValidasi;
+  }
+
+  if (input.catatan !== undefined) {
+    payload.catatan = input.catatan?.trim() || null;
+  }
+
+  // 5. Eksekusi upsert ke audit_penilaian_auditor
+  const { data: upsertData, error: upsertError } = await supabase
+    .from("audit_penilaian_auditor")
+    .upsert(payload, { onConflict: "periode_id,cabang_id,item_nomor" })
+    .select()
+    .single();
+
+  if (upsertError) {
+    console.error("[savePenilaianAuditor] Upsert error:", upsertError.message);
+    return { ok: false, error: "Gagal menyimpan penilaian ke database." };
+  }
+
+  return { ok: true, row: upsertData as Record<string, unknown> };
+}

@@ -47,6 +47,7 @@ interface MatrixTableProps {
     title?: string;
     subtitle?: string;
   };
+  onSavedSuccess?: () => void;
 }
 
 interface MatrixTableViewProps {
@@ -499,6 +500,7 @@ function MatrixTableAdminContainer({
   poinList,
   showSummaryCard,
   headerInfo,
+  onSavedSuccess,
 }: {
   data: MatrixTree<MatrixRowAdmin>;
   readOnly: boolean;
@@ -510,6 +512,7 @@ function MatrixTableAdminContainer({
     title?: string;
     subtitle?: string;
   };
+  onSavedSuccess?: () => void;
 }) {
   const { tree, saveStatuses, saveField, saveBobot, retry } = useMatrixAdmin({
     initialTree: data,
@@ -517,6 +520,7 @@ function MatrixTableAdminContainer({
     cabangId,
     poinList,
     readOnly,
+    onSavedSuccess,
   });
 
   return (
@@ -543,6 +547,7 @@ export function MatrixTable({
   poinList = [],
   showSummaryCard = true,
   headerInfo,
+  onSavedSuccess,
 }: MatrixTableProps) {
   if (mode === "admin") {
     return (
@@ -555,6 +560,7 @@ export function MatrixTable({
         poinList={poinList}
         showSummaryCard={showSummaryCard}
         headerInfo={headerInfo}
+        onSavedSuccess={onSavedSuccess}
       />
     );
   }

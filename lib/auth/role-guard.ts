@@ -6,6 +6,8 @@ import {
   ClipboardListIcon,
   UsersIcon,
   BuildingIcon,
+  AwardIcon,
+  FileCheckIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -33,6 +35,7 @@ export function canAccessRoute(role: Role, pathname: string): boolean {
 
   // Rute khusus admin
   if (
+    pathname.startsWith("/admin") ||
     pathname.startsWith("/dashboard/admin") ||
     pathname.startsWith("/nilai-audit") ||
     pathname.startsWith("/ringkasan") ||
@@ -45,7 +48,8 @@ export function canAccessRoute(role: Role, pathname: string): boolean {
   // Rute khusus user (cabang)
   if (
     pathname.startsWith("/dashboard/user") ||
-    pathname.startsWith("/audit")
+    pathname.startsWith("/audit") ||
+    pathname.startsWith("/penilaian")
   ) {
     return role === "user";
   }
@@ -63,6 +67,11 @@ export function getNavItemsForRole(role: Role): NavItem[] {
         title: "Dashboard",
         url: "/dashboard/admin",
         icon: LayoutDashboardIcon,
+      },
+      {
+        title: "Review Penilaian",
+        url: "/admin/penilaian",
+        icon: FileCheckIcon,
       },
       {
         title: "Penilaian Perwakilan",
@@ -97,6 +106,11 @@ export function getNavItemsForRole(role: Role): NavItem[] {
       title: "Instrumen Audit",
       url: "/audit",
       icon: ClipboardListIcon,
+    },
+    {
+      title: "Preview Penilaian",
+      url: "/penilaian",
+      icon: AwardIcon,
     },
   ];
 }

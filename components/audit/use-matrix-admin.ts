@@ -18,6 +18,7 @@ interface UseMatrixAdminOptions {
   cabangId?: number;
   poinList?: ItemPoin[];
   readOnly?: boolean;
+  onSavedSuccess?: () => void;
 }
 
 interface SavedAdminValue {
@@ -37,6 +38,7 @@ export function useMatrixAdmin({
   cabangId,
   poinList = [],
   readOnly = false,
+  onSavedSuccess,
 }: UseMatrixAdminOptions) {
   // 1. Ekstrak seluruh poin pertanyaan
   const extractedPoin = React.useMemo(() => {
@@ -256,6 +258,7 @@ export function useMatrixAdmin({
             ...prev,
             [itemNomor]: { status: "saved" },
           }));
+          onSavedSuccess?.();
 
           // Hapus timer lama dan jadwalkan 2s kembali ke 'idle'
           const existingTimer = saveTimersRef.current.get(itemNomor);

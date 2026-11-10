@@ -217,3 +217,93 @@ export const itemPoinSchema = z.object({
   bukti_evidence: z.string().nullable(),
   kriteria_skor: z.string(),
 });
+
+// ---------------------------------------------------------------------
+// 5. Skema Penilaian & Predikat (View v_audit_predikat & v_penilaian_*)
+// ---------------------------------------------------------------------
+
+export const auditPredikatSchema = z.object({
+  nilai: z.string(),
+  predikat: z.string(),
+  status_kepatuhan: z.string(),
+  keterangan: z.string(),
+  wajib_ptk: z.boolean(),
+  batas_bawah: z.coerce.number(),
+  batas_atas: z.coerce.number(),
+  rentang_teks: z.string(),
+});
+
+export const penilaianCabangSchema = z.object({
+  periode_id: z.coerce.number().int(),
+  cabang_id: z.coerce.number().int(),
+  nama_lembaga: z.string(),
+  entitas_audit: z.string(),
+  periode_audit: z.string(),
+  jumlah_indikator: z.coerce.number().int(),
+  total_bobot: z.coerce.number().int(),
+  skor_maksimum_ideal: z.coerce.number().int(),
+  jumlah_butir_terisi: z.coerce.number().int(),
+  jumlah_butir_belum_terisi: z.coerce.number().int(),
+  jumlah_butir_terisi_teks: z.string(),
+  persen_kelengkapan: z.coerce.number(),
+  jumlah_butir_berlampiran: z.coerce.number().int(),
+  total_nilai_skor: z.coerce.number(),
+  nilai_akhir: z.coerce.number(),
+  nilai_kepatuhan: z.string(),
+  predikat_kepatuhan: z.string(),
+  status_kepatuhan: z.string(),
+  wajib_ptk: z.boolean(),
+  keterangan_tindak_lanjut: z.string(),
+});
+
+export const penilaianAdminSchema = z.object({
+  periode_id: z.coerce.number().int(),
+  cabang_id: z.coerce.number().int(),
+  nama_lembaga: z.string(),
+  entitas_audit: z.string(),
+  periode_audit: z.string(),
+  jumlah_indikator: z.coerce.number().int(),
+  total_bobot: z.coerce.number().int(),
+  skor_maksimum_ideal: z.coerce.number().int(),
+
+  // Blok 1: Isian Cabang (Audite)
+  jumlah_butir_terisi: z.coerce.number().int(),
+  jumlah_butir_belum_terisi: z.coerce.number().int(),
+  jumlah_butir_terisi_teks: z.string(),
+  persen_kelengkapan: z.coerce.number(),
+  jumlah_butir_berlampiran: z.coerce.number().int(),
+  jumlah_bukti_diunggah: z.coerce.number().int(),
+  total_nilai_skor_audite: z.coerce.number(),
+  nilai_akhir_audite: z.coerce.number(),
+  nilai_kepatuhan_audite: z.string(),
+  predikat_kepatuhan_audite: z.string(),
+  status_kepatuhan_audite: z.string(),
+
+  // Blok 2: Sudah Di Audit (Auditor)
+  status_audit: z.string(),
+  jumlah_butir_diaudit: z.coerce.number().int(),
+  jumlah_butir_diaudit_teks: z.string(),
+  jumlah_terisi_belum_diaudit: z.coerce.number().int(),
+  jumlah_bukti_tervalidasi: z.coerce.number().int(),
+  total_nilai_skor_auditor: z.coerce.number(),
+  nilai_akhir_auditor: z.coerce.number(),
+  nilai_kepatuhan_auditor: z.string(),
+  predikat_kepatuhan_auditor: z.string(),
+  status_kepatuhan_auditor: z.string(),
+  wajib_ptk_auditor: z.boolean(),
+  keterangan_tindak_lanjut: z.string(),
+
+  // Selisih
+  selisih_skor: z.coerce.number(),
+  selisih_nilai_akhir: z.coerce.number(),
+});
+
+export const savePenilaianAuditorSchema = z.object({
+  periodeId: z.coerce.number().int().positive("ID periode harus valid"),
+  cabangId: z.coerce.number().int().positive("ID cabang harus valid"),
+  itemNomor: itemNomorSchema,
+  skorAuditor: skorSchema.optional(),
+  validasi: z.record(z.enum(["1", "2", "3", "4", "5"]), z.boolean()).optional(),
+  catatan: catatanSchema.optional(),
+  clientUpdatedAt: z.string().optional(),
+});
