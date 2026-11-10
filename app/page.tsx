@@ -24,7 +24,7 @@ export default async function HomePage() {
             Internal Audit BMH
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-            Instrumen Audit Kepatuhan Integratif — Satuan Internal Audit (SIA) BMH
+            Instrumen Audit Kepatuhan Integratif — Satuan Internal Audit BMH
           </p>
         </div>
 

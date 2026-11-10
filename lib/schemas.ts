@@ -1,5 +1,4 @@
 import { z } from "zod";
-import { isValidNamaCabang } from "@/lib/auth/nama-email";
 
 /**
  * Nilai input string kosong diubah menjadi null sebelum validasi skema.
@@ -307,3 +306,39 @@ export const savePenilaianAuditorSchema = z.object({
   catatan: catatanSchema.optional(),
   clientUpdatedAt: z.string().optional(),
 });
+
+// ---------------------------------------------------------------------
+// 6. Skema Manajemen Periode & Pengaturan
+// ---------------------------------------------------------------------
+
+export const createPeriodeSchema = z.object({
+  nama: z
+    .string()
+    .trim()
+    .min(3, "Nama periode minimal 3 karakter")
+    .max(100, "Nama periode maksimal 100 karakter"),
+  is_open: z.boolean().default(true),
+  setAsOnlyActive: z.boolean().default(false),
+});
+
+export const updatePeriodeSchema = z.object({
+  id: z.coerce.number().int().positive("ID periode harus valid"),
+  nama: z
+    .string()
+    .trim()
+    .min(3, "Nama periode minimal 3 karakter")
+    .max(100, "Nama periode maksimal 100 karakter"),
+  is_open: z.boolean().default(true),
+  setAsOnlyActive: z.boolean().default(false),
+});
+
+export const togglePeriodeStatusSchema = z.object({
+  id: z.coerce.number().int().positive("ID periode harus valid"),
+  is_open: z.boolean(),
+  setAsOnlyActive: z.boolean().default(false),
+});
+
+export const deletePeriodeSchema = z.object({
+  id: z.coerce.number().int().positive("ID periode harus valid"),
+});
+

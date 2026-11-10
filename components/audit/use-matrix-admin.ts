@@ -306,7 +306,7 @@ export function useMatrixAdmin({
 
       itemQueuesRef.current.set(itemNomor, nextPromise);
     },
-    [readOnly, periodeId, cabangId, updateRowOptimistic]
+    [readOnly, periodeId, cabangId, updateRowOptimistic, onSavedSuccess]
   );
 
   // 8. Ubah Bobot item secara global

@@ -31,6 +31,7 @@ import {
 import { PerwakilanStatsCards } from "./perwakilan-stats-cards";
 import { PerwakilanDialog } from "./perwakilan-dialog";
 import { DeletePerwakilanDialog } from "./delete-perwakilan-dialog";
+import { ImportPerwakilanDialog } from "./import-perwakilan-dialog";
 import {
   PlusIcon,
   SearchIcon,
@@ -40,6 +41,7 @@ import {
   RotateCcwIcon,
   UsersIcon,
   FileSpreadsheetIcon,
+  UploadIcon,
 } from "lucide-react";
 import type { CabangDetailListItem } from "@/types/audit";
 
@@ -61,6 +63,8 @@ export function PerwakilanManagementView({
 
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
   const [selectedCabangForDelete, setSelectedCabangForDelete] = React.useState<CabangDetailListItem | null>(null);
+
+  const [isImportDialogOpen, setIsImportDialogOpen] = React.useState(false);
 
   const handleRefresh = () => {
     router.refresh();
@@ -131,7 +135,7 @@ export function PerwakilanManagementView({
         <div>
           <h1 className="text-xl font-bold tracking-tight">Manajemen Perwakilan</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Kelola master data perwakilan/cabang daerah BMH, kode singkatan, dan akun tertaut.
+            Kelola master data perwakilan daerah BMH, kode singkatan, dan akun tertaut.
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -143,6 +147,15 @@ export function PerwakilanManagementView({
           >
             <RotateCcwIcon className="size-3.5" />
             <span className="hidden sm:inline">Segarkan</span>
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setIsImportDialogOpen(true)}
+            className="gap-1.5"
+          >
+            <UploadIcon className="size-3.5" />
+            <span>Import</span>
           </Button>
           <Button
             size="sm"
@@ -172,7 +185,7 @@ export function PerwakilanManagementView({
                 Daftar Perwakilan Daerah
               </CardTitle>
               <CardDescription className="text-xs">
-                Menampilkan {filteredCabangList.length} dari {totalCabang} perwakilan cabang
+                Menampilkan {filteredCabangList.length} dari {totalCabang} perwakilan
               </CardDescription>
             </div>
 
@@ -345,6 +358,13 @@ export function PerwakilanManagementView({
         open={isDeleteDialogOpen}
         onOpenChange={setIsDeleteDialogOpen}
         cabang={selectedCabangForDelete}
+        onSuccess={handleRefresh}
+      />
+
+      <ImportPerwakilanDialog
+        open={isImportDialogOpen}
+        onOpenChange={setIsImportDialogOpen}
+        cabangList={initialCabangList}
         onSuccess={handleRefresh}
       />
     </div>

@@ -8,12 +8,14 @@ import {
   loginSchema,
   gantiPasswordSchema,
   createUserSchema,
-  updateUserSchema,
   resetUserPasswordSchema,
-  deleteUserSchema,
   createCabangSchema,
   updateCabangSchema,
   deleteCabangSchema,
+  createPeriodeSchema,
+  updatePeriodeSchema,
+  togglePeriodeStatusSchema,
+  deletePeriodeSchema,
   searchParamsSchema,
   matrixRowCabangSchema,
   matrixRowAdminSchema,
@@ -197,6 +199,49 @@ describe("schemas", () => {
     it("menolak ID perwakilan 0 atau negatif", () => {
       expect(deleteCabangSchema.safeParse({ id: 0 }).success).toBe(false);
       expect(deleteCabangSchema.safeParse({ id: -1 }).success).toBe(false);
+    });
+  });
+
+  describe("createPeriodeSchema", () => {
+    it("menerima nama periode valid dengan default is_open = true", () => {
+      const res = createPeriodeSchema.safeParse({ nama: "Semester-II Tahun 2026" });
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.is_open).toBe(true);
+        expect(res.data.setAsOnlyActive).toBe(false);
+      }
+    });
+
+    it("menolak nama periode terlalu pendek", () => {
+      expect(createPeriodeSchema.safeParse({ nama: "AB" }).success).toBe(false);
+      expect(createPeriodeSchema.safeParse({ nama: "   " }).success).toBe(false);
+    });
+  });
+
+  describe("updatePeriodeSchema & togglePeriodeStatusSchema", () => {
+    it("memvalidasi update periode", () => {
+      const res = updatePeriodeSchema.safeParse({
+        id: "2",
+        nama: "Semester-I 2027",
+        is_open: false,
+      });
+      expect(res.success).toBe(true);
+      if (res.success) {
+        expect(res.data.id).toBe(2);
+        expect(res.data.is_open).toBe(false);
+      }
+    });
+
+    it("memvalidasi toggle periode status", () => {
+      expect(togglePeriodeStatusSchema.safeParse({ id: 1, is_open: false }).success).toBe(true);
+      expect(togglePeriodeStatusSchema.safeParse({ id: -1, is_open: true }).success).toBe(false);
+    });
+  });
+
+  describe("deletePeriodeSchema", () => {
+    it("memvalidasi ID periode positif", () => {
+      expect(deletePeriodeSchema.safeParse({ id: 3 }).success).toBe(true);
+      expect(deletePeriodeSchema.safeParse({ id: 0 }).success).toBe(false);
     });
   });
 

@@ -32,19 +32,47 @@ export function PerwakilanDialog({
 }: PerwakilanDialogProps) {
   const isEditMode = Boolean(cabangToEdit);
 
-  const [nama, setNama] = React.useState("");
-  const [kode, setKode] = React.useState("");
-  const [isLoading, setIsLoading] = React.useState(false);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditMode ? "Edit Data Perwakilan" : "Tambah Perwakilan Baru"}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditMode
+              ? "Perbarui nama atau kode perwakilan cabang daerah BMH."
+              : "Daftarkan nama perwakilan / cabang daerah baru ke dalam sistem audit."}
+          </DialogDescription>
+        </DialogHeader>
 
-  React.useEffect(() => {
-    if (cabangToEdit) {
-      setNama(cabangToEdit.nama || "");
-      setKode(cabangToEdit.kode || "");
-    } else {
-      setNama("");
-      setKode("");
-    }
-  }, [cabangToEdit, open]);
+        {open && (
+          <PerwakilanForm
+            key={cabangToEdit ? cabangToEdit.id : "new"}
+            cabangToEdit={cabangToEdit}
+            onOpenChange={onOpenChange}
+            onSuccess={onSuccess}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function PerwakilanForm({
+  cabangToEdit,
+  onOpenChange,
+  onSuccess,
+}: {
+  cabangToEdit?: Cabang | null;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}) {
+  const isEditMode = Boolean(cabangToEdit);
+
+  const [nama, setNama] = React.useState(cabangToEdit?.nama || "");
+  const [kode, setKode] = React.useState(cabangToEdit?.kode || "");
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -116,71 +144,56 @@ export function PerwakilanDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? "Edit Data Perwakilan" : "Tambah Perwakilan Baru"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode
-              ? "Perbarui nama atau kode perwakilan cabang daerah BMH."
-              : "Daftarkan nama perwakilan / cabang daerah baru ke dalam sistem audit."}
-          </DialogDescription>
-        </DialogHeader>
+    <form onSubmit={handleSubmit} className="space-y-4 py-2">
+      {/* 1. Nama Perwakilan */}
+      <div className="space-y-1.5">
+        <Label htmlFor="input-nama-cabang">Nama Perwakilan / Daerah</Label>
+        <Input
+          id="input-nama-cabang"
+          placeholder="Contoh: Jawa Timur atau Sumatera Utara"
+          value={nama}
+          onChange={(e) => setNama(e.target.value)}
+          disabled={isLoading}
+          required
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Nama ini akan tampil pada formulir penilaian audit dan pemilih cabang.
+        </p>
+      </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 py-2">
-          {/* 1. Nama Perwakilan */}
-          <div className="space-y-1.5">
-            <Label htmlFor="input-nama-cabang">Nama Perwakilan / Daerah</Label>
-            <Input
-              id="input-nama-cabang"
-              placeholder="Contoh: Jawa Timur atau Sumatera Utara"
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
-              disabled={isLoading}
-              required
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Nama ini akan tampil pada formulir penilaian audit dan pemilih cabang.
-            </p>
-          </div>
+      {/* 2. Kode Perwakilan */}
+      <div className="space-y-1.5">
+        <Label htmlFor="input-kode-cabang">Kode Perwakilan (Opsional)</Label>
+        <Input
+          id="input-kode-cabang"
+          placeholder="Contoh: JTM, SMU, DKI"
+          value={kode}
+          onChange={(e) => setKode(e.target.value.toUpperCase())}
+          disabled={isLoading}
+          maxLength={10}
+        />
+        <p className="text-[11px] text-muted-foreground">
+          Kode singkatan unik untuk identifikasi ringkas (maksimal 10 karakter).
+        </p>
+      </div>
 
-          {/* 2. Kode Perwakilan */}
-          <div className="space-y-1.5">
-            <Label htmlFor="input-kode-cabang">Kode Perwakilan (Opsional)</Label>
-            <Input
-              id="input-kode-cabang"
-              placeholder="Contoh: JTM, SMU, DKI"
-              value={kode}
-              onChange={(e) => setKode(e.target.value.toUpperCase())}
-              disabled={isLoading}
-              maxLength={10}
-            />
-            <p className="text-[11px] text-muted-foreground">
-              Kode singkatan unik untuk identifikasi ringkas (maksimal 10 karakter).
-            </p>
-          </div>
-
-          <DialogFooter className="pt-3 gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isLoading}
-            >
-              Batal
-            </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading
-                ? "Menyimpan..."
-                : isEditMode
-                ? "Simpan Perubahan"
-                : "Tambah Perwakilan"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+      <DialogFooter className="pt-3 gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onOpenChange(false)}
+          disabled={isLoading}
+        >
+          Batal
+        </Button>
+        <Button type="submit" disabled={isLoading}>
+          {isLoading
+            ? "Menyimpan..."
+            : isEditMode
+            ? "Simpan Perubahan"
+            : "Tambah Perwakilan"}
+        </Button>
+      </DialogFooter>
+    </form>
   );
 }

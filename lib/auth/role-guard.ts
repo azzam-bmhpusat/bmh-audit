@@ -8,6 +8,7 @@ import {
   BuildingIcon,
   AwardIcon,
   FileCheckIcon,
+  SettingsIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -40,7 +41,8 @@ export function canAccessRoute(role: Role, pathname: string): boolean {
     pathname.startsWith("/nilai-audit") ||
     pathname.startsWith("/ringkasan") ||
     pathname.startsWith("/manajemen-user") ||
-    pathname.startsWith("/manajemen-perwakilan")
+    pathname.startsWith("/manajemen-perwakilan") ||
+    pathname.startsWith("/pengaturan")
   ) {
     return role === "admin";
   }
@@ -92,6 +94,11 @@ export function getNavItemsForRole(role: Role): NavItem[] {
         title: "Manajemen User",
         url: "/manajemen-user",
         icon: UsersIcon,
+      },
+      {
+        title: "Pengaturan",
+        url: "/pengaturan",
+        icon: SettingsIcon,
       },
     ];
   }

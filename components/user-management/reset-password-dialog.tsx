@@ -32,18 +32,50 @@ export function ResetPasswordDialog({
   user,
   onSuccess,
 }: ResetPasswordDialogProps) {
+  if (!user) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-2">
+            <div className="p-2 rounded-lg bg-muted text-foreground">
+              <KeyRoundIcon className="size-5" />
+            </div>
+            <div>
+              <DialogTitle>Reset Password Pengguna</DialogTitle>
+              <DialogDescription className="text-xs">
+                Akun: <span className="font-semibold text-foreground">{user.nama || user.email}</span>
+              </DialogDescription>
+            </div>
+          </div>
+        </DialogHeader>
+
+        {open && (
+          <ResetPasswordFormContent
+            key={user.id}
+            user={user}
+            onOpenChange={onOpenChange}
+            onSuccess={onSuccess}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ResetPasswordFormContent({
+  user,
+  onOpenChange,
+  onSuccess,
+}: {
+  user: UserListItem;
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}) {
   const [passwordBaru, setPasswordBaru] = React.useState("www.bmh.or.id");
   const [wajibGantiPassword, setWajibGantiPassword] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
-
-  React.useEffect(() => {
-    if (open) {
-      setPasswordBaru("www.bmh.or.id");
-      setWajibGantiPassword(true);
-    }
-  }, [open]);
-
-  if (!user) return null;
 
   const handleQuickResetDefault = async () => {
     if (isLoading) return;
@@ -109,99 +141,81 @@ export function ResetPasswordDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-muted text-foreground">
-              <KeyRoundIcon className="size-5" />
-            </div>
-            <div>
-              <DialogTitle>Reset Password Pengguna</DialogTitle>
-              <DialogDescription className="text-xs">
-                Akun: <span className="font-semibold text-foreground">{user.nama || user.email}</span>
-              </DialogDescription>
-            </div>
-          </div>
-        </DialogHeader>
-
-        <div className="space-y-4 py-2">
-          {/* Opsi 1: Aksi Cepat 1-Klik Reset ke www.bmh.or.id */}
-          <div className="rounded-lg border border-border p-3.5 space-y-2 bg-muted/40">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold">Opsi Cepat: Password Default</span>
-              <span className="text-xs font-mono bg-background border px-2 py-0.5 rounded">
-                www.bmh.or.id
-              </span>
-            </div>
-            <p className="text-[11px] text-muted-foreground">
-              Mengatur ulang password langsung ke password standar BMH dan mewajibkan pengguna mengganti password saat login berikutnya.
-            </p>
-            <Button
-              type="button"
-              variant="default"
-              size="sm"
-              className="w-full gap-2 mt-1"
-              onClick={handleQuickResetDefault}
-              disabled={isLoading}
-            >
-              <RotateCcwIcon className="size-3.5" />
-              <span>{isLoading ? "Mereset..." : "Reset ke www.bmh.or.id"}</span>
-            </Button>
-          </div>
-
-          <div className="relative flex items-center justify-center">
-            <span className="bg-background px-2 text-[11px] text-muted-foreground uppercase font-medium">
-              Atau Tentukan Password Baru
-            </span>
-          </div>
-
-          {/* Opsi 2: Password Kustom */}
-          <form onSubmit={handleCustomSubmit} className="space-y-3">
-            <div className="space-y-1.5">
-              <Label htmlFor="input-custom-pw">Password Baru</Label>
-              <Input
-                id="input-custom-pw"
-                type="text"
-                placeholder="Minimal 6 karakter"
-                value={passwordBaru}
-                onChange={(e) => setPasswordBaru(e.target.value)}
-                disabled={isLoading}
-                required
-              />
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Checkbox
-                id="reset-wajib-ganti"
-                checked={wajibGantiPassword}
-                onCheckedChange={(checked) => setWajibGantiPassword(Boolean(checked))}
-                disabled={isLoading}
-              />
-              <Label
-                htmlFor="reset-wajib-ganti"
-                className="text-xs font-normal cursor-pointer select-none"
-              >
-                Wajibkan ganti password saat login berikutnya
-              </Label>
-            </div>
-
-            <DialogFooter className="pt-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => onOpenChange(false)}
-                disabled={isLoading}
-              >
-                Batal
-              </Button>
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
-              </Button>
-            </DialogFooter>
-          </form>
+    <div className="space-y-4 py-2">
+      {/* Opsi 1: Aksi Cepat 1-Klik Reset ke www.bmh.or.id */}
+      <div className="rounded-lg border border-border p-3.5 space-y-2 bg-muted/40">
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold">Opsi Cepat: Password Default</span>
+          <span className="text-xs font-mono bg-background border px-2 py-0.5 rounded">
+            www.bmh.or.id
+          </span>
         </div>
-      </DialogContent>
-    </Dialog>
+        <p className="text-[11px] text-muted-foreground">
+          Mengatur ulang password langsung ke password standar BMH dan mewajibkan pengguna mengganti password saat login berikutnya.
+        </p>
+        <Button
+          type="button"
+          variant="default"
+          size="sm"
+          className="w-full gap-2 mt-1"
+          onClick={handleQuickResetDefault}
+          disabled={isLoading}
+        >
+          <RotateCcwIcon className="size-3.5" />
+          <span>{isLoading ? "Mereset..." : "Reset ke www.bmh.or.id"}</span>
+        </Button>
+      </div>
+
+      <div className="relative flex items-center justify-center">
+        <span className="bg-background px-2 text-[11px] text-muted-foreground uppercase font-medium">
+          Atau Tentukan Password Baru
+        </span>
+      </div>
+
+      {/* Opsi 2: Password Kustom */}
+      <form onSubmit={handleCustomSubmit} className="space-y-3">
+        <div className="space-y-1.5">
+          <Label htmlFor="input-custom-pw">Password Baru</Label>
+          <Input
+            id="input-custom-pw"
+            type="text"
+            placeholder="Minimal 6 karakter"
+            value={passwordBaru}
+            onChange={(e) => setPasswordBaru(e.target.value)}
+            disabled={isLoading}
+            required
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="reset-wajib-ganti"
+            checked={wajibGantiPassword}
+            onCheckedChange={(checked) => setWajibGantiPassword(Boolean(checked))}
+            disabled={isLoading}
+          />
+          <Label
+            htmlFor="reset-wajib-ganti"
+            className="text-xs font-normal cursor-pointer select-none"
+          >
+            Wajibkan ganti password saat login berikutnya
+          </Label>
+        </div>
+
+        <DialogFooter className="pt-2 gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={isLoading}
+          >
+            Batal
+          </Button>
+          <Button type="submit" disabled={isLoading}>
+            {isLoading ? "Menyimpan..." : "Simpan Password Baru"}
+          </Button>
+        </DialogFooter>
+      </form>
+    </div>
   );
 }

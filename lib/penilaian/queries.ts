@@ -69,7 +69,7 @@ export async function getPenilaianAdmin(
   cabangId?: number
 ): Promise<PenilaianAdmin | PenilaianAdmin[] | null> {
   const supabase = await createClient();
-  let query = supabase.from("v_penilaian_admin").select("*").eq("periode_id", periodeId);
+  const query = supabase.from("v_penilaian_admin").select("*").eq("periode_id", periodeId);
 
   if (cabangId) {
     const { data, error } = await query.eq("cabang_id", cabangId).maybeSingle();

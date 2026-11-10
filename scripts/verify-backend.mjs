@@ -23,9 +23,12 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 const testAdminPassword = process.env.TEST_ADMIN_PASSWORD || "www.bmh.or.id";
+const testAdminEmail = process.env.TEST_ADMIN_EMAIL || "ahmad@bmh.or.id";
 const testUserA = process.env.TEST_USER_A || "Jawa Timur";
+const testUserAEmail = process.env.TEST_USER_A_EMAIL || "jawa-timur@bmh.or.id";
 const testUserAPassword = process.env.TEST_USER_A_PASSWORD || "www.bmh.or.id";
 const testUserB = process.env.TEST_USER_B || "Jawa Barat";
+const testUserBEmail = process.env.TEST_USER_B_EMAIL || "jawa-barat@bmh.or.id";
 const testUserBPassword = process.env.TEST_USER_B_PASSWORD || "www.bmh.or.id";
 const verifyWrite = process.env.VERIFY_WRITE === "1";
 
@@ -60,9 +63,9 @@ async function runVerification() {
   console.log("   VERIFIKASI BACKEND & KEAMANAN RLS (BMH AUDIT)");
   console.log("==================================================================");
   console.log(`URL Supabase : ${supabaseUrl}`);
-  console.log(`User A       : ${testUserA} (${namaToEmail(testUserA)})`);
-  console.log(`User B       : ${testUserB} (${namaToEmail(testUserB)})`);
-  console.log(`Admin        : Admin (${namaToEmail("Admin")})`);
+  console.log(`User A       : ${testUserA} (${testUserAEmail})`);
+  console.log(`User B       : ${testUserB} (${testUserBEmail})`);
+  console.log(`Admin        : ${testAdminEmail}`);
   console.log(`Uji Tulis    : ${verifyWrite ? "AKTIF (VERIFY_WRITE=1)" : "NONAKTIF"}`);
   console.log("------------------------------------------------------------------\n");
 
@@ -71,10 +74,10 @@ async function runVerification() {
 
   // 0. Autentikasi Klien
   try {
-    const adminAuth = await createAuthenticatedClient(namaToEmail("Admin"), testAdminPassword);
+    const adminAuth = await createAuthenticatedClient(testAdminEmail, testAdminPassword);
     adminClient = adminAuth.client;
 
-    const userAAuth = await createAuthenticatedClient(namaToEmail(testUserA), testUserAPassword);
+    const userAAuth = await createAuthenticatedClient(testUserAEmail, testUserAPassword);
     userAClient = userAAuth.client;
 
     // Ambil profil user A
@@ -87,7 +90,7 @@ async function runVerification() {
 
     // Coba autentikasi User B jika sudah dibuat di Supabase
     try {
-      const userBAuth = await createAuthenticatedClient(namaToEmail(testUserB), testUserBPassword);
+      const userBAuth = await createAuthenticatedClient(testUserBEmail, testUserBPassword);
       userBClient = userBAuth.client;
       const { data: profB } = await userBClient.from("profiles").select("*").single();
       userBProfile = profB;

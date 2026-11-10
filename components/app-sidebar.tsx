@@ -55,7 +55,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       <SidebarContent>
         <SidebarGroup>
           <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
-          <SidebarMenu>
+          <SidebarMenu className="gap-1">
             {navItems.map((item) => {
               // Menentukan status aktif menu
               const isExactMatch = pathname === item.url;
@@ -67,7 +67,7 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
               const isActive = isExactMatch || isSubMatch;
 
               return (
-                <SidebarMenuItem key={item.url}>
+                <SidebarMenuItem key={item.url} className="my-0.5">
                   <SidebarMenuButton
                     isActive={isActive}
                     tooltip={item.title}

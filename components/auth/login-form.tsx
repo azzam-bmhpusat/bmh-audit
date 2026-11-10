@@ -105,7 +105,7 @@ export function LoginForm() {
           BMH Audit
         </CardTitle>
         <CardDescription className="text-xs text-muted-foreground leading-relaxed">
-          Instrumen Audit Kepatuhan Integratif — Satuan Internal Audit (SIA) BMH
+          Instrumen Audit Kepatuhan Integratif — Satuan Internal Audit BMH
         </CardDescription>
       </CardHeader>
 
@@ -126,7 +126,7 @@ export function LoginForm() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="jawa-timur@audit.bmh.or.id"
+                placeholder="aceh@bmh.or.id"
                 autoFocus
                 disabled={!isReady || isLoading}
                 autoComplete="email"
@@ -134,7 +134,7 @@ export function LoginForm() {
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Masukkan email akun Anda (contoh: jawa-timur@audit.bmh.or.id)
+              Masukkan email akun Anda (contoh: aceh@bmh.or.id)
             </p>
           </div>
 

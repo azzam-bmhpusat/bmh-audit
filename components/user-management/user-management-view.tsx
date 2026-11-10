@@ -159,7 +159,7 @@ export function UserManagementView({
         <div>
           <h1 className="text-xl font-bold tracking-tight">Manajemen Pengguna</h1>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Kelola akun pengguna, email login, peran auditor/cabang, dan reset password.
+            Kelola akun pengguna, email login, peran auditor/perwakilan, dan reset password.
           </p>
         </div>
         <div className="flex items-center gap-2">

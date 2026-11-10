@@ -26,6 +26,7 @@ describe("role-guard", () => {
       expect(canAccessRoute("admin", "/ringkasan")).toBe(true);
       expect(canAccessRoute("admin", "/manajemen-user")).toBe(true);
       expect(canAccessRoute("admin", "/manajemen-perwakilan")).toBe(true);
+      expect(canAccessRoute("admin", "/pengaturan")).toBe(true);
       expect(canAccessRoute("admin", "/dashboard")).toBe(true);
     });
 
@@ -50,13 +51,14 @@ describe("role-guard", () => {
       expect(canAccessRoute("user", "/ringkasan")).toBe(false);
       expect(canAccessRoute("user", "/manajemen-user")).toBe(false);
       expect(canAccessRoute("user", "/manajemen-perwakilan")).toBe(false);
+      expect(canAccessRoute("user", "/pengaturan")).toBe(false);
     });
   });
 
   describe("getNavItemsForRole", () => {
     it("memberikan menu khusus admin dengan url yang tepat", () => {
       const items = getNavItemsForRole("admin");
-      expect(items).toHaveLength(6);
+      expect(items).toHaveLength(7);
       expect(items.map((i) => i.url)).toEqual([
         "/dashboard/admin",
         "/admin/penilaian",
@@ -64,6 +66,7 @@ describe("role-guard", () => {
         "/ringkasan",
         "/manajemen-perwakilan",
         "/manajemen-user",
+        "/pengaturan",
       ]);
     });
 

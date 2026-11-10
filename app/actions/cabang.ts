@@ -225,3 +225,195 @@ export async function deleteCabangAction(
     return { ok: false, error: message };
   }
 }
+
+export interface ImportCabangPayloadItem {
+  rowNumber: number;
+  nama: string;
+  kode?: string | null;
+}
+
+export interface ImportCabangResult {
+  ok: boolean;
+  total: number;
+  successCount: number;
+  failedCount: number;
+  details: Array<{
+    rowNumber: number;
+    nama: string;
+    kode?: string | null;
+    status: "success" | "error";
+    error?: string;
+  }>;
+  message: string;
+}
+
+/**
+ * Server Action: Melakukan import massal data perwakilan dari CSV/Excel.
+ * - Memverifikasi hak akses admin pemanggil.
+ * - Memeriksa duplikasi nama dan kode sebelum dan saat eksekusi.
+ * - Menangani error per baris secara modular sehingga tidak membatalkan seluruh proses.
+ */
+export async function importCabangAction(
+  items: ImportCabangPayloadItem[]
+): Promise<ImportCabangResult> {
+  try {
+    await verifyAdminCaller();
+
+    if (!items || items.length === 0) {
+      return {
+        ok: false,
+        total: 0,
+        successCount: 0,
+        failedCount: 0,
+        details: [],
+        message: "Tidak ada data perwakilan yang dikirim untuk diimpor.",
+      };
+    }
+
+    const supabase = await createClient();
+
+    // 1. Ambil snapshot data cabang yang ada untuk pencegahan konflik duplikasi
+    const { data: existingCabang } = await supabase
+      .from("cabang")
+      .select("id, nama, kode");
+
+    const existingNamaSet = new Set<string>();
+    const existingKodeSet = new Set<string>();
+
+    for (const c of existingCabang ?? []) {
+      if (c.nama) existingNamaSet.add(c.nama.trim().toLowerCase());
+      if (c.kode) existingKodeSet.add(c.kode.trim().toUpperCase());
+    }
+
+    const details: ImportCabangResult["details"] = [];
+    let successCount = 0;
+    let failedCount = 0;
+
+    for (const item of items) {
+      const trimmedNama = (item.nama || "").trim();
+      const trimmedKode = item.kode ? item.kode.trim().toUpperCase() : null;
+
+      // Validasi dasar
+      if (!trimmedNama || trimmedNama.length < 2) {
+        failedCount++;
+        details.push({
+          rowNumber: item.rowNumber,
+          nama: trimmedNama || "—",
+          kode: trimmedKode,
+          status: "error",
+          error: "Nama perwakilan minimal 2 karakter.",
+        });
+        continue;
+      }
+
+      if (trimmedNama.length > 100) {
+        failedCount++;
+        details.push({
+          rowNumber: item.rowNumber,
+          nama: trimmedNama,
+          kode: trimmedKode,
+          status: "error",
+          error: "Nama perwakilan maksimal 100 karakter.",
+        });
+        continue;
+      }
+
+      const namaLower = trimmedNama.toLowerCase();
+      if (existingNamaSet.has(namaLower)) {
+        failedCount++;
+        details.push({
+          rowNumber: item.rowNumber,
+          nama: trimmedNama,
+          kode: trimmedKode,
+          status: "error",
+          error: `Nama "${trimmedNama}" sudah terdaftar di sistem.`,
+        });
+        continue;
+      }
+
+      if (trimmedKode) {
+        if (trimmedKode.length > 10) {
+          failedCount++;
+          details.push({
+            rowNumber: item.rowNumber,
+            nama: trimmedNama,
+            kode: trimmedKode,
+            status: "error",
+            error: "Kode perwakilan maksimal 10 karakter.",
+          });
+          continue;
+        }
+
+        if (existingKodeSet.has(trimmedKode)) {
+          failedCount++;
+          details.push({
+            rowNumber: item.rowNumber,
+            nama: trimmedNama,
+            kode: trimmedKode,
+            status: "error",
+            error: `Kode "${trimmedKode}" sudah digunakan oleh cabang lain.`,
+          });
+          continue;
+        }
+      }
+
+      // Lakukan insert
+      const { error: insertError } = await supabase.from("cabang").insert({
+        nama: trimmedNama,
+        kode: trimmedKode || null,
+      });
+
+      if (insertError) {
+        failedCount++;
+        details.push({
+          rowNumber: item.rowNumber,
+          nama: trimmedNama,
+          kode: trimmedKode,
+          status: "error",
+          error: insertError.message,
+        });
+      } else {
+        successCount++;
+        existingNamaSet.add(namaLower);
+        if (trimmedKode) existingKodeSet.add(trimmedKode);
+
+        details.push({
+          rowNumber: item.rowNumber,
+          nama: trimmedNama,
+          kode: trimmedKode,
+          status: "success",
+        });
+      }
+    }
+
+    revalidatePath("/manajemen-perwakilan");
+    revalidatePath("/manajemen-user");
+    revalidatePath("/nilai-audit");
+    revalidatePath("/ringkasan");
+    revalidatePath("/dashboard/admin");
+
+    const isAllSuccess = failedCount === 0;
+    const message = isAllSuccess
+      ? `Berhasil mengimpor ${successCount} perwakilan.`
+      : `Selesai: ${successCount} perwakilan berhasil diimpor, ${failedCount} gagal/dilewati.`;
+
+    return {
+      ok: successCount > 0,
+      total: items.length,
+      successCount,
+      failedCount,
+      details,
+      message,
+    };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : "Terjadi kesalahan internal server.";
+    return {
+      ok: false,
+      total: items.length,
+      successCount: 0,
+      failedCount: items.length,
+      details: [],
+      message,
+    };
+  }
+}

@@ -43,6 +43,11 @@ export interface Periode {
   created_at?: string;
 }
 
+export interface PeriodeDetailListItem extends Periode {
+  jawabanCount?: number;
+  penilaianCount?: number;
+}
+
 export interface ItemPoin {
   item_nomor: number;
   urutan: number;

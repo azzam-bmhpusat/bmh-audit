@@ -16,7 +16,6 @@ import type { PenilaianCabang } from "@/types/audit";
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
-  CheckCircle2Icon,
   ClipboardListIcon,
   InfoIcon,
 } from "lucide-react";

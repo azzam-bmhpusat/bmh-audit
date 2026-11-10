@@ -43,34 +43,61 @@ export function UserDialog({
 }: UserDialogProps) {
   const isEditMode = Boolean(userToEdit);
 
-  const [nama, setNama] = React.useState("");
-  const [email, setEmail] = React.useState("");
-  const [isEmailCustomized, setIsEmailCustomized] = React.useState(false);
-  const [role, setRole] = React.useState<Role>("user");
-  const [cabangId, setCabangId] = React.useState<string>("none");
-  const [password, setPassword] = React.useState("www.bmh.or.id");
-  const [wajibGantiPassword, setWajibGantiPassword] = React.useState(true);
-  const [isLoading, setIsLoading] = React.useState(false);
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle>
+            {isEditMode ? "Edit Profil Pengguna" : "Tambah Pengguna Baru"}
+          </DialogTitle>
+          <DialogDescription>
+            {isEditMode
+              ? "Perbarui informasi akun, email login, atau peran pengguna."
+              : "Daftarkan akun pengguna baru untuk auditor SIA atau cabang BMH."}
+          </DialogDescription>
+        </DialogHeader>
 
-  // Reset form saat dialog dibuka / userToEdit berubah
-  React.useEffect(() => {
-    if (userToEdit) {
-      setNama(userToEdit.nama || "");
-      setEmail(userToEdit.email || (userToEdit.nama ? namaToEmail(userToEdit.nama) : ""));
-      setIsEmailCustomized(true);
-      setRole(userToEdit.role);
-      setCabangId(userToEdit.cabang_id ? String(userToEdit.cabang_id) : "none");
-      setWajibGantiPassword(userToEdit.wajib_ganti_password);
-    } else {
-      setNama("");
-      setEmail("");
-      setIsEmailCustomized(false);
-      setRole("user");
-      setCabangId("none");
-      setPassword("www.bmh.or.id");
-      setWajibGantiPassword(true);
-    }
-  }, [userToEdit, open]);
+        {open && (
+          <UserFormContent
+            key={userToEdit ? userToEdit.id : "new"}
+            userToEdit={userToEdit}
+            cabangList={cabangList}
+            onOpenChange={onOpenChange}
+            onSuccess={onSuccess}
+          />
+        )}
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function UserFormContent({
+  userToEdit,
+  cabangList,
+  onOpenChange,
+  onSuccess,
+}: {
+  userToEdit?: UserListItem | null;
+  cabangList: Cabang[];
+  onOpenChange: (open: boolean) => void;
+  onSuccess?: () => void;
+}) {
+  const isEditMode = Boolean(userToEdit);
+
+  const [nama, setNama] = React.useState(userToEdit?.nama || "");
+  const [email, setEmail] = React.useState(
+    userToEdit?.email || (userToEdit?.nama ? namaToEmail(userToEdit.nama) : "")
+  );
+  const [isEmailCustomized, setIsEmailCustomized] = React.useState(Boolean(userToEdit));
+  const [role, setRole] = React.useState<Role>(userToEdit?.role || "user");
+  const [cabangId, setCabangId] = React.useState<string>(
+    userToEdit?.cabang_id ? String(userToEdit.cabang_id) : "none"
+  );
+  const [password, setPassword] = React.useState("www.bmh.or.id");
+  const [wajibGantiPassword, setWajibGantiPassword] = React.useState(
+    userToEdit ? userToEdit.wajib_ganti_password : true
+  );
+  const [isLoading, setIsLoading] = React.useState(false);
 
   // Handle otomatisasi saran email dari nama (hanya mode create)
   const handleNamaChange = (val: string) => {
@@ -127,7 +154,7 @@ export function UserDialog({
         toast.success(res.message || "Pengguna berhasil diperbarui");
         onOpenChange(false);
         onSuccess?.();
-      } catch (err: unknown) {
+      } catch {
         toast.error("Terjadi kesalahan sistem");
       } finally {
         setIsLoading(false);
@@ -160,7 +187,7 @@ export function UserDialog({
         toast.success(res.message || "Pengguna baru berhasil dibuat");
         onOpenChange(false);
         onSuccess?.();
-      } catch (err: unknown) {
+      } catch {
         toast.error("Terjadi kesalahan sistem");
       } finally {
         setIsLoading(false);
@@ -169,18 +196,6 @@ export function UserDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditMode ? "Edit Profil Pengguna" : "Tambah Pengguna Baru"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditMode
-              ? "Perbarui informasi akun, email login, atau peran pengguna."
-              : "Daftarkan akun pengguna baru untuk auditor SIA atau cabang BMH."}
-          </DialogDescription>
-        </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 py-2">
           {/* 1. Nama Akun */}
@@ -307,7 +322,5 @@ export function UserDialog({
             </Button>
           </DialogFooter>
         </form>
-      </DialogContent>
-    </Dialog>
   );
 }

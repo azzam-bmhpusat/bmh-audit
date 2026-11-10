@@ -42,6 +42,9 @@ export default async function ManajemenUserPage() {
   if (profilesError) {
     console.error("[MANAJEMEN_USER] Gagal memuat profiles:", profilesError.message);
   }
+  if (cabangError) {
+    console.error("[MANAJEMEN_USER] Gagal memuat cabang:", cabangError.message);
+  }
 
   // Buat mapping email dari auth.users berdasarkan user id
   const emailMap = new Map<string, string>();
@@ -56,12 +59,22 @@ export default async function ManajemenUserPage() {
   const cabangList = (rawCabangList ?? []) as Cabang[];
 
   // Gabungkan profil dengan email auth
-  const userList: UserListItem[] = (rawProfiles ?? []).map((p: any) => {
+  interface ProfileRow {
+    id: string;
+    nama: string | null;
+    role: Role;
+    cabang_id: number | null;
+    wajib_ganti_password: boolean;
+    created_at: string;
+    cabang: { id: number; nama: string } | null;
+  }
+
+  const userList: UserListItem[] = ((rawProfiles ?? []) as unknown as ProfileRow[]).map((p) => {
     const email = emailMap.get(p.id) || (p.nama ? namaToEmail(p.nama) : null);
     return {
       id: p.id,
       nama: p.nama,
-      role: p.role as Role,
+      role: p.role,
       cabang_id: p.cabang_id,
       wajib_ganti_password: p.wajib_ganti_password,
       created_at: p.created_at,

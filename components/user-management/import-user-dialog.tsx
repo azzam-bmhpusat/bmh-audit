@@ -31,7 +31,6 @@ import { importUsersAction, type ImportUsersResult } from "@/app/actions/user-ma
 import type { Cabang } from "@/types/audit";
 import { cn } from "cn";
 import {
-  DownloadIcon,
   UploadIcon,
   FileSpreadsheetIcon,
   FileTextIcon,

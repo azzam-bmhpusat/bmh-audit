@@ -3,7 +3,6 @@
 import * as React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
@@ -201,9 +200,6 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
             <span className="max-w-[120px] truncate sm:max-w-[180px] font-medium text-xs sm:text-sm">
               {displayName}
             </span>
-            <Badge variant={role === "admin" ? "default" : "secondary"}>
-              {roleLabel}
-            </Badge>
             <ChevronDownIcon className="size-3.5 text-muted-foreground" />
           </DropdownMenuTrigger>
 
