@@ -1,0 +1,361 @@
+item_nomor,urutan,fokus_pemeriksaan,bukti_evidence,kriteria_skor
+1,1,Masa berlaku SK Izin LAZ Kemenag,SK Izin Operasional LAZ Kemenag,Tidak ada SK Izin/Izin Kadaluarsa
+1,2,Kesesuaian skala wilayah (Nasional),SK Perpanjangan Izin (jika ada),Prosedur izin berjalan tapi kadaluarsa
+1,3,Kebenaran entitas pemegang izin,Verifikasi Akreditasi Lembaga,"SK Izin berlaku, proses perpanjangan"
+1,4,Kelengkapan rekomendasi BAZNAS,Dokumen Tanda Daftar Kemenag,SK Izin berlaku penuh & sesuai skala
+1,5,Kepastian status pendaftaran legal,Surat Keputusan Rekomendasi BAZNAS,"SK Izin aktif, akreditasi A/Sangat Baik"
+2,1,Kelengkapan akun cabang di SIMZAT,Tanda Bukti Pendaftaran SIMZAT,Cabang tidak terdaftar di SIMZAT
+2,2,Sinkronisasi data alamat & pengurus,Daftar Kantor Cabang/Perwakilan,Sebagian kecil (<50%) terdaftar
+2,3,Status verifikasi hijau/aktif Kemenag,Surat Rekomendasi BAZNAS Daerah,Sebagian besar (>75%) terdaftar
+2,4,Kelengkapan rekomendasi BAZNAS Daerah,Surat Keterangan Domisili Cabang,100% Cabang terdaftar aktif SIMZAT
+2,5,Kesesuaian jumlah cabang riil vs sistem,Screenshot Dashboard SIMZAT Active,Terdaftar 100% & data tervalidasi penuh
+3,1,Ketersediaan dokumen RKAT berjalan,Dokumen RKAT Tahunan Berjalan,Tidak ada RKAT
+3,2,Keabsahan pengesahan oleh Pembina,Berita Acara Pengesahan Pengurus/Pembina,Ada RKAT tapi belum disahkan
+3,3,Ketepatan waktu pelaporan ke Kemenag,Tanda Terima Pengiriman ke BAZNAS,"RKAT disahkan, belum dilaporkan"
+3,4,Ketepatan waktu pelaporan ke BAZNAS,Tanda Terima Pengiriman ke Kemenag,RKAT disahkan & dilaporkan tepat waktu
+3,5,Keselarasan target fisik dan finansial,Notulensi Rapat Pembahasan RKAT,"RKAT komprehensif, disahkan & dilaporkan"
+4,1,Masa berlaku SK Direksi & DPS,SK Pengangkatan Direksi/Pimpinan,SK Pimpinan/DPS tidak ada/kadaluarsa
+4,2,Kelengkapan Surat Rekomendasi MUI,SK Pengangkatan DPS dari Yayasan,"SK Pimpinan ada, SK DPS kadaluarsa"
+4,3,Kesesuaian organ dalam AD/ART,Surat Rekomendasi DPS dari MUI,SK Lengkap tapi tanpa Rekomendasi MUI
+4,4,Ketersediaan penetapan kualifikasi,Struktur Organisasi Resmi,SK Pimpinan & DPS aktif & legal
+4,5,Keabsahan tanda tangan pengesahan,Dokumen Masa Jabatan Pengurus,"SK Aktif, legal, rekomendasi MUI lengkap"
+5,1,Keabsahan Surat Domisili Hukum,Surat Keterangan Domisili Perusahaan,Kantor tidak jelas/tanpa dokumen
+5,2,Kejelasan status tanah/gedung kantor,Sertifikat Kepemilikan/Perjanjian Sewa,"Ada kantor, dokumen sewa/domisili habis"
+5,3,Masa berlaku perjanjian sewa/pakai,Foto Fisik Plang & Gedung Kantor,"Dokumen lengkap, sarana belum memadai"
+5,4,Ketersediaan fisik identitas kantor,Bukti Tagihan Utilitas (Listrik/Air),"Dokumen lengkap, kantor & sarana layak"
+5,5,Kecukupan fasilitas kelayakan kerja,Form Inventaris Sarana Kantor,"Kepemilikan/Sewa sah, sarana sangat lengkap"
+6,1,Ketersediaan SOP pemantauan legalitas,Checklist Evaluasi Kepatuhan Izin,Tidak ada evaluasi perizinan
+6,2,Kelengkapan matriks risiko perizinan,SOP Monitoring & Perpanjangan Izin,Evaluasi insidental jika ada teguran
+6,3,Periodisitas evaluasi berkala KSIA,Notulensi Tinjauan Legalitas KSIA,Monitoring rutin tanpa matriks risiko
+6,4,Pemenuhan kewajiban administratif,Matriks Pemenuhan Syarat PMA,Evaluasi berkala terstruktur & ada SOP
+6,5,Tindak lanjut atas peringatan/catatan,Laporan Mitigasi Risiko Izin,"Monitoring otomatis, mitigasi risiko lengkap"
+7,1,Pemisahan fungsi pengawas & pelaksana,Bagan Struktur Organisasi Resmi,Terjadi rangkap jabatan organ internal
+7,2,Independensi posisi audit internal,Surat Keputusan Pembagian Tugas,Pemisahan tugas ada tapi belum konsisten
+7,3,Keberadaan matriks kewenangan,Matriks Kewenangan (Authority Matrix),"Struktur jelas, matriks wewenang belum ada"
+7,4,Tidak adanya campur tangan eksekutif,SOP Interaksi Organ Lembaga,Pemisahan fungsi berjalan tegas & sesuai
+7,5,Kesesuaian organ dengan PP 14/2014,Tata Tertib Kerja Pengurus & DPS,Pemisahan organ sempurna + pengawasan aktif
+8,1,Pemenuhan syarat kualifikasi pimpinan,CV & Dokumen Kualifikasi Pimpinan,Pimpinan merangkap jabatan dilarang
+8,2,Kepemilikan sertifikat kompetensi amil,Surat Pernyataan Tidak Rangkap Jabatan,"Tanpa rangkap jabatan, kualifikasi minim"
+8,3,Bebas dari rangkap jabatan partai/parpol,Sertifikat Kompetensi Manajemen/Zakat,"Kualifikasi sesuai, sertifikasi belum ada"
+8,4,Bebas dari rangkap jabatan BAZNAS/LAZ lain,Hasil Fit and Proper Test Pimpinan,"Kualifikasi sesuai, tanpa rangkap jabatan"
+8,5,Rekam jejak integritas eksekutif,SK Penetapan Jabatan Eksekutif,"Kualifikasi tinggi, bersertifikat & independen"
+9,1,Kejelasan uraian tugas seluruh amil,Dokumen Job Description Seluruh Unit,Tidak ada Job Description & KPI
+9,2,Ketersediaan indikator KPI terukur,Kamus KPI Amil / Unit Kerja,"Job Description ada, KPI belum ada"
+9,3,Periodisitas penilaian kinerja SDM,Form Penilaian Kinerja Periodik,Ada KPI tapi belum dievaluasi berkala
+9,4,Keterkaitan KPI dengan insentif/remunerasi,Laporan Capaian KPI Amil,Job Description & KPI lengkap & dinilai
+9,5,Bukti pendokumentasian form evaluasi,SOP Evaluasi Kinerja SDM,Sistem KPI terintegrasi digital & obyektif
+10,1,Ketersediaan dokumen Kode Etik Amil,Buku Pedoman Kode Etik Amil,Tidak ada Kode Etik & Pakta Integritas
+10,2,Pembacaan & penandatanganan pakta,Pakta Integritas Tanda Tangan Amil,"Ada Kode Etik, tanpa deklarasi benturan"
+10,3,Kewajiban deklarasi benturan kepentingan,Form Deklarasi Benturan Kepentingan,"Ada Pakta Integritas, sosialisasi minim"
+10,4,Penanganan penanganan benturan fungsi,SOP Penanganan Pelanggaran Etik,Kode Etik disosialisasikan & ditandatangani
+10,5,Bukti sosialisasi kode etik ke amil,Register Kejadian Conflict of Interest,Penerapan Kode Etik & deklarasi 100% aktif
+11,1,Garis pelaporan KSIA langsung ke Dewas,SK Pembentukan KSIA/SPI,Tidak ada fungsi Audit Internal/KSIA
+11,2,Ketersediaan Piagam Audit Internal,Internal Audit Charter (Piagam Audit),KSIA di bawah pelaksana/direksi eksekutif
+11,3,Bebas dari intervensi operasional,Piagam Penugasan KSIA kepada Dewas,"KSIA independen, Piagam Audit belum lengkap"
+11,4,Akses penuh KSIA ke dokumen/data,Laporan Audit Periodik KSIA,"KSIA independen, lapor langsung ke Ketua Dewas"
+11,5,Pelaksanaan audit berbasis risiko,,KSIA sepenuhnya independen & terstruktur
+12,1,Ketersediaan Rencana Pelatihan SDM,Rencana Pelatihan Tahunan (Training Plan),Tidak ada program pelatihan amil
+12,2,Alokasi anggaran pengembangan amil,Sertifikat Sertifikasi Amil (LSP/BNSP),Pelatihan insidental tanpa perencanaan
+12,3,Rasio amil tersertifikasi LSP/BNSP,Rekapitulasi Jam Pelatihan per Amil,"Pelatihan terencana, sertifikasi <30% amil"
+12,4,Pelaksanaan pelatihan berkesinambungan,Evaluasi pasca-pelatihan (Training Evaluation),Pelatihan terencana & sertifikasi >60% amil
+12,5,Evaluasi dampak pasca-pelatihan,Anggaran Pengembangan SDM di RKAT,Pelatihan kontinyu & sertifikasi >85% amil
+13,1,Kelengkapan identifikasi jenis risiko,Dokumen Matriks Risk Register,Tidak ada Risk Register
+13,2,Penilaian dampak dan probabilitas,SOP Manajemen Risiko Lembaga,"Risk Register ada, tidak pernah diperbarui"
+13,3,Ketersediaan rencana mitigasi risiko,Laporan Pemantauan Profil Risiko,Risk Register mencakup sebagian risiko
+13,4,Periodisitas pembaruan Risk Register,Matriks Mitigasi Risiko per Unit,Risk Register komprehensif & diperbarui
+13,5,Penanggung jawab risk owner per unit,Notulensi Tinjauan Risiko Berkala,Risk Register aktif & mitigasi berjalan 100%
+14,1,Komitmen tertulis anti-penyuapan,Pedoman SMAP (ISO 37001:2016),Tidak ada kebijakan Anti-Penyuapan
+14,2,Batasan penerimaan hadiah/gratifikasi,Komitmen Anti-Penyuapan Manajemen,"Kebijakan ada, belum ada SOP Gratifikasi"
+14,3,SOP penanganan tindakan pemerasan,SOP Penanganan Gratifikasi,"Kebijakan & SOP ada, sosialisasi terbatas"
+14,4,Bukti sosialisasi ke eksternal/mitra,Form Pelaporan Penerimaan Hadiah,Kebijakan SMAP berjalan & disosialisasi
+14,5,Penerapan fungsi kepatuhan SMAP,Bukti Sosialisasi Anti-Penyuapan,Sertifikasi ISO 37001 / SMAP diterapkan penuh
+15,1,Ketersediaan media kanal pengaduan,SOP Pengelolaan WBS,Tidak ada kanal WBS
+15,2,Aksesibilitas bagi publik dan internal,Media Kanal WBS (Email/Web/WA Khusus),"Ada kanal WBS, pengelolaan tidak jelas"
+15,3,Jaminan kerahasiaan identitas pelapor,Register Laporan WBS masuk,"Kanal WBS aktif, jaminan pelapor belum ada"
+15,4,Prosedur penanganan laporan masuk,Laporan Hasil Investigasi WBS,"WBS aktif, rahasia & ditindaklanjuti"
+15,5,Pelaporan tindak lanjut investigasi,SK Tim Pengelola WBS Independen,"WBS terintegrasi, independen & transparan"
+16,1,Prosedur verifikasi legalitas vendor,SOP Due Diligence Pihak Ketiga,Tanpa Due Diligence vendor/mitra
+16,2,Pemeriksaan rekam jejak integritas,Form Verifikasi Vendor/Mitra,Due Diligence hanya untuk nilai besar
+16,3,Evaluasi potensi benturan kepentingan,Dokumen Legalitas & Integritas Vendor,"Due Diligence berjalan, bukti belum tertata"
+16,4,Penandatanganan pakta anti-suap,Hasil Penilaian Kelayakan Vendor,Due Diligence konsisten untuk semua mitra
+16,5,Dokumentasi penilaian risiko mitra,Pakta Integritas Anti-Suap Vendor,Due Diligence ketat + Pakta Integritas Vendor
+17,1,Penetapan ambang batas nominal,Batas Nilai Toleransi Gratifikasi Internal,Tidak ada batasan/larangan gratifikasi
+17,2,Kewajiban pencatatan pada logbook,Logbook Pencatatan Gifts & Hospitality,"Larangan ada, tanpa batas nominal jelas"
+17,3,Prosedur pelaporan penerimaan hadiah,Bukti Penyerahan Gratifikasi ke Lembaga,"Ada batas nominal, belum ada logbook"
+17,4,Penyerahan gratifikasi ke lembaga,Surat Imbauan Anti-Gratifikasi ke Mitra,"Batasan jelas, logbook gratifikasi tercatat"
+17,5,Pemantauan berkala oleh Tim SMAP,Laporan Pengawasan Anti-Gratifikasi,"Pengendalian ketat, imbauan ke mitra aktif"
+18,1,Ketersediaan SOP investigasi khusus,SOP Investigasi Pelanggaran Integritas,Pelanggaran dibiarkan/tanpa investigasi
+18,2,Keabsahan Berita Acara Pemeriksaan,Berita Acara Pemeriksaan (BAP),Investigasi insidental tanpa SOP BAP
+18,3,Objektivitas tim penangan kasus,Surat Keputusan Sanksi Pelanggaran,"BAP ada, penjatuhan sanksi tidak konsisten"
+18,4,Konsistensi penjatuhan sanksi etika,Laporan Tindak Lanjut Investigasi,"Investigasi terstruktur, sanksi sesuai aturan"
+18,5,Pelaporan tindak lanjut ke manajemen,Register Kasus Pelanggaran Etik,"Penanganan profesional, transparan & tuntas"
+19,1,Cakupan seluruh fungsi operasional,Master Dokumen SOP Lembaga,Tidak ada SOP tertulis
+19,2,Keabsahan pengesahan Direksi,SK Pengesahan SOP oleh Direksi,"SOP ada sebagian, belum disahkan resmi"
+19,3,Pengendalian revisi dan versi SOP,Bukti Distribusi SOP ke Unit Kerja,"SOP disahkan, belum terdistribusi merata"
+19,4,Bukti distribusi resmi ke unit kerja,Matriks Daftar Induk Dokumen SOP,"SOP lengkap, disahkan & terdistribusi"
+19,5,Pemahaman amil terhadap SOP kerja,Bukti Sosialisasi SOP ke Amil,"Master SOP lengkap, terkontrol & terupdate"
+20,1,Ketersediaan jadwal audit mutu tahunan,Jadwal Program Audit Mutu Internal,Tidak ada Audit Mutu Internal
+20,2,Kompetensi & independensi auditor mutu,Laporan Hasil Audit Mutu Internal,Audit Mutu dilakukan insidental
+20,3,Penjangkauan audit ke unit cabang,Checklist Pemeriksaan SOP di Lapangan,"Audit Mutu tahunan, belum mencakup cabang"
+20,4,Kelengkapan lembar kerja audit (checklist),SK Penunjukan Auditor Mutu Internal,Audit Mutu berkala di pusat & cabang
+20,5,Penyampaian Laporan Hasil Audit Mutu,Berita Acara Closing Meeting Audit,Audit Mutu terstruktur & terevaluasi penuh
+21,1,Penetapan standar kecepatan layanan,Dokumen SLA Layanan Muzaki/Mustahik,Tidak ada SLA layanan
+21,2,Pemantauan SLA layanan muzaki,Laporan Capaian Target Mutu Unit,"SLA ada, tidak pernah dipantau"
+21,3,Pemantauan SLA layanan mustahik,Grafik Monitoring Respon Service Time,"SLA dipantau, tanpa laporan capaian"
+21,4,Pencatatan waktu respon (response time),Laporan Dashboard Kinerja Layanan,SLA dipantau berkala & target tercapai
+21,5,Evaluasi berkala pencapaian SLA,Form Evaluasi Layanan Konsumen,SLA terukur presisi & melampaui target
+22,1,Pencatatan setiap temuan tidak sesuai,SOP Permintaan Tindakan Korektif (PTK),Ketidaksesuaian dibiarkan tanpa PTK
+22,2,Pelaksanaan analisis akar masalah,Form Register Ketidaksesuaian (NC),"PTK dibuat, tidak ada verifikasi perbaikan"
+22,3,Penetapan batas waktu perbaikan PTK,Laporan Status Penyelesaian PTK,"PTK ditindaklanjuti, analisis akar masalah minim"
+22,4,Verifikasi efektivitas perbaikan,Bukti Verifikasi Efektifitas Perbaikan,Mekanisme PTK berjalan & diverifikasi
+22,5,Pencegahan berulangnya ketidaksesuaian,Matriks Analisis Root Cause,PTK efektif mencegah temuan berulang
+23,1,Pelaksanaan RTM secara periodik,Notulensi Rapat Tinjauan Manajemen (RTM),Tidak pernah menyelenggarakan RTM
+23,2,Kehadiran seluruh Unsur Pimpinan,Undangan & Daftar Hadir RTM,RTM diselenggarakan tidak teratur
+23,3,Pembahasan hasil audit & kinerja mutu,Dokumen Bahan Presentasi RTM,"RTM tahunan, tanpa action plan jelas"
+23,4,Penetapan action plan perbaikan,Matriks Keputusan & Action Plan RTM,RTM berkala dengan action plan terstruktur
+23,5,Pemantauan realisasi keputusan RTM,Laporan Evaluasi Hasil RTM Sebelumnya,RTM efektif & action plan terealisasi 100%
+24,1,Kebijakan tata kelola kearsipan,SOP Pengendalian Dokumen & Rekaman,Arsip berantakan & berisiko hilang
+24,2,Keamanan fisik dan digital arsip,Daftar Induk Catatan Mutu/Arsip,Arsip disimpan tanpa sistem penomoran
+24,3,Ketersediaan penomoran & indexing,Prosedur Backup & Retensi Arsip,"Arsip rapi, prosedur retensi belum ada"
+24,4,Penetapan masa retensi dokumen,Ruang/Sistem Filing Arsip Terkunci,Pengendalian arsip terstruktur & aman
+24,5,Kemudahan penelusuran kembali (retrieval),Jadwal Pemusnahan/Inaktif Arsip,Sistem arsip digital & fisik terintegrasi
+25,1,Kebenaran format BSZ resmi lembaga,Format Resmi BSZ Cetak/Digital,Penerimaan tanpa BSZ resmi
+25,2,Mencantumkan NPWZ muzaki secara valid,Register Penerbitan BSZ Bulanan,BSZ diterbitkan jika diminta muzaki saja
+25,3,Ketepatan waktu penerbitan BSZ,Database Nomor Pokok Wajib Zakat (NPWZ),"BSZ diterbitkan 100%, NPWZ belum rapi"
+25,4,Kelengkapan rincian jenis dana,Sample BSZ Transaksi Terpilih,BSZ resmi mencantumkan NPWZ terkirim
+25,5,Kelengkapan sistem pengiriman BSZ,SOP Penerbitan & Pengiriman BSZ,BSZ terintegrasi otomatis ke WA/Email
+26,1,Rekening penerima atas nama entitas resmi,Daftar Rekening Bank Terdaftar Lembaga,Campaign menggunakan rekening pribadi
+26,2,Keabsahan izin penggalangan publik,MoU dengan Platform Digital / Payment Gateway,"Rekening atas nama lembaga, tanpa kesepakatan mitra"
+26,3,Transparansi potongan biaya campaign,Legalitas Landing Page / Web Campaign,"Rekening resmi, izin campaign belum terpusat"
+26,4,Keakuratan pencatatan mutasi digital,SOP Penggalangan Dana Digital,Rekening resmi lembaga & gateway legal
+26,5,Kepatuhan akad penggalangan online,Laporan Rekonsiliasi Midtrans/Gateway,Penggalangan digital 100% transparan & terverifikasi
+27,1,Pemisahan fisik rekening per pos dana,Daftar Rekening Bank per Jenis Dana,Seluruh dana bercampur di 1 rekening
+27,2,Tidak adanya commingling dana,Surat Konfirmasi Bank atas Nama Rekening,Terpisah antara ZIS dan Amil saja
+27,3,Kesesuaian nama rekening dengan peruntukan,SOP Pengelolaan Rekening Bank,"Terpisah Zakat, Infak, Amil; Wakaf bercampur"
+27,4,Kejelasan otorisasi spesimen bank,Laporan Saldo Bank per Rekening Dana,"Rekening Zakat, Infak, Wakaf, Amil terpisah tegas"
+27,5,Rekonsiliasi mutasi antar rekening,Ketetapan Direksi tentang Struktur Rekening,Rekening terpisah 100% & tanpa penyusupan dana
+28,1,"Kepatuhan porsi amil zakat (max 12,5%)",Kebijakan Alokasi Hak Amil Lembaga,"Hak Amil melebihi 12,5% Zakat / 20% Infak"
+28,2,Kepatuhan porsi amil infak (max 20%),"Laporan Perhitungan Amil dari Zakat (max 12,5%)",Potongan amil manual tanpa batas terukur
+28,3,Keakuratan dasar perhitungan porsi,Laporan Perhitungan Amil dari Infak (max 20%),"Sesuai batas, pencatatan jurnal sering terlambat"
+28,4,Ketepatan waktu pemotongan amil,Jurnal Pemotongan Hak Amil,Proporsi Hak Amil akurat & sesuai batas
+28,5,Pengungkapan transparan pada CALK,CALK Rincian Dana Amil,"Hak Amil presisi, terkontrol & terposting otomatis"
+29,1,Prosedur Know Your Donor (KYD),SOP Screening APU-PPT Donor,Tanpa prosedur screening APU-PPT
+29,2,Screening identitas terhadap DTTOT,Form Know Your Donor (KYD),Screening hanya dilakukan jika diminta bank
+29,3,Penanganan penerimaan dana anonim,Daftar Terduga Teroris & Organisasi Teror (DTTOT),"Screening ada, pengecekan DTTOT belum rutin"
+29,4,Pelaporan transaksi mencurigakan,Laporan Transaksi Keuangan Mencurigakan (LTKM),SOP APU-PPT berjalan & pengecekan DTTOT aktif
+29,5,Penerapan ambang batas pencatatan,Bukti Screening Transaksi Besar,Screening otomatis terintegrasi database DTTOT
+30,1,Kejujuran narasi dan klaim program,Pedoman Etika Kehumasan & Campaign,Pemasaran mengeksploitasi/menyesatkan
+30,2,Penghormatan atas martabat mustahik,Sample Media Promosi / Flayer / Video,"Pemasaran etis, tanpa persetujuan mustahik"
+30,3,Ketersediaan informed consent foto/video,Form Informed Consent Foto Mustahik,"Ada persetujuan foto, klaim campaign berlebihan"
+30,4,Bebas dari eksploitasi kemiskinan,SOP Verifikasi Narasi Program,"Konten promosi etis, jujur & bersurat izin"
+30,5,Kesesuaian konten dengan nilai syariah,Laporan Review Konten oleh DPS/KSIA,"Promosi edukatif, etis & Informed Consent 100%"
+31,1,Ketersediaan form assessment kelayakan,SOP Penyaluran & Assessment Mustahik,Penyaluran tanpa survei & kelayakan
+31,2,Pelaksanaan survei verifikasi lapangan,Form Scoring Kelayakan Mustahik,Survei insidental tanpa form terstandar
+31,3,Kejujuran scoring tingkat kemiskinan,Berita Acara Hasil Survei Lapangan,"Form survei ada, Keputusan tanpa BAP"
+31,4,Keabsahan BAP tim kaji mustahik,Dokumentasi Foto Survei & BAP,Process survei & BAP kelayakan terstruktur
+31,5,Pembaruan data kelayakan berkala,SK/Rekomendasi Tim Kelayakan Mustahik,"Assessment objektif, terkomputerisasi & valid"
+32,1,Ketepatan alokasi pada 8 Asnaf,Laporan Distribusi Zakat per Asnaf,Zakat disalurkan ke luar 8 Asnaf
+32,2,Kebenaran verifikasi status Asnaf,Mapping Program terhadap 8 Asnaf,"Penyaluran 8 Asnaf, bukti penerima minim"
+32,3,Tidak ada penyaluran zakat di luar asnaf,Kuitansi Tanda Terima Mustahik,"Tepat 8 Asnaf, pemetaan program belum terinci"
+32,4,Keabsahan kuitansi penerimaan mustahik,Sample Berkas Asnaf (Fakir/Miskin/dll),Penyaluran 100% tepat pada 8 Asnaf
+32,5,Pendokumentasian pemetaan asnaf,Opini Syariah DPS atas Pemetaan Asnaf,Penyaluran tepat Asnaf + dampak terukur
+33,1,Pemenuhan spesifikasi akad donatur,Register Akad Infak Terikat (Restricted),Dana terikat dipakai untuk program lain
+33,2,Ketepatan waktu realisasi program,Laporan Penyerahan Program Terikat,"Sesuai akad, LPJ ke donatur tidak dibuat"
+33,3,Ketersediaan LPJ khusus donatur,Bukti Transfer/Kuitansi Penyaluran,"Sesuai akad, LPJ sering terlambat"
+33,4,Tidak ada pengalihan dana tanpa izin,Laporan Pertanggungjawaban (LPJ) Khusus,Penyaluran tepat akad & LPJ dikirim
+33,5,Pencatatan akurat saldo dana terikat,Surat Konfirmasi Selesai ke Donatur,Akad terpenuhi 100% + LPJ Realtime/Digital
+34,1,Ketersediaan studi kelayakan usaha,Dokumen Studi Kelayakan Program (Feasibility),Program produktif tanpa pendampingan
+34,2,Pelaksanaan pendampingan intensif,SOP Pendampingan Program Produktif,"Ada program, tanpa studi kelayakan awal"
+34,3,Pemantauan perkembangan omzet mustahik,Modul & Laporan Jam Pendampingan,"Ada studi kelayakan, evaluasi dampak minim"
+34,4,Pengukuran graduasi mustahik ke muzaki,Laporan Omzet/Perkembangan Mustahik,Program Produktif terstruktur & didampingi
+34,5,Evaluasi keberlanjutan usaha,Evaluasi Kenaikan Status Mustahik ke Muzaki,Pendampingan intensif & Mustahik-to-Muzaki terukur
+35,1,Batasan rasio biaya pendukung salur,Kebijakan Batas Beban Salur Program,Biaya operasional salur memakan >30% bantuan
+35,2,Efisiensi alokasi biaya distribusi,Laporan Realisasi Beban Program vs Bantuan,"Batas biaya ada, sering terlampaui"
+35,3,Pengawasan pengeluaran riil lapangan,SOP Penganggaran Penyaluran,"Wajar, belum ada kebijakan tertulis"
+35,4,Rasionalitas beban operasional program,Analisis Rasio Operasional Penyaluran,Biaya operasional salur efisien & terkontrol
+35,5,Kepatuhan terhadap SOP penganggaran,CALK Rincian Beban Penyaluran,Penyaluran sangat efisien (beban langsung minimal)
+36,1,Pelaksanaan survei kepuasan mustahik,Form Survei Kepuasan Mustahik,Tidak pernah mengukur kepuasan/dampak
+36,2,Penghitungan Indeks Kepuasan (IKM),Laporan Indeks Kepuasan Mustahik (IKM),"Ada survei kepuasan, tanpa laporan IKM"
+36,3,Pengukuran dampak sosial (SROI),Dokumen Laporan Pengukuran SROI Program,"IKM diukur, SROI belum pernah dihitung"
+36,4,Tindak lanjut atas keluhan mustahik,Rekapitulasi Penanganan Keluhan Mustahik,IKM & SROI diukur secara berkala
+36,5,Pelaporan hasil evaluasi ke manajemen,Laporan Evaluasi Pihak Ketiga/Independen,Pengukuran SROI komprehensif oleh pakar/internal
+37,1,Penyajian utuh 5 komponen Laporan Keuangan Standar PSAK 409,Laporan Keuangan Konsolidasi 5 Standar PSAK 409 Lapor Resmi,Laporan Keuangan tidak sesuai PSAK 409 & tanpa audit trail
+37,2,Keberadaan & ketersediaan kertas kerja ACC_Akuntansi / General Ledger,Kertas Kerja Akuntansi / Spreadsheet Buku Besar / Trial Balance Data (ACC_Akuntansi),5 Laporan disajikan tapi rincian ACC_Akuntansi perwakilan butuh waktu rekonsiliasi manual
+37,3,Keterandalan jejak audit (audit trail) dari Perwakilan ke Konsolidasi,Lembar Kerja Rekonsiliasi & Eliminasi Intercompany / Perwakilan,"Laporan 5 PSAK 409 utuh, audit trail ada namun belum otomatisasi penuh"
+37,4,Kebenaran mutasi & eliminasi transaksi antar-cabang/perwakilan,System Export Log / Database Extraction dari Sistem Akuntansi,"Laporan PSAK 409 utuh, audit trail valid, rekonsiliasi 100% match"
+37,5,Kesesuaian closing date dan kelengkapan pengungkapan CALK,Catatan atas Laporan Keuangan (CALK) & Laporan Auditor Eksternal,"Laporan PSAK 409 presisi, terinci, audit trail digital terkunci ERP, transparan & WTP"
+38,1,Rincian penyaluran per 8 Asnaf secara spesifik,Dokumen CALK Lengkap,CALK tidak ada / sangat singkat
+38,2,Rincian operasional & hak amil pada CALK,Tabel Rincian Penyaluran 8 Asnaf pada CALK,"CALK ada, rincian Asnaf & Amil tidak ada"
+38,3,Pengungkapan rincian beban amil secara terpisah,Tabel Rincian Beban & Hak Amil pada CALK,"CALK menyajikan Asnaf, beban amil belum rinci"
+38,4,Kebijakan akuntansi ZISWAF yang diterapkan,Pengungkapan Kebijakan Akuntansi ZIS,CALK menyajikan Asnaf & Amil secara rinci dan terpisah
+38,5,Catatan peristiwa penting setelah tanggal neraca,Catatan Peristiwa Setelah Tanggal Neraca (Post Balance Sheet Event),"CALK sangat informatif, terinci, transparan, dan terverifikasi"
+39,1,Keberadaan rekening bank khusus Dana Non-Halal,Rekening Bank Khusus Dana Non-Halal,Dana Non-Halal bercampur dalam rekening ZIS/Amil
+39,2,Pencatatan jurnal terpisah dari dana ZIS/Amil,Jurnal / Ledger Khusus Dana Non-Halal,"Pencatatan terpisah, tetapi rekening bank masih bergabung"
+39,3,Kesesuaian penggunaan dana non-halal untuk fasilitas umum,Laporan Penggunaan Dana Non-Halal,"Rekening terpisah, penggunaan dana tanpa arahan DPS"
+39,4,Adanya persetujuan/arahan Dewan Pengawas Syariah (DPS),Surat Arahan / Persetujuan DPS atas Penyaluran,Rekening & pencatatan terpisah + ada persetujuan DPS
+39,5,Ketersediaan bukti penyaluran/fasum dana non-halal,Bukti Salur / Kwitansi Dana Non-Halal (Fasum),"Pengelolaan Dana Non-Halal tuntas, steril, & terverifikasi 100%"
+40,1,Pencatatan inventaris aset kelolaan/kebajikan,Kebijakan Pencatatan Aset Kelolaan,Aset kelolaan tidak dicatat / dibebankan langsung
+40,2,Pelaksanaan uji penurunan nilai secara berkala,Daftar Inventaris Aset Kebajikan/Program,"Inventaris ada, tidak ada mekanisme cadangan penurunan nilai"
+40,3,Formulasi & rasio perhitungan cadangan penurunan nilai,Form / Kertas Kerja Perhitungan Penurunan Nilai Aset,Cadangan dihitung manual tanpa dasar formulasi terukur
+40,4,Kesesuaian posting jurnal cadangan penurunan nilai,Jurnal Cadangan Penurunan Nilai,Cadangan dihitung & dicatat sesuai kriteria akuntansi
+40,5,Hasil stock opname & penilaian kondisi fisik aset,Laporan Stock Opname Aset Kelolaan,"Penilaian penurunan nilai tuntas, teruji fisik & terintegrasi sistem"
+41,1,Pelaksanaan rekonsiliasi rutin setiap akhir bulan,Berita Acara Rekonsiliasi Bulanan,Tidak pernah melakukan rekonsiliasi
+41,2,Penyandingan saldo kas/bank operasional vs General Ledger,Form Lembar Kerja Rekonsiliasi Operasional-Keuangan,Rekonsiliasi dilakukan >1 bulan sekali & selisih diabaikan
+41,3,Penanganan & penyesuaian selisih (outstanding items),Jurnal Penyesuaian Selisih Rekon,"Rekonsiliasi bulanan berjalan, selisih masih diproses"
+41,4,Kelengkapan persetujuan (sign-off) dari Tim Keuangan,"Tanda Tangan Kasir, Program, & Accounting","Rekonsiliasi rutin bulanan, 100% reconcile dengan BA sah"
+41,5,Ketersediaan matriks monitoring selisih rekon,Matriks Monitoring Selisih Rekon,"100% reconcile otomatis sistem, BA digital lengkap & valid"
+42,1,Identifikasi akun-akun berisiko tinggi,SOP Penelaahan Transaksi Berisiko,Tidak ada peninjauan internal transaksi
+42,2,Otorisasi bertingkat pengeluaran besar,Checklist Review Keuangan Internal,Peninjauan insidental tanpa checklist
+42,3,Penelaahan ulang (review) oleh KSIA,Laporan Penelaahan KSIA atas Keuangan,"Peninjauan berjalan, keterlibatan KSIA minim"
+42,4,Kelengkapan kertas kerja penelaahan,Form Otorisasi Khusus Transaksi Besar,Peninjauan transaksi berisiko berjalan rutin
+42,5,Tindak lanjut perbaikan awal,BA Pembahasan Hasil Penelaahan Internal,Peninjauan sistemis + otorisasi digital ketat
+43,1,Legalitas KAP terdaftar di Kemenag,Laporan Audit Independent KAP (LHK),Laporan Keuangan tidak diaudit KAP
+43,2,Opini audit independen (WTP),Surat Izin Operasional KAP dari Kemenkeu,"Diaudit KAP, Opini Tidak Memberikan Pendapat/Tidak Wajar"
+43,3,Ketepatan waktu penyelesaian audit,Bukti Terdaftar KAP di Kemenag/BAZNAS,"Diaudit KAP, Opini Wajar Dengan Pengecualian (WDP)"
+43,4,Kelengkapan paket LHK KAP,Opini Auditor Independen (WTP),"Diaudit KAP terdaftar, Opini WTP"
+43,5,Kredibilitas dan independensi KAP,Transkrip Komunikasi KAP dengan Dewas,"Diaudit KAP Bereputasi & Terdaftar, Opini WTP"
+44,1,Formula perhitungan rasio amil,Form Perhitungan Rasio Efisiensi Amil,Rasio Amil >15% (Melanggar batas)
+44,2,"Batas aman rasio amil zakat ($\le$12,5%)",Grafik Trend Rasio Amil 3 Tahun,"Rasio Amil 12,6% - 15%"
+44,3,Batas aman rasio amil infak ($\le$20%),Perbandingan Beban Amil vs ZIS,"Rasio Amil Tepat 12,5%"
+44,4,Trend efisiensi rasio tahunan,CALK Pengungkapan Rasio Amil,Rasio Amil Efisien (10% - 12.4%)
+44,5,Evaluasi pengendalian biaya internal,Laporan Evaluasi Efisiensi KSIA,Rasio Amil Sangat Efisien (<10%)
+45,1,Formula perbandingan salur vs himpun,Form Perhitungan Allocation Ratio,Allocation Ratio <50% (Penumpukan dana)
+45,2,Pencapaian target allocation ($\ge$80%),Laporan Perbandingan Salur vs Himpun,Allocation Ratio 50% - 69%
+45,3,Laju perputaran dana ZIS (turnover),Matriks Turnover Dana ZIS,Allocation Ratio 70% - 79%
+45,4,Penanganan idle fund (dana mengendap),Laporan Target Penyaluran Tahunan,Allocation Ratio 80% - 89% (Sesuai target)
+45,5,Konsistensi penyaluran sepanjang tahun,Evaluasi Kinerja Penyaluran KSIA,Allocation Ratio $\ge$90% (Sangat Efektif)
+46,1,Ketersediaan Kas & Setara Kas Amil,Form Perhitungan Rasio Likuiditas Amil,Likuiditas Operasional <1 bulan (Kritis)
+46,2,Ketahanan membiayai operasional amil,Analisis Cash Flow Operasional Amil,Likuiditas Operasional 1 - 2 bulan
+46,3,Rasio likuiditas minimal 3-6 bulan,Laporan Saldo Kas & Setara Kas Amil,Likuiditas Operasional 3 - 4 bulan
+46,4,Keakuratan proyeksi arus kas,Proyeksi Belanja Operasional 6 Bulan,Likuiditas Operasional 5 - 6 bulan (Aman)
+46,5,Pengelolaan dana cadangan operasional,Matriks Ketahanan Modal Kerja,Likuiditas Operasional >6 bulan (Sangat Kuat)
+47,1,Pencatatan setiap catatan/temuan KAP,Dokumen Management Letter dari KAP,Management Letter diabaikan
+47,2,Penyusunan matriks tindak lanjut,Matriks Tindak Lanjut Catatan KAP (TLKAP),"Ada matriks tindak lanjut, penyelesaian <50%"
+47,3,Penetapan penanggung jawab perbaikan,Surat Tanggapan Manajemen ke KAP,Penyelesaian catatan KAP 50% - 80%
+47,4,Realisasi perbaikan sebelum audit baru,Bukti Perbaikan Sistem/Jurnal Koreksi,Penyelesaian catatan KAP >85%
+47,5,Verifikasi penyelesaian oleh KSIA,Laporan Verifikasi KSIA atas Catatan KAP,Catatan KAP 100% tuntas & terevaluasi
+48,1,Kepatuhan batas waktu pengiriman LHK,Surat Pengantar Laporan Audit ke Kemenag,Laporan Audit KAP tidak pernah dikirim
+48,2,Bukti tanda terima resmi dari Kemenag,Tanda Terima Pengiriman Laporan Kemenag,Dikirim terlambat >6 bulan dari deadline
+48,3,Bukti tanda terima resmi dari BAZNAS,Surat Pengantar Laporan Audit ke BAZNAS,Dikirim terlambat 1-3 bulan dari deadline
+48,4,Kelengkapan lampiran laporan keuangan,Tanda Terima Pengiriman Laporan BAZNAS,Dikirim tepat waktu ke Kemenag & BAZNAS
+48,5,Konfirmasi penerimaan surat pengantar,Bukti Tanda Terima Digital / Aplikasi,Dikirim lebih awal + Konfirmasi penerimaan resmi
+49,1,Periodisitas rapat pleno berkala DPS,Undangan & Daftar Hadir Rapat Pleno DPS,DPS tidak pernah rapat / pasif
+49,2,Kelengkapan notulensi rapat DPS,Notulensi Rapat Pleno DPS Terjadwal,Rapat DPS insidental (<2x semesta)
+49,3,Pelaksanaan pengawasan langsung lapangan,Jadwal Program Pengawasan Tahunan DPS,"Rapat DPS rutin, notulensi kurang lengkap"
+49,4,Tingkat kehadiran Anggota DPS,Laporan Kunjungan Supervisi DPS,"Rapat Pleno DPS rutin, teratur & ada notulen"
+49,5,Pendokumentasian arahan syariah,Dokumentasi Foto Kegiatan Pleno DPS,"Pengawasan DPS sangat aktif, terstruktur & rinci"
+50,1,Penerbitan Opini Syariah produk baru,Surat Opini Syariah Produk Campaign Baru,Produk/Program baru tanpa reviu DPS
+50,2,Review akad penggalangan dana,Surat Rekomendasi Program Penyaluran Baru,Reviu DPS verbal tanpa Surat Opini resmi
+50,3,Review akad penyaluran program,Form Pengajuan Review Syariah dari Eksekutif,Surat Opini ada untuk sebagian produk baru
+50,4,Pendokumentasian Surat Rekomendasi,Register Produk Terbit Sertifikasi DPS,100% Produk/Program baru ber-Opini DPS
+50,5,Evaluasi kesesuaian pasca-peluncuran,Notulensi Kajian DPS atas Produk,Opini Syariah komprehensif & terdokumentasi rapi
+51,1,Pelaksanaan review Laporan Keuangan,Lembar Opini Syariah Laporan Keuangan,DPS tidak memberikan Opini Syariah Keuangan
+51,2,Penetapan Opini Syariah atas LHK,Berita Acara Review Laporan Keuangan oleh DPS,Opini Syariah diberikan tanpa review laporan
+51,3,Keabsahan tanda tangan DPS di laporan,Checklist Kepatuhan Syariah Akuntansi,"Review dilakukan, Opini Syariah tertunda"
+51,4,Pengujian transaksi kepatuhan syariah,Tanda Tangan DPS pada Laporan Audit KAP,Opini Syariah Keuangan diterbitkan tepat waktu
+51,5,Ketepatan waktu penerbitan opini,Notulensi Paparan Keuangan di Depan DPS,Opini Syariah detail mencakup seluruh komponen
+52,1,Penetapan besaran dana non-halal,Surat Arahan DPS Penanganan Dana Non-Halal,Dana Non-Halal digunakan tanpa arahan DPS
+52,2,Arahan penggunaan dana non-halal,SK Penetapan Penerima Dana Non-Halal,"Ada arahan verbal, tanpa penetapan tertulis"
+52,3,Persetujuan sasaran penerima fasum,Berita Acara Penyucian Dana Non-Halal,"Penetapan tertulis ada, pelaporan penyucian tertunda"
+52,4,Pengawasan pelaksanaan penyucian,Laporan Saldo Dana Non-Halal ke DPS,Penanganan dana non-halal sesuai arahan DPS
+52,5,Pendokumentasian risalah keputusan,Notulensi Rapat Kaji Dana Non-Halal,"Arahan, penyucian & pelaporan tuntas sempurna"
+53,1,Pencatatan rekomendasi/saran DPS,Matriks Tindak Lanjut Rekomendasi DPS (TLDPS),Rekomendasi DPS tidak pernah ditindaklanjuti
+53,2,Ketersediaan matriks tindak lanjut DPS,Laporan Status Perbaikan Kepatuhan Syariah,Tindak lanjut <50% dari saran DPS
+53,3,Pelaksanaan perbaikan operasional,Surat Tanggapan Direksi atas Arahan DPS,Tindak lanjut 50% - 85% saran DPS
+53,4,Laporan progres tindak lanjut ke DPS,Bukti Perbaikan SOP/Operasional Syariah,Tindak lanjut >85% rekomendasi DPS
+53,5,Evaluasi penuntasan catatan syariah,Laporan Evaluasi Periodik Hasil TLDPS,Rekomendasi DPS 100% tuntas ditindaklanjuti
+54,1,Periodisitas pengiriman laporan DPS,Dokumen Laporan Pengawasan DPS Periodik,Laporan DPS tidak pernah dikirim ke regulator
+54,2,Bukti tanda terima Kemenag,Surat Pengantar Laporan DPS ke Kemenag,Dikirim jika diminta oleh regulator saja
+54,3,Bukti tanda terima BAZNAS,Tanda Terima Laporan DPS dari Kemenag,Dikirim tahunan (harusnya per semester)
+54,4,Kelengkapan risalah & rekomendasi,Surat Pengantar Laporan DPS ke BAZNAS,Dikirim berkala tepat waktu ke BAZNAS & Kemenag
+54,5,Ketepatan waktu penyampaian,Tanda Terima Laporan DPS dari BAZNAS,Pelaporan DPS sangat disiplin & responsif
+55,1,Pencatatan Laporan Hasil Audit Syariah,Matriks TLHAS Resmi Lembaga,Tidak ada Matriks TLHAS / Temuan dibiarkan
+55,2,Keberadaan Matriks TLHAS resmi,Laporan Realisasi Tindak Lanjut Audit Syariah,"Matriks ada, realisasi perbaikan <50%"
+55,3,Realisasi perbaikan temuan syariah,Surat Pengiriman TLHAS ke Itjen Kemenag,Realisasi perbaikan 50% - 85%
+55,4,Pengiriman TLHAS ke Itjen Kemenag,Tanda Terima TLHAS dari Kemenag/BAZNAS,Realisasi perbaikan >85% & dilaporkan
+55,5,Pendokumentasian bukti perbaikan,Bukti Pendukung Perbaikan Temuan Syariah,100% Temuan Audit Syariah tuntas diperbaiki
+56,1,Capaian skor Indeks Kepatuhan Syariah,Sertifikat / Surat Hasil Penilaian IKS,"Predikat IKS ""Tidak Baik"" / <60"
+56,2,Perolehan predikat resmi IKS,Laporan Hasil Audit Syariah Kemenag,"Predikat IKS ""Cukup"" (60 - 70)"
+56,3,Evaluasi atas indikator penilai IKS,Nilai Indeks Kepatuhan Syariah Resmi,"Predikat IKS ""Baik"" (71 - 80)"
+56,4,Peningkatan tren nilai IKS tahunan,Matriks Evaluasi Skor IKS Internal,"Predikat IKS ""Sangat Baik"" (81 - 90)"
+56,5,Ketersediaan sertifikat resmi IKS,Rencana Peningkatan Skor IKS,"Predikat IKS ""Sangat Baik / Utama"" (>90)"
+57,1,Ketersediaan akses data bagi auditor,Surat Tugas Penerimaan Tim Audit Syariah,Menolak / Menghambat Audit Syariah Regulator
+57,2,Kecepatan penyediaan dokumen sampel,Berita Acara Pembukaan/Penutupan Audit,Akses dokumen dibatasi / sangat lambat
+57,3,Dampingan penuh selama audit berlangsung,Checklist Ketersediaan Dokumen Sampling,"Kooperatif, dokumen sampling sebagian menyusul"
+57,4,Ketersediaan ruang & sarana audit,Surat Pernyataan Kooperatif Audit,Sangat kooperatif & dokumen lengkap disajikan
+57,5,Penandatanganan BA pembukaan/penutupan,Evaluasi Kinerja Penerimaan Tim Audit,Pelayanan audit sangat baik & akses data cepat
+58,1,Analisis akar penyebab temuan berulang,Daftar Analisis Temuan Berulang Syariah,Temuan berulang dibiarkan terus terjadi
+58,2,Pembaruan SOP penutup celah syariah,SOP Baru Hasil Perbaikan Temuan Berulang,"Ada niat perbaikan, temuan masih berulang"
+58,3,Sosialisasi perbaikan sistemik,Bukti Sosialisasi Sistem Syariah Perbaikan,"Perbaikan dilakukan, belum masuk SOP resmi"
+58,4,Pemantauan pencegahan oleh KSIA,Laporan Monitoring KSIA atas Temuan Berulang,Temuan berulang diperbaiki permanen via SOP
+58,5,Eliminasi penuh temuan berulang,SK Direksi Perubahan Sistem Pasca-Audit,"Sistem perbaikan efektif, temuan berulang 0%"
+59,1,Keberadaan SK Penyelia Syariah,SK Penunjukan Penyelia Kepatuhan Syariah,Tidak ada Penyelia Syariah Internal
+59,2,Pengawalan transaksi harian lapangan,Checklist Kepatuhan Syariah Harian/Mingguan,"Ada penunjukan, tanpa fungsi pengawasan harian"
+59,3,Konsultasi harian terkait syariah,Laporan Monitoring Kepatuhan Syariah Internal,"Monitoring harian berjalan, laporan insidental"
+59,4,Pelaksanaan checklist syariah harian,Sertifikat Pelatihan Syariah Penyelia,Penyelia Syariah aktif & laporan berkala rapi
+59,5,Pelaporan periodik kepatuhan harian,Logbook Konsultasi Syariah Harian Amil,Pengawasan harian syariah terstruktur & efektif
+60,1,Pelaksanaan review syariah atas SOP,Lembar Syariah Compliance Review SOP,SOP diterbitkan tanpa review syariah
+60,2,Pengesahan lembar review syariah,Stempel/Tanda Tangan Review Syariah di SOP,Review syariah hanya pada SOP penyaluran
+60,3,Penyesuaian klausa SOP sesuai fatwa,Register Matriks Review Syariah SOP,Review syariah pada sebagian besar SOP
+60,4,Pendokumentasian register review SOP,Catatan Koreksi Syariah atas SOP,100% SOP Lembaga telah di-review syariah
+60,5,Review ulang SOP secara berkala,SOP Pengesahan Peraturan Lembaga,Review syariah komprehensif pada seluruh SOP
+61,1,Publikasi LHK KAP di situs web resmi,Tangkapan Layar Publikasi di Website Resmi,Laporan Keuangan Audited tidak dipublikasi
+61,2,Publikasi ringkasan di media cetak/online,Bukti Potong Koran/Media Cetak Publikasi,Dipublikasi internal saja (terbatas)
+61,3,Ketersediaan unduhan Annual Report,Link Download Laporan Audit di Website,"Dipublikasi di web, format tidak lengkap"
+61,4,Kemudahan aksesibilitas oleh publik,E-Book Laporan Tahunan (Annual Report),Dipublikasi utuh di web/media sesuai aturan
+61,5,Ketepatan waktu jadwal publikasi,Bukti Siaran Pers Publikasi Laporan Keuangan,Dipublikasi interaktif di web + media massa
+62,1,Publikasi berkala laporan bulanan,Buletin / Majalah Lembaga Bulanan,Ringkasan laporan tidak pernah dipublikasi
+62,2,Kejelasan angka perolehan & salur,Link Publikasi Laporan Berkala di Web/Sosmed,Dipublikasi tahunan saja
+62,3,Visualisasi infografis penerimaan,Infografis Penyaluran ZIS Bulanan,Dipublikasi per semester
+62,4,Konsistensi pembaruan di media sosial,Dashboard Transparansi Realtime Web,Dipublikasi rutin bulanan/triwulanan di sosmed/web
+62,5,Ketersediaan dashboard transparansi,Laporan Ringkas Terkirim via Email Muzaki,Dashboard transparansi publik realtime/rutin
+63,1,Ketersediaan kanal pengaduan publik,Call Center / WhatsApp Center Resmi,Tidak ada kanal pengaduan layanan
+63,2,Kecepatan respon penanganan keluhan,SOP Penanganan Pengaduan Layanan,"Ada kanal, keluhan lambat/tidak direspon"
+63,3,Pencatatan register pengaduan masuk,Logbook Register Pengaduan Masuk & Tuntas,"Pengaduan direspon, tanpa logbook terstruktur"
+63,4,Penuntasan masalah hingga selesai,Laporan Respon Time Penanganan Pengaduan,Kanal pengaduan responsif & tercatat di logbook
+63,5,Survei kepuasan penanganan aduan,Survei Kepuasan Layanan Pengaduan,Layanan pengaduan 24/7 terintegrasi CRM
+64,1,Kecepatan pengiriman LPJ donatur,Sample Laporan Program Khusus Donatur,LPJ Program tidak pernah dikirim ke donor
+64,2,Kelengkapan foto & bukti penyaluran,Bukti Pengiriman LPJ via WA/Email/Kurir,LPJ dikirim jika diminta secara keras oleh donor
+64,3,Kesesuaian Laporan dengan donasi,Tanda Terima LPJ dari Muzaki/Donatur,"LPJ dikirim, sering terlambat dari jadwal"
+64,4,Ketersediaan fitur laporan digital,Sistem Portal Reporting Donatur Digital,LPJ dikirim tepat waktu & terformat rapi
+64,5,Kepuasan donatur atas laporan,Feedback Positif Donor atas LPJ,LPJ dikirim cepat + akses video/foto digital
+65,1,Penerapan kebijakan privasi data,Kebijakan Privasi & Data Protection Policy,Data muzaki/mustahik disebar bebas
+65,2,Penandatanganan NDA oleh amil,Agreement Kerahasiaan Data oleh Amil (NDA),"Ada perlindungan, tanpa aturan tertulis"
+65,3,Pembatasan hak akses database,Fitur Anonimitas Muzaki/Mustahik di System,"Aturan ada, amil belum ttd kesepakatan NDA"
+65,4,Fitur anonimitas nama publikasi,Hak Akses Terbatas pada Database Donor,Kebijakan Perlindungan Data & NDA terpasang
+65,5,Mitigasi pencegahan kebocoran data,SOP Penanganan Kebocoran Data,Keamanan data tersertifikasi / ISO 27001
+66,1,Ketepatan pengiriman Laporan Semester I,Laporan Pengelolaan ZIS Semester I & II,Laporan berkala tidak pernah disampaikan
+66,2,Ketepatan pengiriman Laporan Semester II,Tanda Terima Laporan dari Kemenag,Dikirim 1x semesta (terlambat)
+66,3,Keabsahan tanda terima Kemenag,Tanda Terima Laporan dari BAZNAS RI,"Dikirim semesteran lengkap, sedikit terlambat"
+66,4,Keabsahan tanda terima BAZNAS,Surat Pengantar Laporan Periodik,Laporan Semester I & II tepat waktu
+66,5,Konsistensi format pelaporan resmi,Bukti Upload Pelaporan di SIMZAT/SIMBA,Pelaporan semesteran konsisten + respon akui
+67,1,Ketersediaan skema integrasi SiMBA,Tangkapan Layar Sync Dashboard SiMBA,Tidak terintegrasi / tidak menginput ke SiMBA
+67,2,Rutinitas jadwal sinkronisasi data,SOP Integrasi Data Core System ke SiMBA,Input data ke SiMBA manual & sangat terlambat
+67,3,Keberhasilan transfer data via API,API Integration Log / Export File Log,Input data ke SiMBA rutin bulanan secara batch
+67,4,Kelengkapan log riwayat sinkronisasi,Surat Keterangan Integrasi dari BAZNAS,Integrasi data terjadwal & konsisten ke SiMBA
+67,5,Berita acara konsolidasi data SiMBA,BA Rekonsiliasi Data Sistem-SiMBA,Integrasi API Realtime / Auto-sync ke SiMBA
+68,1,Validitas NIK & NPWPmuzaki/mustahik,Sample Data Transaksi ter-upload di SiMBA,Data di SiMBA tidak valid / asal-asalan
+68,2,Kelengkapan rincian nominal transaksi,Hasil Validasi Identitas (NIK/NPWP) System,"Data terinput, NIK/NPWP >50% kosong"
+68,3,Ketepatan pemetaan asnaf di SiMBA,Logbook Update Data Harian/Mingguan,"Data valid, NIK/NPWP terisi >75%"
+68,4,Kebersihan data dari duplikasi (clean data),Matriks Clean Data Transaksi SiMBA,"Data valid, NIK/NPWP terisi >90% & updated"
+68,5,Ketepatan waktu pembaruan harian/mingguan,Surat Konfirmasi Validasi Data dari BAZNAS,"Data 100% valid, NIK/NPWP lengkap & presisi"
+69,1,Keaktifan akun resmi di SIMZAT,Profil Account Aktif di SIMZAT Kemenag,Profil SIMZAT tidak pernah diperbarui
+69,2,Kelengkapan pembaruan dokumen legalitas,Upload Berkas Legalitas Cabang di SIMZAT,Update SIMZAT jika ada teguran Kemenag
+69,3,Ketepatan waktu unggah berkas perizinan,Bukti Perpanjangan Profil di SIMZAT,"Update SIMZAT tahunan, sebagian data pending"
+69,4,Status verifikasi hijau dari Kemenag,Surat Tanda Pembaruan Data SIMZAT,Update profil & legalitas di SIMZAT rutin
+69,5,Sinkronisasi data pengurus di SIMZAT,Status Verification Green/Active di SIMZAT,SIMZAT 100% updated & terverifikasi Kemenag
+70,1,Pelaksanaan backup data harian otomatis,SOP IT Backup & Disaster Recovery (DRP),Tidak ada backup data rutin & DRP TI
+70,2,Penyimpanan backup di lokasi aman (offsite),Logbook Jadwal Backup Data Otomatis,"Backup data manual insidental, tanpa DRP"
+70,3,Ketersediaan dokumen DRP TI,Bukti Storage Backup Cloud / Offsite,"Backup rutin bulanan, DRP belum diuji coba"
+70,4,Simulasi recovery data berkala,Laporan Simulasi/Uji Coba DRP TI,Backup rutin harian offsite & DRP diuji coba
+70,5,Kecepatan pemulihan data saat insiden,Sertifikat/Audit Keamanan Sistem TI,Backup otomatis terenkripsi & DRP teruji penuh
+71,1,Pembatasan hak akses berbasis peran (RBAC),Matrix User Access Control (UAC) Sistem,Hak akses bebas / 1 akun dipakai bersama
+71,2,Keaktifan audit trail / log activity,SOP Otorisasi Login & Hak Akses TI,"Hak akses ada, tanpa pembatasan otorisasi"
+71,3,Pemisahan fungsi pembuat & pemutus data,Audit Log Activity User dalam Sistem,"Hak akses terbatas, Audit Log belum aktif"
+71,4,Evaluasi pembaruan hak akses berkala,SK Penetapan Admin & User Privilege,"UAC ketat, berjenjang & Audit Log tercatat"
+71,5,Keamanan kredensial & otentikasi ganda,Form Permohonan Perubahan Hak Akses,UAC berbasis peran ketat + Multi-Factor Auth
+72,1,Keselarasan total perolehan SiMBA vs KAP,Matriks Rekonsiliasi Data SiMBA vs KAP,Angka SiMBA dan Laporan KAP berbeda jauh
+72,2,Keselarasan total penyaluran SiMBA vs KAP,Total Angka Perolehan di SiMBA vs Laporan KAP,Beda angka >10% tanpa penjelasan rekon
+72,3,Ketersediaan berita acara rekonsiliasi data,Total Angka Penyaluran di SiMBA vs Laporan KAP,"Angka beda tipis (<5%), rekon masih proses"
+72,4,Penjelasan ilmiah atas selisih waktu/rekon,Berita Acara Rekonsiliasi Data SiMBA,Angka SiMBA & KAP sinkron & presisi (100%)
+72,5,Keandalan data konsolidasi nasional,Surat Konfirmasi Kesesuaian Data dari BAZNAS,Data SiMBA & KAP 100% sinkron + Berita Acara

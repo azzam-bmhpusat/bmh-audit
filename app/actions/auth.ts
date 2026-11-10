@@ -1,0 +1,151 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createClient } from "@/lib/supabase/server";
+import { loginSchema, gantiPasswordSchema } from "@/lib/schemas";
+import { namaToEmail } from "@/lib/auth/nama-email";
+
+export type AuthActionResult =
+  | { ok: true; redirectUrl?: string }
+  | { ok: false; error: string };
+
+/**
+ * Server action untuk autentikasi login (Nama + Password).
+ * Pesan kesalahan dibuat generik ("Nama atau password salah") untuk mencegah enumeration attack.
+ */
+export async function loginAction(
+  input: { nama: string; password: string }
+): Promise<AuthActionResult> {
+  const trimmedNama = (input.nama ?? "").trim();
+  const parsed = loginSchema.safeParse({
+    nama: trimmedNama,
+    password: input.password,
+  });
+
+  if (!parsed.success) {
+    const errorMsg =
+      parsed.error.issues[0]?.message || "Nama atau password salah";
+    return {
+      ok: false,
+      error: errorMsg,
+    };
+  }
+
+  const email = namaToEmail(parsed.data.nama);
+  const password = parsed.data.password;
+
+  const supabase = await createClient();
+  const { data, error: signInError } = await supabase.auth.signInWithPassword({
+    email,
+    password,
+  });
+
+  if (signInError || !data.user) {
+    console.error("[AUTH] Gagal login untuk email:", email, signInError?.message);
+    return {
+      ok: false,
+      error: "Nama atau password salah",
+    };
+  }
+
+  // Ambil role pengguna dari tabel profiles
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .single();
+
+  if (profileError || !profile || !profile.role) {
+    console.error("[AUTH] Profil/role tidak ditemukan untuk uid:", data.user.id);
+    await supabase.auth.signOut();
+    return {
+      ok: false,
+      error: "Profil akun tidak ditemukan",
+    };
+  }
+
+  // Path tujuan aman di tingkat server (selalu internal path diawali '/')
+  const targetPath = profile.role === "admin" ? "/nilai-audit" : "/audit";
+  revalidatePath("/", "layout");
+
+  return {
+    ok: true,
+    redirectUrl: targetPath,
+  };
+}
+
+/**
+ * Server action untuk keluar / logout.
+ */
+export async function logoutAction(): Promise<void> {
+  const supabase = await createClient();
+  await supabase.auth.signOut();
+  revalidatePath("/", "layout");
+  redirect("/");
+}
+
+/**
+ * Server action untuk mengganti password (mode wajib maupun sukarela).
+ */
+export async function gantiPasswordAction(
+  input: { passwordBaru: string; konfirmasiPassword: string }
+): Promise<AuthActionResult> {
+  const parsed = gantiPasswordSchema.safeParse(input);
+  if (!parsed.success) {
+    const errorMsg =
+      parsed.error.issues[0]?.message || "Format password baru tidak valid";
+    return {
+      ok: false,
+      error: errorMsg,
+    };
+  }
+
+  const supabase = await createClient();
+
+  // Pastikan user masih login
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return {
+      ok: false,
+      error: "Sesi telah berakhir. Silakan keluar lalu masuk kembali.",
+    };
+  }
+
+  // Update password di Supabase Auth
+  const { error: updateError } = await supabase.auth.updateUser({
+    password: parsed.data.passwordBaru,
+  });
+
+  if (updateError) {
+    console.error("[AUTH] Gagal memperbarui password:", updateError.message);
+    // Jika Supabase membutuhkan reautentikasi (secure password change)
+    if (
+      updateError.status === 401 ||
+      updateError.message.toLowerCase().includes("reauthentication") ||
+      updateError.message.toLowerCase().includes("recent login")
+    ) {
+      return {
+        ok: false,
+        error:
+          "Diperlukan autentikasi ulang untuk mengubah password. Silakan keluar lalu masuk kembali.",
+      };
+    }
+    return {
+      ok: false,
+      error: "Gagal memperbarui password. Silakan coba lagi.",
+    };
+  }
+
+  // Tandai password telah diganti di tabel profiles via RPC
+  const { error: rpcError } = await supabase.rpc("tandai_password_diganti");
+  if (rpcError) {
+    console.error("[AUTH] Gagal memanggil rpc tandai_password_diganti:", rpcError.message);
+  }
+
+  return { ok: true };
+}
