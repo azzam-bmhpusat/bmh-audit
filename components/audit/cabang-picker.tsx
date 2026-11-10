@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   Combobox,
   ComboboxContent,
@@ -43,11 +43,10 @@ export function CabangPicker({
 }: CabangPickerProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const searchParams = useSearchParams();
 
   // Opsi cabang untuk Combobox ({ value, label })
   const cabangOptions: CabangOption[] = React.useMemo(() => {
-    return cabangList.map((c) => ({
+    return (cabangList ?? []).map((c) => ({
       value: String(c.id),
       label: c.nama,
     }));
@@ -60,7 +59,8 @@ export function CabangPicker({
   }, [selectedCabangId, cabangOptions]);
 
   const handleCabangChange = (option: CabangOption | null) => {
-    const params = new URLSearchParams(searchParams.toString());
+    const currentSearch = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(currentSearch);
     if (option) {
       params.set("cabang", option.value);
     } else {
@@ -71,17 +71,18 @@ export function CabangPicker({
 
   const handlePeriodeChange = (periodeIdStr: string | null) => {
     if (!periodeIdStr) return;
-    const params = new URLSearchParams(searchParams.toString());
+    const currentSearch = typeof window !== "undefined" ? window.location.search : "";
+    const params = new URLSearchParams(currentSearch);
     params.set("periode", periodeIdStr);
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const showPeriodeSelect = periodeList.length > 1;
+  const showPeriodeSelect = (periodeList?.length ?? 0) > 1;
 
   return (
     <div className="flex flex-wrap items-center gap-4 p-4 rounded-lg border bg-card text-card-foreground">
       {/* 1. Pemilih Cabang (Combobox searchable) */}
-      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-[280px]">
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 flex-1 min-w-0 sm:min-w-[280px]">
         <Label htmlFor="cabang-picker" className="text-xs font-semibold shrink-0">
           Cabang / Perwakilan:
         </Label>
@@ -126,13 +127,13 @@ export function CabangPicker({
             <SelectTrigger
               id="periode-select"
               size="sm"
-              className="h-9 min-w-[200px] text-xs font-medium"
+              className="h-9 min-w-0 sm:min-w-[200px] text-xs font-medium"
               aria-label="Pilih Periode Audit"
             >
               <SelectValue placeholder="Pilih Periode..." />
             </SelectTrigger>
             <SelectContent align="end">
-              {periodeList.map((p) => (
+              {(periodeList ?? []).map((p) => (
                 <SelectItem key={p.id} value={String(p.id)} className="text-xs">
                   {p.nama} {!p.is_open && "(Ditutup)"}
                 </SelectItem>
@@ -149,6 +150,7 @@ export function CabangPicker({
           size="sm"
           className="h-9 text-xs gap-1.5"
           render={<Link href="/ringkasan" />}
+          nativeButton={false}
         >
           <BarChart3Icon className="size-3.5" />
           <span>Ringkasan Semua Cabang</span>

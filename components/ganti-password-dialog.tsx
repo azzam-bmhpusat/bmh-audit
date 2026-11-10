@@ -154,7 +154,7 @@ export function GantiPasswordDialog({
               <div className="flex w-full items-center justify-between">
                 <Button
                   type="button"
-                  variant="outline"
+                  variant="destructive"
                   onClick={handleLogout}
                   disabled={isSubmitting || isLoggingOut}
                 >
@@ -163,6 +163,7 @@ export function GantiPasswordDialog({
                 </Button>
                 <Button
                   type="submit"
+                  variant="success"
                   disabled={isSubmitting || isLoggingOut}
                 >
                   {isSubmitting ? "Menyimpan..." : "Simpan Password"}
@@ -180,6 +181,7 @@ export function GantiPasswordDialog({
                 </Button>
                 <Button
                   type="submit"
+                  variant="success"
                   disabled={isSubmitting}
                 >
                   {isSubmitting ? "Menyimpan..." : "Simpan Password"}

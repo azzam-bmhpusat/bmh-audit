@@ -10,9 +10,9 @@ export default async function HomePage() {
 
   if (session) {
     if (session.profile.role === "admin") {
-      redirect("/nilai-audit");
+      redirect("/dashboard/admin");
     } else {
-      redirect("/audit");
+      redirect("/dashboard/user");
     }
   }
 
@@ -30,6 +30,7 @@ export default async function HomePage() {
 
         <Button
           render={<Link href="/login" />}
+          nativeButton={false}
           size="lg"
           className="w-full sm:w-auto min-w-36"
         >

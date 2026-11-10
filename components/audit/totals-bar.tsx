@@ -191,9 +191,9 @@ export function TotalsAdminSummaryCard({
 }: TotalsSummaryCardProps) {
   const itemDinilai = React.useMemo(() => {
     let count = 0;
-    for (const p of data.pilarList) {
-      for (const v of p.variabelList) {
-        for (const item of v.items) {
+    for (const p of data?.pilarList ?? []) {
+      for (const v of p?.variabelList ?? []) {
+        for (const item of v?.items ?? []) {
           if (
             "skor_auditor" in item &&
             item.skor_auditor !== null &&
@@ -205,7 +205,7 @@ export function TotalsAdminSummaryCard({
       }
     }
     return count;
-  }, [data.pilarList]);
+  }, [data?.pilarList]);
 
   return (
     <Card className="w-full">

@@ -48,7 +48,7 @@ export const ItemRows = React.memo(function ItemRows({
   saveStatus,
   onRetry,
 }: ItemRowsProps) {
-  const poinList = item.poin.length > 0 ? item.poin : [
+  const poinList = (item.poin ?? []).length > 0 ? item.poin : [
     {
       item_nomor: item.nomor,
       urutan: 1,
@@ -66,7 +66,7 @@ export const ItemRows = React.memo(function ItemRows({
 
   return (
     <>
-      {poinList.map((poin, idx) => {
+      {(poinList ?? []).map((poin, idx) => {
         const isFirst = idx === 0;
 
         // Highlight kriteria jika urutan kriteria cocok dengan skor terpilih

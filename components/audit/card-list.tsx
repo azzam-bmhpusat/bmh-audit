@@ -48,7 +48,7 @@ export function CardList({
 }: CardListProps) {
   return (
     <div className="space-y-6">
-      {tree.pilarList.map((pilar) => (
+      {(tree?.pilarList ?? []).map((pilar) => (
         <section key={pilar.kode} className="space-y-4">
           {/* Header Pilar */}
           <div className="rounded-md border bg-muted/60 p-3.5 space-y-1">
@@ -81,7 +81,7 @@ export function CardList({
 
           {/* Daftar Variabel dalam Pilar */}
           <div className="space-y-3 pl-1 sm:pl-3">
-            {pilar.variabelList.map((variabel) => {
+            {(pilar?.variabelList ?? []).map((variabel) => {
               const isExpanded = expandedVariabel.has(variabel.kode);
 
               return (
@@ -121,7 +121,7 @@ export function CardList({
                   {/* Isi Item-item Variabel jika expanded */}
                   {isExpanded && (
                     <div className="p-3 space-y-3">
-                      {variabel.items.map((item) => (
+                      {(variabel?.items ?? []).map((item) => (
                         <ItemCard
                           key={item.nomor}
                           item={item}

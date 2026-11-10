@@ -142,7 +142,7 @@ export const ItemCard = React.memo(function ItemCard({
         <div className="space-y-2">
           <p className="font-semibold text-foreground">Fokus Pemeriksaan & Kriteria Penilaian:</p>
           <div className="space-y-2">
-            {item.poin.map((poin) => {
+            {(item.poin ?? []).map((poin) => {
               const isMatchAudite = item.skor_audite === poin.urutan;
               const isMatchAuditor = mode === "admin" && adminItem?.skor_auditor === poin.urutan;
               const isHighlighted = isMatchAudite || isMatchAuditor;

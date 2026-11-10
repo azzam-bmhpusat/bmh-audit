@@ -148,4 +148,18 @@ describe("lib/matrix", () => {
     // Total bobot: 5 -> maks 25. Persen auditor: 11 / 25 * 100 = 44%
     expect(tree.persenAuditor).toBe(44);
   });
+
+  it("menangani data baris kosong (rows = []) dengan pohon kosong yang aman", () => {
+    const emptyTree = buildMatrixTree([], []);
+
+    expect(emptyTree.pilarList).toEqual([]);
+    expect(emptyTree.totalBobot).toBe(0);
+    expect(emptyTree.totalNilaiSkor).toBe(0);
+    expect(emptyTree.totalNilaiSkorAuditor).toBe(null);
+    expect(emptyTree.itemTerisi).toBe(0);
+    expect(emptyTree.totalItem).toBe(0);
+    expect(emptyTree.skorMaksimumIdeal).toBe(0);
+    expect(emptyTree.persenAudite).toBe(0);
+    expect(emptyTree.persenAuditor).toBe(null);
+  });
 });

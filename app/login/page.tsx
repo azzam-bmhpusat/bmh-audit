@@ -9,9 +9,9 @@ export default async function LoginPage() {
 
   if (session) {
     if (session.profile.role === "admin") {
-      redirect("/nilai-audit");
+      redirect("/dashboard/admin");
     } else {
-      redirect("/audit");
+      redirect("/dashboard/user");
     }
   }
 

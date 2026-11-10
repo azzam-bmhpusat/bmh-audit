@@ -66,7 +66,8 @@ export async function loginAction(
   }
 
   // Path tujuan aman di tingkat server (selalu internal path diawali '/')
-  const targetPath = profile.role === "admin" ? "/nilai-audit" : "/audit";
+  const targetPath =
+    profile.role === "admin" ? "/dashboard/admin" : "/dashboard/user";
   revalidatePath("/", "layout");
 
   return {

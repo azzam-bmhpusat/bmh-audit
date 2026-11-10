@@ -75,7 +75,7 @@ export function LoginForm() {
           ? res.redirectUrl
           : "/dashboard";
 
-      router.push(safeTarget);
+      router.replace(safeTarget);
       router.refresh();
     } catch (err: unknown) {
       console.error("[LOGIN_CLIENT_ERROR]", err);
@@ -186,6 +186,7 @@ export function LoginForm() {
           variant="ghost"
           size="sm"
           render={<Link href="/" />}
+          nativeButton={false}
           className="gap-1.5 text-xs text-muted-foreground hover:text-foreground"
         >
           <ArrowLeftIcon className="size-3.5" />

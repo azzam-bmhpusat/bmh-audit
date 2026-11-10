@@ -228,7 +228,7 @@ function MatrixTableView({
 
             {/* Isi baris grup dan item */}
             <TableBody>
-              {activeTree.pilarList.map((pilar) => (
+              {(activeTree?.pilarList ?? []).map((pilar) => (
                 <PilarGroup
                   key={pilar.kode}
                   pilar={pilar}

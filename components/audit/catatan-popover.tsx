@@ -116,6 +116,7 @@ export function CatatanPopover({
           </Button>
           <Button
             type="button"
+            variant="success"
             size="sm"
             onClick={handleSave}
             disabled={disabled || isOverLimit}

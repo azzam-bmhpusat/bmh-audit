@@ -120,7 +120,7 @@ export function VariabelGroup({
 
       {/* Tampilkan item-item di bawah variabel jika terbuka */}
       {isOpen &&
-        variabel.items.map((item) => (
+        (variabel?.items ?? []).map((item) => (
           <ItemRows
             key={item.nomor}
             item={item}

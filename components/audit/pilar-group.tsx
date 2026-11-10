@@ -96,7 +96,7 @@ export function PilarGroup({
       </TableRow>
 
       {/* Render setiap variabel di bawah pilar */}
-      {pilar.variabelList.map((variabel) => (
+      {(pilar?.variabelList ?? []).map((variabel) => (
         <VariabelGroup
           key={variabel.kode}
           variabel={variabel}

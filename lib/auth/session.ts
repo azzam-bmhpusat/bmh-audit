@@ -1,4 +1,5 @@
 import { cache } from "react";
+import { connection } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import type { Profile, Role } from "@/types/audit";
 
@@ -18,6 +19,7 @@ export interface CurrentUserSession {
  * Mengembalikan null jika belum login atau data profil tidak ditemukan.
  */
 export const getCurrentProfile = cache(async (): Promise<CurrentUserSession | null> => {
+  await connection();
   const supabase = await createClient();
 
   const {

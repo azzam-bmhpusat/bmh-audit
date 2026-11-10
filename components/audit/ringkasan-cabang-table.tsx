@@ -164,6 +164,7 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
                         render={
                           <Link href={`/nilai-audit?cabang=${item.cabangId}&periode=${periodeId}`} />
                         }
+                        nativeButton={false}
                       >
                         <span>Nilai</span>
                         <ArrowRightIcon className="size-3" />
@@ -236,6 +237,7 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
                     render={
                       <Link href={`/nilai-audit?cabang=${item.cabangId}&periode=${periodeId}`} />
                     }
+                    nativeButton={false}
                   >
                     <span>Buka Penilaian</span>
                     <ArrowRightIcon className="size-3.5" />

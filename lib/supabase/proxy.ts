@@ -83,26 +83,34 @@ export async function updateSession(request: NextRequest) {
     return supabaseResponse;
   }
 
-  const roleHome = role === "admin" ? "/nilai-audit" : "/audit";
+  const roleHome = role === "admin" ? "/dashboard/admin" : "/dashboard/user";
 
   // Jika user sudah login dan membuka /login atau /
   if (pathname === "/login" || pathname === "/") {
     return createRedirectResponse(roleHome);
   }
 
-  // Jika user membuka /dashboard
-  if (pathname.startsWith("/dashboard")) {
+  // Jika user membuka /dashboard secara langsung
+  if (pathname === "/dashboard" || pathname === "/dashboard/") {
     return createRedirectResponse(roleHome);
   }
 
-  // Pastikan /audit hanya untuk user cabang
-  if (pathname.startsWith("/audit") && role !== "user") {
-    return createRedirectResponse("/nilai-audit");
+  // Pastikan rute user (/dashboard/user dan /audit) hanya untuk role user (cabang)
+  if (
+    (pathname.startsWith("/dashboard/user") || pathname.startsWith("/audit")) &&
+    role !== "user"
+  ) {
+    return createRedirectResponse("/dashboard/admin");
   }
 
-  // Pastikan /nilai-audit dan /ringkasan hanya untuk admin
-  if ((pathname.startsWith("/nilai-audit") || pathname.startsWith("/ringkasan")) && role !== "admin") {
-    return createRedirectResponse("/audit");
+  // Pastikan rute admin (/dashboard/admin, /nilai-audit, /ringkasan) hanya untuk role admin
+  if (
+    (pathname.startsWith("/dashboard/admin") ||
+      pathname.startsWith("/nilai-audit") ||
+      pathname.startsWith("/ringkasan")) &&
+    role !== "admin"
+  ) {
+    return createRedirectResponse("/dashboard/user");
   }
 
   return supabaseResponse;

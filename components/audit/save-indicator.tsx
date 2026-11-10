@@ -53,7 +53,7 @@ export function SaveIndicator({
         {onRetry && (
           <Button
             type="button"
-            variant="outline"
+            variant="warning"
             size="sm"
             onClick={onRetry}
             className="h-5 px-1.5 text-[10px]"

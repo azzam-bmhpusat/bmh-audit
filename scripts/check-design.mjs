@@ -97,10 +97,22 @@ for (const dir of scanDirs) {
         hasErrors = true;
       }
 
-      // Warning destructive outside Alert
-      if (destructiveRegex.test(line) && !line.includes("Alert")) {
-        console.warn(`[WARNING] ${relPath}:${lineNum} - Kata 'destructive' ditemukan di luar Alert: "${line.trim()}"`);
-        warningCount++;
+      // Pengecualian semantik: destructive diizinkan pada Alert, Button, DropdownMenuItem, dan token kelas semantik
+      if (destructiveRegex.test(line)) {
+        const isAllowedDestructive =
+          line.includes("Alert") ||
+          line.includes("Button") ||
+          line.includes("DropdownMenuItem") ||
+          line.includes("variant=\"destructive\"") ||
+          line.includes("variant='destructive'") ||
+          line.includes("text-destructive") ||
+          line.includes("bg-destructive") ||
+          line.includes("border-destructive");
+
+        if (!isAllowedDestructive) {
+          console.warn(`[WARNING] ${relPath}:${lineNum} - Kata 'destructive' ditemukan di luar komponen yang diizinkan: "${line.trim()}"`);
+          warningCount++;
+        }
       }
     });
   }
