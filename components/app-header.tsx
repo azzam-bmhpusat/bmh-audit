@@ -46,8 +46,10 @@ const ROUTE_LABELS: Record<string, string> = {
   admin: "Admin",
   user: "Cabang",
   audit: "Instrumen Audit",
-  "nilai-audit": "Penilaian Cabang",
+  "nilai-audit": "Penilaian Perwakilan",
   ringkasan: "Ringkasan Nasional",
+  "manajemen-user": "Manajemen User",
+  "manajemen-perwakilan": "Manajemen Perwakilan",
 };
 
 function getBreadcrumbs(pathname: string, role: Role): BreadcrumbEntry[] {
@@ -81,7 +83,7 @@ function getBreadcrumbs(pathname: string, role: Role): BreadcrumbEntry[] {
   if (pathname.startsWith("/nilai-audit")) {
     return [
       { label: "Dashboard", href: roleHome },
-      { label: "Penilaian Cabang" },
+      { label: "Penilaian Perwakilan" },
     ];
   }
 
@@ -89,6 +91,20 @@ function getBreadcrumbs(pathname: string, role: Role): BreadcrumbEntry[] {
     return [
       { label: "Dashboard", href: roleHome },
       { label: "Ringkasan Nasional" },
+    ];
+  }
+
+  if (pathname.startsWith("/manajemen-user")) {
+    return [
+      { label: "Dashboard", href: roleHome },
+      { label: "Manajemen User" },
+    ];
+  }
+
+  if (pathname.startsWith("/manajemen-perwakilan")) {
+    return [
+      { label: "Dashboard", href: roleHome },
+      { label: "Manajemen Perwakilan" },
     ];
   }
 

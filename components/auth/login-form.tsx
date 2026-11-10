@@ -23,6 +23,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { loginAction } from "@/app/actions/auth";
+import { loginSchema } from "@/lib/schemas";
 import { ArrowLeftIcon, EyeIcon, EyeOffIcon } from "lucide-react";
 
 const emptySubscribe = () => () => { };
@@ -34,7 +35,7 @@ export function LoginForm() {
     () => true,
     () => false
   );
-  const [nama, setNama] = React.useState("");
+  const [email, setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
   const [showPassword, setShowPassword] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -47,9 +48,16 @@ export function LoginForm() {
 
     setErrorMsg(null);
 
-    const trimmedNama = nama.trim();
-    if (!trimmedNama || !password) {
-      toast.warning("Nama dan password wajib diisi");
+    const trimmedEmail = email.trim();
+    const validationResult = loginSchema.safeParse({
+      email: trimmedEmail,
+      password,
+    });
+
+    if (!validationResult.success) {
+      const firstIssue = validationResult.error.issues[0]?.message || "Format email atau password tidak valid";
+      setErrorMsg(firstIssue);
+      toast.warning("Validasi login gagal", { description: firstIssue });
       return;
     }
 
@@ -57,8 +65,8 @@ export function LoginForm() {
 
     try {
       const res = await loginAction({
-        nama: trimmedNama,
-        password,
+        email: validationResult.data.email,
+        password: validationResult.data.password,
       });
 
       if (!res.ok) {
@@ -110,23 +118,23 @@ export function LoginForm() {
           )}
 
           <div className="space-y-1.5">
-            <Label htmlFor="nama-login">Nama Perwakilan / Daerah</Label>
+            <Label htmlFor="email-login">Email Login</Label>
             <div className="relative">
               <Input
-                id="nama-login"
-                name="nama"
-                type="text"
-                value={nama}
-                onChange={(e) => setNama(e.target.value)}
-                placeholder="Jawa Timur"
+                id="email-login"
+                name="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="jawa-timur@audit.bmh.or.id"
                 autoFocus
                 disabled={!isReady || isLoading}
-                autoComplete="username"
+                autoComplete="email"
                 required
               />
             </div>
             <p className="text-xs text-muted-foreground">
-              Masukkan nama perwakilan daerah Anda atau nama akun admin
+              Masukkan email akun Anda (contoh: jawa-timur@audit.bmh.or.id)
             </p>
           </div>
 

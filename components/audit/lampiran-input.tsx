@@ -9,6 +9,7 @@ import { toast } from "sonner";
 
 interface LampiranInputProps {
   itemNomor: number;
+  urutan?: number;
   value: string | null | undefined;
   disabled?: boolean;
   onSave: (value: string | null) => void;
@@ -20,6 +21,7 @@ interface LampiranInputProps {
  */
 export function LampiranInput({
   itemNomor,
+  urutan,
   value,
   disabled = false,
   onSave,
@@ -71,7 +73,7 @@ export function LampiranInput({
   const validHref = safeHref(text || value);
 
   return (
-    <div className="space-y-1.5 w-full min-w-[200px]">
+    <div className="w-full min-w-[200px]">
       <div className="flex items-center gap-1.5">
         <Input
           type="url"
@@ -84,9 +86,9 @@ export function LampiranInput({
           }}
           onKeyDown={handleKeyDown}
           disabled={disabled}
-          placeholder="https://…"
+          placeholder={urutan ? `https://… (bukti #${urutan})` : "https://…"}
           className="h-7 text-xs font-mono"
-          aria-label={`Lampiran link evidence item ${itemNomor}`}
+          aria-label={`Lampiran link evidence item ${itemNomor} bukti ${urutan ?? 1}`}
         />
         {validHref && (
           <a
@@ -94,17 +96,13 @@ export function LampiranInput({
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center justify-center size-7 rounded-md border border-input bg-transparent hover:bg-muted text-foreground transition-colors shrink-0"
-            aria-label={`Buka tautan lampiran item ${itemNomor}`}
+            aria-label={`Buka tautan lampiran item ${itemNomor} bukti ${urutan ?? 1}`}
             title="Buka evidence di tab baru"
           >
             <ExternalLinkIcon className="size-3.5" />
           </a>
         )}
       </div>
-
-      <p className="text-[10px] text-muted-foreground leading-tight">
-        Tempel satu link (mis. folder Google Drive) yang berisi seluruh bukti item ini.
-      </p>
     </div>
   );
 }

@@ -4,35 +4,34 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { loginSchema, gantiPasswordSchema } from "@/lib/schemas";
-import { namaToEmail } from "@/lib/auth/nama-email";
 
 export type AuthActionResult =
   | { ok: true; redirectUrl?: string }
   | { ok: false; error: string };
 
 /**
- * Server action untuk autentikasi login (Nama + Password).
- * Pesan kesalahan dibuat generik ("Nama atau password salah") untuk mencegah enumeration attack.
+ * Server action untuk autentikasi login (Email + Password) dengan validasi Zod.
+ * Hanya menerima email dan password yang valid.
  */
 export async function loginAction(
-  input: { nama: string; password: string }
+  input: { email: string; password: string }
 ): Promise<AuthActionResult> {
-  const trimmedNama = (input.nama ?? "").trim();
+  const trimmedEmail = (input.email ?? "").trim();
   const parsed = loginSchema.safeParse({
-    nama: trimmedNama,
+    email: trimmedEmail,
     password: input.password,
   });
 
   if (!parsed.success) {
     const errorMsg =
-      parsed.error.issues[0]?.message || "Nama atau password salah";
+      parsed.error.issues[0]?.message || "Format email atau password tidak valid";
     return {
       ok: false,
       error: errorMsg,
     };
   }
 
-  const email = namaToEmail(parsed.data.nama);
+  const email = parsed.data.email.toLowerCase();
   const password = parsed.data.password;
 
   const supabase = await createClient();
@@ -45,7 +44,7 @@ export async function loginAction(
     console.error("[AUTH] Gagal login untuk email:", email, signInError?.message);
     return {
       ok: false,
-      error: "Nama atau password salah",
+      error: "Email atau password salah",
     };
   }
 

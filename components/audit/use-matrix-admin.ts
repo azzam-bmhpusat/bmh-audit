@@ -21,7 +21,7 @@ interface UseMatrixAdminOptions {
 }
 
 interface SavedAdminValue {
-  validasi: boolean | null;
+  validasi: Record<string, boolean | null> | boolean | null;
   skor_auditor: number | null;
   catatan: string | null;
   bobot: number;
@@ -73,6 +73,7 @@ export function useMatrixAdmin({
             regulasi_tambahan: it.regulasi_tambahan,
             ranah: it.ranah,
             bobot: it.bobot,
+            lampiran_links: it.lampiran_links,
             lampiran_link: it.lampiran_link,
             skor_audite: it.skor_audite,
             nilai_skor: it.nilai_skor,
@@ -94,7 +95,10 @@ export function useMatrixAdmin({
       for (const v of p.variabelList) {
         for (const it of v.items) {
           savedValuesRef.current.set(it.nomor, {
-            validasi: it.validasi ?? null,
+            validasi:
+              typeof it.validasi === "object" && it.validasi !== null
+                ? { ...it.validasi }
+                : (it.validasi ?? null),
             skor_auditor: it.skor_auditor ?? null,
             catatan: it.catatan ?? null,
             bobot: it.bobot,
@@ -113,7 +117,14 @@ export function useMatrixAdmin({
   const itemQueuesRef = React.useRef<Map<number, Promise<void>>>(new Map());
   const saveTimersRef = React.useRef<Map<number, NodeJS.Timeout>>(new Map());
   const lastAttemptedRef = React.useRef<
-    Map<number, { field: "validasi" | "skor_auditor" | "catatan"; value: unknown }>
+    Map<
+      number,
+      {
+        field: "validasi" | "skor_auditor" | "catatan";
+        value: unknown;
+        urutan?: number;
+      }
+    >
   >(new Map());
 
   // 6. Hitung ulang struktur pohon (MatrixTree) secara live
@@ -126,16 +137,28 @@ export function useMatrixAdmin({
     (
       itemNomor: number,
       field: "validasi" | "skor_auditor" | "catatan",
-      value: boolean | number | string | null
+      value: boolean | number | string | Record<string, boolean | null> | null,
+      urutan?: number
     ) => {
       setFlatRows((prevRows) =>
         prevRows.map((row) => {
           if (row.nomor !== itemNomor) return row;
 
           if (field === "validasi") {
+            if (urutan) {
+              const currentValidasi =
+                typeof row.validasi === "object" && row.validasi !== null
+                  ? { ...row.validasi }
+                  : {};
+              currentValidasi[String(urutan)] = value as boolean | null;
+              return {
+                ...row,
+                validasi: currentValidasi,
+              };
+            }
             return {
               ...row,
-              validasi: value as boolean | null,
+              validasi: value as Record<string, boolean | null> | boolean | null,
             };
           } else if (field === "skor_auditor") {
             const skor = value as number | null;
@@ -164,17 +187,18 @@ export function useMatrixAdmin({
     (
       itemNomor: number,
       field: "validasi" | "skor_auditor" | "catatan",
-      value: boolean | number | string | null
+      value: boolean | number | string | null,
+      urutan?: number
     ) => {
       if (readOnly || !periodeId || !cabangId) {
         return;
       }
 
       // Catat percobaan terakhir untuk retry
-      lastAttemptedRef.current.set(itemNomor, { field, value });
+      lastAttemptedRef.current.set(itemNomor, { field, value, urutan });
 
       // 1. Pembaruan optimistik seketika di UI
-      updateRowOptimistic(itemNomor, field, value);
+      updateRowOptimistic(itemNomor, field, value, urutan);
 
       // 2. Set status simpan menjadi 'saving'
       setSaveStatuses((prev) => ({
@@ -194,6 +218,7 @@ export function useMatrixAdmin({
             itemNomor,
             field,
             value,
+            urutan,
           });
 
           if (!res.ok) {
@@ -202,14 +227,28 @@ export function useMatrixAdmin({
 
           // Sukses: perbarui nilai tersimpan
           const prevSaved = savedValuesRef.current.get(itemNomor) || {
-            validasi: null,
+            validasi: {},
             skor_auditor: null,
             catatan: null,
             bobot: 1,
           };
+
+          let nextValidasi: Record<string, boolean | null> | boolean | null = prevSaved.validasi;
+          if (field === "validasi" && urutan) {
+            const currentMap =
+              typeof prevSaved.validasi === "object" && prevSaved.validasi !== null
+                ? { ...prevSaved.validasi }
+                : {};
+            currentMap[String(urutan)] = value as boolean | null;
+            nextValidasi = currentMap;
+          } else if (field === "validasi") {
+            nextValidasi = value as boolean | null;
+          }
+
           savedValuesRef.current.set(itemNomor, {
             ...prevSaved,
             [field]: value,
+            validasi: nextValidasi,
           });
 
           // Tampilkan status 'saved'
@@ -241,7 +280,16 @@ export function useMatrixAdmin({
           // Rollback nilai optimistik ke nilai tersimpan sebelumnya
           const lastConfirmed = savedValuesRef.current.get(itemNomor);
           if (lastConfirmed) {
-            updateRowOptimistic(itemNomor, field, lastConfirmed[field]);
+            if (field === "validasi" && urutan && typeof lastConfirmed.validasi === "object" && lastConfirmed.validasi !== null) {
+              updateRowOptimistic(
+                itemNomor,
+                field,
+                lastConfirmed.validasi[String(urutan)] ?? null,
+                urutan
+              );
+            } else if (field !== "validasi") {
+              updateRowOptimistic(itemNomor, field, lastConfirmed[field]);
+            }
           }
 
           setSaveStatuses((prev) => ({
@@ -358,7 +406,8 @@ export function useMatrixAdmin({
         saveField(
           itemNomor,
           last.field,
-          last.value as boolean | number | string | null
+          last.value as boolean | number | string | null,
+          last.urutan
         );
       }
     },

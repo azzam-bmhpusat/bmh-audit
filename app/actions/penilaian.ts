@@ -14,6 +14,7 @@ export interface SimpanPenilaianInput {
   cabangId: number;
   itemNomor: number;
   field: "validasi" | "skor_auditor" | "catatan";
+  urutan?: number;
   value: boolean | number | string | null;
 }
 
@@ -26,6 +27,7 @@ const savePenilaianInputSchema = z.object({
   cabangId: z.coerce.number().int().positive("ID cabang harus valid"),
   itemNomor: itemNomorSchema,
   field: z.enum(["validasi", "skor_auditor", "catatan"]),
+  urutan: z.coerce.number().int().min(1).max(5).optional(),
 });
 
 /**
@@ -46,6 +48,7 @@ export async function simpanPenilaian(
     cabangId: input.cabangId,
     itemNomor: input.itemNomor,
     field: input.field,
+    urutan: input.urutan,
   });
 
   if (!baseParsed.success) {
@@ -54,7 +57,7 @@ export async function simpanPenilaian(
     return { ok: false, error: errorMsg };
   }
 
-  const { periodeId, cabangId, itemNomor, field } = baseParsed.data;
+  const { periodeId, cabangId, itemNomor, field, urutan } = baseParsed.data;
 
   // 2. Validasi nilai spesifik sesuai field
   let validatedValue: boolean | number | string | null = null;
@@ -119,7 +122,7 @@ export async function simpanPenilaian(
     periode_id: number;
     cabang_id: number;
     item_nomor: number;
-    validasi?: boolean | null;
+    validasi?: Record<string, boolean | null> | boolean | null;
     skor_auditor?: number | null;
     catatan?: string | null;
   } = {
@@ -129,7 +132,28 @@ export async function simpanPenilaian(
   };
 
   if (field === "validasi") {
-    payload.validasi = validatedValue as boolean | null;
+    if (urutan) {
+      // Ambil validasi yang sudah ada agar tidak menimpa status validasi urutan bukti lain
+      const { data: existingRow } = await supabase
+        .from("audit_penilaian_auditor")
+        .select("validasi")
+        .eq("periode_id", periodeId)
+        .eq("cabang_id", cabangId)
+        .eq("item_nomor", itemNomor)
+        .maybeSingle();
+
+      let currentMap: Record<string, boolean | null> = {};
+      if (typeof existingRow?.validasi === "boolean") {
+        currentMap["1"] = existingRow.validasi;
+      } else if (existingRow?.validasi && typeof existingRow.validasi === "object") {
+        currentMap = { ...(existingRow.validasi as Record<string, boolean | null>) };
+      }
+
+      currentMap[String(urutan)] = validatedValue as boolean | null;
+      payload.validasi = currentMap;
+    } else {
+      payload.validasi = validatedValue as boolean | null;
+    }
   } else if (field === "skor_auditor") {
     payload.skor_auditor = validatedValue as number | null;
   } else if (field === "catatan") {

@@ -15,11 +15,25 @@ export interface Profile {
   created_at?: string;
 }
 
+export interface UserListItem extends Profile {
+  email?: string | null;
+  cabang?: {
+    id: number;
+    nama: string;
+  } | null;
+}
+
 export interface Cabang {
   id: number;
   kode: string | null;
   nama: string;
   created_at?: string;
+}
+
+export interface CabangDetailListItem extends Cabang {
+  userCount?: number;
+  userNames?: string[];
+  jawabanCount?: number;
 }
 
 export interface Periode {
@@ -54,6 +68,7 @@ export interface MatrixRowCabang {
   regulasi_tambahan: string | null;
   ranah: string | null;
   bobot: number;
+  lampiran_links?: Record<string, string | null> | null;
   lampiran_link: string | null;
   skor_audite: number | null;
   nilai_skor: number | null;
@@ -64,10 +79,46 @@ export interface MatrixRowCabang {
  * Mewarisi semua kolom cabang ditambah kolom penilaian auditor.
  */
 export interface MatrixRowAdmin extends MatrixRowCabang {
-  validasi: boolean | null;
+  validasi: Record<string, boolean | null> | boolean | null;
   skor_auditor: number | null;
   nilai_skor_auditor: number | null;
   catatan: string | null;
+}
+
+/**
+ * Helper untuk mengambil link lampiran pada urutan tertentu (1..5)
+ * dengan fallback ke lampiran_link jika urutan 1.
+ */
+export function getLampiranLink(
+  row: MatrixRowCabang,
+  urutan: number
+): string | null {
+  const fromMap = row.lampiran_links?.[String(urutan)] ?? row.lampiran_links?.[urutan];
+  if (fromMap !== undefined && fromMap !== null && fromMap !== "") {
+    return fromMap;
+  }
+  if (urutan === 1 && row.lampiran_link) {
+    return row.lampiran_link;
+  }
+  return null;
+}
+
+/**
+ * Helper untuk mengambil status validasi pada urutan tertentu (1..5).
+ */
+export function getValidasiStatus(
+  row: MatrixRowAdmin | null | undefined,
+  urutan: number
+): boolean | null {
+  if (!row) return null;
+  if (typeof row.validasi === "boolean") {
+    return urutan === 1 ? row.validasi : null;
+  }
+  if (row.validasi && typeof row.validasi === "object") {
+    const val = row.validasi[String(urutan)] ?? row.validasi[urutan];
+    return typeof val === "boolean" ? val : null;
+  }
+  return null;
 }
 
 /**

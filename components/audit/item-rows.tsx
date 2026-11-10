@@ -6,7 +6,13 @@ import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { safeHref } from "@/lib/safe-link";
 import { formatAngka } from "@/lib/format";
-import type { ItemWithPoin, MatrixRowAdmin, MatrixRowCabang } from "@/types/audit";
+import {
+  type ItemWithPoin,
+  type MatrixRowAdmin,
+  type MatrixRowCabang,
+  getLampiranLink,
+  getValidasiStatus,
+} from "@/types/audit";
 import { cn } from "cn";
 import { SkorSelect } from "./skor-select";
 import { LampiranInput } from "./lampiran-input";
@@ -22,12 +28,14 @@ interface ItemRowsProps {
   onSaveField?: (
     itemNomor: number,
     field: "skor_audite" | "lampiran_link",
-    value: number | string | null
+    value: number | string | null,
+    urutan?: number
   ) => void;
   onSaveAdminField?: (
     itemNomor: number,
     field: "validasi" | "skor_auditor" | "catatan",
-    value: boolean | number | string | null
+    value: boolean | number | string | null,
+    urutan?: number
   ) => void;
   onSaveBobot?: (itemNomor: number, newBobot: number) => void;
   saveStatus?: { status: SaveStatus; error?: string };
@@ -60,7 +68,6 @@ export const ItemRows = React.memo(function ItemRows({
   const rowSpanCount = poinList.length;
 
   const adminItem = isMatrixRowAdmin(item) ? item : null;
-  const href = safeHref(item.lampiran_link);
   const isEditableCabang = mode === "cabang" && !readOnly;
   const isEditableAdmin = mode === "admin" && !readOnly;
 
@@ -158,89 +165,61 @@ export const ItemRows = React.memo(function ItemRows({
               )}
             </TableCell>
 
-            {/* 7. Lampiran (Link Evidence) (rowspan) */}
-            {isFirst && (
-              <TableCell
-                rowSpan={rowSpanCount}
-                className="align-top min-w-[220px] text-xs px-3"
-              >
-                {isEditableCabang ? (
-                  <div className="space-y-1.5">
-                    <LampiranInput
-                      itemNomor={item.nomor}
-                      value={item.lampiran_link}
-                      disabled={readOnly}
-                      onSave={(val) => onSaveField?.(item.nomor, "lampiran_link", val)}
-                    />
-                  </div>
-                ) : href ? (
+            {/* 7. Lampiran (Link Evidence) (5 baris per nomor sejajar bukti evidence) */}
+            <TableCell className="align-top min-w-[220px] text-xs px-3">
+              {isEditableCabang ? (
+                <LampiranInput
+                  itemNomor={item.nomor}
+                  urutan={poin.urutan}
+                  value={getLampiranLink(item, poin.urutan)}
+                  disabled={readOnly}
+                  onSave={(val) => onSaveField?.(item.nomor, "lampiran_link", val, poin.urutan)}
+                />
+              ) : (() => {
+                const linkPoin = getLampiranLink(item, poin.urutan);
+                const hrefPoin = safeHref(linkPoin);
+                return hrefPoin ? (
                   <a
-                    href={href}
+                    href={hrefPoin}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
-                    aria-label={`Buka evidence item ${item.nomor}`}
+                    aria-label={`Buka evidence item ${item.nomor} bukti ${poin.urutan}`}
                   >
                     Buka evidence
                     <ExternalLinkIcon className="size-3 shrink-0" />
                   </a>
                 ) : (
                   <span className="text-muted-foreground">—</span>
-                )}
-              </TableCell>
-            )}
+                );
+              })()}
+            </TableCell>
 
-            {/* 8. Validasi (hanya mode admin, rowspan) */}
-            {mode === "admin" && isFirst && (
-              <TableCell
-                rowSpan={rowSpanCount}
-                className="align-top text-center min-w-[140px] px-2"
-              >
+            {/* 8. Validasi (hanya mode admin, 5 baris per nomor sejajar bukti evidence) */}
+            {mode === "admin" && (
+              <TableCell className="align-top text-center min-w-[124px] px-2">
                 {isEditableAdmin && onSaveAdminField ? (
-                  <div className="flex flex-col items-center justify-center gap-1.5">
-                    <div className="flex items-center gap-1">
-                      <ValidasiControl
-                        itemNomor={item.nomor}
-                        value={adminItem?.validasi}
-                        disabled={readOnly}
-                        onChange={(val) => onSaveAdminField(item.nomor, "validasi", val)}
-                      />
-                      <CatatanPopover
-                        itemNomor={item.nomor}
-                        catatan={adminItem?.catatan}
-                        disabled={readOnly}
-                        onSave={(val) => onSaveAdminField(item.nomor, "catatan", val)}
-                      />
-                    </div>
-                    <SaveIndicator
-                      status={saveStatus?.status ?? "idle"}
-                      itemNomor={item.nomor}
-                      onRetry={() => onRetry?.(item.nomor)}
-                    />
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-1">
-                    {adminItem?.validasi === true ? (
-                      <Badge variant="default" className="text-xs">
-                        Benar
-                      </Badge>
-                    ) : adminItem?.validasi === false ? (
-                      <Badge variant="outline" className="text-xs">
-                        Tidak benar
-                      </Badge>
-                    ) : (
-                      <span className="text-xs text-muted-foreground">Belum</span>
-                    )}
-                    {adminItem?.catatan && (
-                      <CatatanPopover
-                        itemNomor={item.nomor}
-                        catatan={adminItem?.catatan}
-                        disabled={true}
-                        onSave={() => {}}
-                      />
-                    )}
-                  </div>
-                )}
+                  <ValidasiControl
+                    itemNomor={item.nomor}
+                    urutan={poin.urutan}
+                    value={getValidasiStatus(adminItem, poin.urutan)}
+                    disabled={readOnly}
+                    onChange={(val) => onSaveAdminField(item.nomor, "validasi", val, poin.urutan)}
+                  />
+                ) : (() => {
+                  const valStatus = getValidasiStatus(adminItem, poin.urutan);
+                  return valStatus === true ? (
+                    <Badge variant="success" className="text-xs">
+                      Benar
+                    </Badge>
+                  ) : valStatus === false ? (
+                    <Badge variant="destructive" className="text-xs">
+                      Tidak benar
+                    </Badge>
+                  ) : (
+                    <span className="text-xs text-muted-foreground">Belum</span>
+                  );
+                })()}
               </TableCell>
             )}
 
@@ -325,25 +304,45 @@ export const ItemRows = React.memo(function ItemRows({
               >
                 {isEditableAdmin && onSaveAdminField ? (
                   <div className="flex flex-col items-center justify-center gap-1.5">
-                    <SkorSelect
-                      itemNomor={item.nomor}
-                      value={adminItem?.skor_auditor}
-                      disabled={readOnly}
-                      ariaLabel={`Skor Auditor item ${item.nomor}`}
-                      onChange={(val) => onSaveAdminField(item.nomor, "skor_auditor", val)}
-                    />
+                    <div className="flex items-center gap-1">
+                      <SkorSelect
+                        itemNomor={item.nomor}
+                        value={adminItem?.skor_auditor}
+                        disabled={readOnly}
+                        ariaLabel={`Skor Auditor item ${item.nomor}`}
+                        onChange={(val) => onSaveAdminField(item.nomor, "skor_auditor", val)}
+                      />
+                      <CatatanPopover
+                        itemNomor={item.nomor}
+                        catatan={adminItem?.catatan}
+                        disabled={readOnly}
+                        onSave={(val) => onSaveAdminField(item.nomor, "catatan", val)}
+                      />
+                    </div>
                     <SaveIndicator
                       status={saveStatus?.status ?? "idle"}
                       itemNomor={item.nomor}
                       onRetry={() => onRetry?.(item.nomor)}
                     />
                   </div>
-                ) : adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
-                  <Badge variant="default" className="font-semibold text-xs tabular-nums">
-                    {adminItem.skor_auditor}
-                  </Badge>
                 ) : (
-                  <span className="text-muted-foreground">—</span>
+                  <div className="flex items-center justify-center gap-1">
+                    {adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
+                      <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                        {adminItem.skor_auditor}
+                      </Badge>
+                    ) : (
+                      <span className="text-muted-foreground">—</span>
+                    )}
+                    {adminItem?.catatan && (
+                      <CatatanPopover
+                        itemNomor={item.nomor}
+                        catatan={adminItem?.catatan}
+                        disabled={true}
+                        onSave={() => {}}
+                      />
+                    )}
+                  </div>
                 )}
               </TableCell>
             )}

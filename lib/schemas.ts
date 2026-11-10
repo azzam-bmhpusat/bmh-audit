@@ -27,6 +27,8 @@ export const lampiranSchema = z.preprocess(
 
 export const validasiSchema = z.boolean().nullable();
 
+export const urutanSchema = z.coerce.number().int().min(1).max(5);
+
 export const catatanSchema = z.preprocess(
   emptyStringToNull,
   z.string().max(1000, "Catatan maksimal 1000 karakter").nullable()
@@ -41,11 +43,11 @@ export const itemNomorSchema = z.number().int().min(1, "Nomor item minimal 1");
 // ---------------------------------------------------------------------
 
 export const loginSchema = z.object({
-  nama: z
+  email: z
     .string()
     .trim()
-    .min(1, "Nama perwakilan/daerah wajib diisi")
-    .refine(isValidNamaCabang, "Nama daerah tidak valid"),
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid (contoh: user@audit.bmh.or.id)"),
   password: z
     .string()
     .min(1, "Password wajib diisi"),
@@ -68,6 +70,106 @@ export const gantiPasswordSchema = z
     message: "Konfirmasi password tidak cocok",
     path: ["konfirmasiPassword"],
   });
+
+// ---------------------------------------------------------------------
+// 2b. Skema Manajemen User (Role Admin)
+// ---------------------------------------------------------------------
+
+export const createUserSchema = z.object({
+  nama: z
+    .string()
+    .trim()
+    .min(2, "Nama minimal 2 karakter")
+    .max(100, "Nama maksimal 100 karakter"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid (contoh: daerah@audit.bmh.or.id)"),
+  role: z.enum(["admin", "user"]),
+  cabang_id: z.coerce.number().int().positive().nullable().optional(),
+  password: z
+    .string()
+    .min(6, "Password minimal 6 karakter")
+    .default("www.bmh.or.id"),
+  wajib_ganti_password: z.boolean().default(true),
+});
+
+export const updateUserSchema = z.object({
+  id: z.string().uuid("ID pengguna tidak valid"),
+  nama: z
+    .string()
+    .trim()
+    .min(2, "Nama minimal 2 karakter")
+    .max(100, "Nama maksimal 100 karakter"),
+  email: z
+    .string()
+    .trim()
+    .min(1, "Email wajib diisi")
+    .email("Format email tidak valid (contoh: daerah@audit.bmh.or.id)"),
+  role: z.enum(["admin", "user"]),
+  cabang_id: z.coerce.number().int().positive().nullable().optional(),
+  wajib_ganti_password: z.boolean(),
+});
+
+export const resetUserPasswordSchema = z.object({
+  id: z.string().uuid("ID pengguna tidak valid"),
+  passwordBaru: z.string().min(6, "Password minimal 6 karakter").default("www.bmh.or.id"),
+  wajib_ganti_password: z.boolean().default(true),
+});
+
+export const deleteUserSchema = z.object({
+  id: z.string().uuid("ID pengguna tidak valid"),
+});
+
+// ---------------------------------------------------------------------
+// 2c. Skema Manajemen Perwakilan / Cabang (Role Admin)
+// ---------------------------------------------------------------------
+
+export const createCabangSchema = z.object({
+  nama: z
+    .string()
+    .trim()
+    .min(2, "Nama perwakilan minimal 2 karakter")
+    .max(100, "Nama perwakilan maksimal 100 karakter"),
+  kode: z
+    .preprocess(
+      emptyStringToNull,
+      z
+        .string()
+        .trim()
+        .max(10, "Kode perwakilan maksimal 10 karakter")
+        .toUpperCase()
+        .nullable()
+        .optional()
+    )
+    .default(null),
+});
+
+export const updateCabangSchema = z.object({
+  id: z.coerce.number().int().positive("ID perwakilan tidak valid"),
+  nama: z
+    .string()
+    .trim()
+    .min(2, "Nama perwakilan minimal 2 karakter")
+    .max(100, "Nama perwakilan maksimal 100 karakter"),
+  kode: z
+    .preprocess(
+      emptyStringToNull,
+      z
+        .string()
+        .trim()
+        .max(10, "Kode perwakilan maksimal 10 karakter")
+        .toUpperCase()
+        .nullable()
+        .optional()
+    )
+    .default(null),
+});
+
+export const deleteCabangSchema = z.object({
+  id: z.coerce.number().int().positive("ID perwakilan tidak valid"),
+});
 
 // ---------------------------------------------------------------------
 // 3. Skema Parameter URL
@@ -95,13 +197,14 @@ export const matrixRowCabangSchema = z.object({
   regulasi_tambahan: z.string().nullable(),
   ranah: z.string().nullable(),
   bobot: z.coerce.number().int(),
-  lampiran_link: z.string().nullable(),
+  lampiran_links: z.record(z.string(), z.string().nullable()).nullable().optional(),
+  lampiran_link: z.string().nullable().default(null),
   skor_audite: z.coerce.number().int().nullable(),
   nilai_skor: z.coerce.number().nullable(),
 });
 
 export const matrixRowAdminSchema = matrixRowCabangSchema.extend({
-  validasi: z.boolean().nullable(),
+  validasi: z.union([z.boolean(), z.record(z.string(), z.boolean().nullable())]).nullable().default(null),
   skor_auditor: z.coerce.number().int().nullable(),
   nilai_skor_auditor: z.coerce.number().nullable(),
   catatan: z.string().nullable(),

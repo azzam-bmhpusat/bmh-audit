@@ -4,6 +4,8 @@ import {
   ClipboardCheckIcon,
   Building2Icon,
   ClipboardListIcon,
+  UsersIcon,
+  BuildingIcon,
   type LucideIcon,
 } from "lucide-react";
 
@@ -33,7 +35,9 @@ export function canAccessRoute(role: Role, pathname: string): boolean {
   if (
     pathname.startsWith("/dashboard/admin") ||
     pathname.startsWith("/nilai-audit") ||
-    pathname.startsWith("/ringkasan")
+    pathname.startsWith("/ringkasan") ||
+    pathname.startsWith("/manajemen-user") ||
+    pathname.startsWith("/manajemen-perwakilan")
   ) {
     return role === "admin";
   }
@@ -61,7 +65,7 @@ export function getNavItemsForRole(role: Role): NavItem[] {
         icon: LayoutDashboardIcon,
       },
       {
-        title: "Penilaian Cabang",
+        title: "Penilaian Perwakilan",
         url: "/nilai-audit",
         icon: ClipboardCheckIcon,
       },
@@ -69,6 +73,16 @@ export function getNavItemsForRole(role: Role): NavItem[] {
         title: "Ringkasan Nasional",
         url: "/ringkasan",
         icon: Building2Icon,
+      },
+      {
+        title: "Manajemen Perwakilan",
+        url: "/manajemen-perwakilan",
+        icon: BuildingIcon,
+      },
+      {
+        title: "Manajemen User",
+        url: "/manajemen-user",
+        icon: UsersIcon,
       },
     ];
   }

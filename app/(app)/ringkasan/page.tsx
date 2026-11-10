@@ -87,19 +87,19 @@ export default async function RingkasanPage(props: PageProps) {
   const avgPersenAudite =
     totalCabangCount > 0
       ? Math.round(
-          summaryItems.reduce((acc, curr) => acc + curr.persenAudite, 0) /
-            totalCabangCount *
-            100
-        ) / 100
+        summaryItems.reduce((acc, curr) => acc + curr.persenAudite, 0) /
+        totalCabangCount *
+        100
+      ) / 100
       : 0;
 
   const avgPersenAuditor =
     totalCabangCount > 0
       ? Math.round(
-          summaryItems.reduce((acc, curr) => acc + curr.persenAuditor, 0) /
-            totalCabangCount *
-            100
-        ) / 100
+        summaryItems.reduce((acc, curr) => acc + curr.persenAuditor, 0) /
+        totalCabangCount *
+        100
+      ) / 100
       : 0;
 
   const fullyEvaluatedCount = summaryItems.filter(
@@ -114,7 +114,7 @@ export default async function RingkasanPage(props: PageProps) {
           Ringkasan Hasil Audit Seluruh Cabang
         </h1>
         <p className="text-xs text-muted-foreground">
-          Satuan Internal Audit (SIA) – BMH | Periode: {periodeAktif?.nama ?? "—"}
+          Satuan Internal Audit BMH | Periode: {periodeAktif?.nama ?? "—"}
         </p>
       </div>
 

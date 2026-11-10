@@ -21,6 +21,7 @@ interface UseMatrixJawabanOptions {
 
 interface SavedValue {
   skor_audite: number | null;
+  lampiran_links: Record<string, string | null>;
   lampiran_link: string | null;
 }
 
@@ -71,6 +72,7 @@ export function useMatrixJawaban({
             regulasi_tambahan: it.regulasi_tambahan,
             ranah: it.ranah,
             bobot: it.bobot,
+            lampiran_links: it.lampiran_links,
             lampiran_link: it.lampiran_link,
             skor_audite: it.skor_audite,
             nilai_skor: it.nilai_skor,
@@ -98,6 +100,7 @@ export function useMatrixJawaban({
         for (const it of v.items) {
           savedValuesRef.current.set(it.nomor, {
             skor_audite: it.skor_audite ?? null,
+            lampiran_links: it.lampiran_links ? { ...it.lampiran_links } : {},
             lampiran_link: it.lampiran_link ?? null,
           });
         }
@@ -114,7 +117,7 @@ export function useMatrixJawaban({
   const itemQueuesRef = React.useRef<Map<number, Promise<void>>>(new Map());
   const saveTimersRef = React.useRef<Map<number, NodeJS.Timeout>>(new Map());
   const lastAttemptedRef = React.useRef<
-    Map<number, { field: "skor_audite" | "lampiran_link"; value: unknown }>
+    Map<number, { field: "skor_audite" | "lampiran_link"; value: unknown; urutan?: number }>
   >(new Map());
 
   // 6. Hitung ulang struktur pohon (MatrixTree) setiap kali baris berubah
@@ -127,7 +130,8 @@ export function useMatrixJawaban({
     (
       itemNomor: number,
       field: "skor_audite" | "lampiran_link",
-      value: number | string | null
+      value: number | string | null,
+      urutan?: number
     ) => {
       setFlatRows((prevRows) =>
         prevRows.map((row) => {
@@ -142,6 +146,19 @@ export function useMatrixJawaban({
               nilai_skor: nilai,
             };
           } else if (field === "lampiran_link") {
+            if (urutan) {
+              const currentLinks = { ...(row.lampiran_links ?? {}) };
+              if (value) {
+                currentLinks[String(urutan)] = value as string;
+              } else {
+                delete currentLinks[String(urutan)];
+              }
+              return {
+                ...row,
+                lampiran_links: currentLinks,
+                lampiran_link: urutan === 1 ? (value as string | null) : row.lampiran_link,
+              };
+            }
             return {
               ...row,
               lampiran_link: value as string | null,
@@ -160,17 +177,18 @@ export function useMatrixJawaban({
     (
       itemNomor: number,
       field: "skor_audite" | "lampiran_link",
-      value: number | string | null
+      value: number | string | null,
+      urutan?: number
     ) => {
       if (readOnly || !periodeId) {
         return;
       }
 
       // Catat percobaan terakhir untuk retry
-      lastAttemptedRef.current.set(itemNomor, { field, value });
+      lastAttemptedRef.current.set(itemNomor, { field, value, urutan });
 
       // 1. Pembaruan optimistik langsung di UI
-      updateRowOptimistic(itemNomor, field, value);
+      updateRowOptimistic(itemNomor, field, value, urutan);
 
       // 2. Set status simpan menjadi 'saving'
       setSaveStatuses((prev) => ({
@@ -189,6 +207,7 @@ export function useMatrixJawaban({
             itemNomor,
             field,
             value,
+            urutan,
           });
 
           if (!res.ok) {
@@ -198,11 +217,24 @@ export function useMatrixJawaban({
           // Sukses: perbarui nilai tersimpan
           const prevSaved = savedValuesRef.current.get(itemNomor) || {
             skor_audite: null,
+            lampiran_links: {},
             lampiran_link: null,
           };
+
+          const nextLinks = { ...(prevSaved.lampiran_links ?? {}) };
+          if (field === "lampiran_link" && urutan) {
+            if (value) {
+              nextLinks[String(urutan)] = value as string;
+            } else {
+              delete nextLinks[String(urutan)];
+            }
+          }
+
           savedValuesRef.current.set(itemNomor, {
             ...prevSaved,
             [field]: value,
+            lampiran_links: nextLinks,
+            lampiran_link: urutan === 1 ? (value as string | null) : prevSaved.lampiran_link,
           });
 
           // Tampilkan status 'saved'
@@ -234,7 +266,11 @@ export function useMatrixJawaban({
           // Rollback nilai optimistik ke nilai tersimpan sebelumnya
           const lastConfirmed = savedValuesRef.current.get(itemNomor);
           if (lastConfirmed) {
-            updateRowOptimistic(itemNomor, field, lastConfirmed[field]);
+            if (field === "lampiran_link" && urutan) {
+              updateRowOptimistic(itemNomor, field, lastConfirmed.lampiran_links[String(urutan)] ?? null, urutan);
+            } else {
+              updateRowOptimistic(itemNomor, field, lastConfirmed[field]);
+            }
           }
 
           // Set status error
@@ -260,7 +296,8 @@ export function useMatrixJawaban({
         saveField(
           itemNomor,
           last.field,
-          last.value as number | string | null
+          last.value as number | string | null,
+          last.urutan
         );
       }
     },

@@ -56,6 +56,8 @@ export async function updateSession(request: NextRequest) {
     pathname.startsWith("/audit") ||
     pathname.startsWith("/nilai-audit") ||
     pathname.startsWith("/ringkasan") ||
+    pathname.startsWith("/manajemen-user") ||
+    pathname.startsWith("/manajemen-perwakilan") ||
     pathname.startsWith("/dashboard");
 
   // Jika belum login dan mengakses area terproteksi
@@ -103,11 +105,13 @@ export async function updateSession(request: NextRequest) {
     return createRedirectResponse("/dashboard/admin");
   }
 
-  // Pastikan rute admin (/dashboard/admin, /nilai-audit, /ringkasan) hanya untuk role admin
+  // Pastikan rute admin (/dashboard/admin, /nilai-audit, /ringkasan, /manajemen-user, /manajemen-perwakilan) hanya untuk role admin
   if (
     (pathname.startsWith("/dashboard/admin") ||
       pathname.startsWith("/nilai-audit") ||
-      pathname.startsWith("/ringkasan")) &&
+      pathname.startsWith("/ringkasan") ||
+      pathname.startsWith("/manajemen-user") ||
+      pathname.startsWith("/manajemen-perwakilan")) &&
     role !== "admin"
   ) {
     return createRedirectResponse("/dashboard/user");

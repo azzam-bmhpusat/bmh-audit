@@ -7,7 +7,13 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { safeHref } from "@/lib/safe-link";
 import { formatAngka } from "@/lib/format";
-import type { ItemWithPoin, MatrixRowAdmin, MatrixRowCabang } from "@/types/audit";
+import {
+  type ItemWithPoin,
+  type MatrixRowAdmin,
+  type MatrixRowCabang,
+  getLampiranLink,
+  getValidasiStatus,
+} from "@/types/audit";
 import { cn } from "cn";
 import { SkorSelect } from "./skor-select";
 import { LampiranInput } from "./lampiran-input";
@@ -23,12 +29,14 @@ interface ItemCardProps {
   onSaveField?: (
     itemNomor: number,
     field: "skor_audite" | "lampiran_link",
-    value: number | string | null
+    value: number | string | null,
+    urutan?: number
   ) => void;
   onSaveAdminField?: (
     itemNomor: number,
     field: "validasi" | "skor_auditor" | "catatan",
-    value: boolean | number | string | null
+    value: boolean | number | string | null,
+    urutan?: number
   ) => void;
   onSaveBobot?: (itemNomor: number, newBobot: number) => void;
   saveStatus?: { status: SaveStatus; error?: string };
@@ -50,7 +58,6 @@ export const ItemCard = React.memo(function ItemCard({
   onRetry,
 }: ItemCardProps) {
   const adminItem = isMatrixRowAdmin(item) ? item : null;
-  const href = safeHref(item.lampiran_link);
   const isEditableCabang = mode === "cabang" && !readOnly;
   const isEditableAdmin = mode === "admin" && !readOnly;
 
@@ -180,11 +187,70 @@ export const ItemCard = React.memo(function ItemCard({
                     <span className="text-muted-foreground">{poin.fokus_pemeriksaan}</span>
                   </div>
 
-                  <div>
-                    <span className="font-medium text-foreground">Bukti: </span>
-                    <span className="text-muted-foreground">
-                      {poin.bukti_evidence || "—"}
-                    </span>
+                  <div className="space-y-1.5 pt-0.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1.5">
+                      <div>
+                        <span className="font-medium text-foreground">Bukti: </span>
+                        <span className="text-muted-foreground">
+                          {poin.bukti_evidence || "—"}
+                        </span>
+                      </div>
+                      {mode === "admin" && (
+                        <div className="shrink-0">
+                          {isEditableAdmin && onSaveAdminField ? (
+                            <ValidasiControl
+                              itemNomor={item.nomor}
+                              urutan={poin.urutan}
+                              value={getValidasiStatus(adminItem, poin.urutan)}
+                              disabled={readOnly}
+                              onChange={(val) => onSaveAdminField(item.nomor, "validasi", val, poin.urutan)}
+                            />
+                          ) : (() => {
+                            const valStatus = getValidasiStatus(adminItem, poin.urutan);
+                            return valStatus === true ? (
+                              <Badge variant="success" className="text-xs">
+                                Benar
+                              </Badge>
+                            ) : valStatus === false ? (
+                              <Badge variant="destructive" className="text-xs">
+                                Tidak benar
+                              </Badge>
+                            ) : (
+                              <span className="text-xs text-muted-foreground">Belum</span>
+                            );
+                          })()}
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="pt-0.5">
+                      {isEditableCabang ? (
+                        <LampiranInput
+                          itemNomor={item.nomor}
+                          urutan={poin.urutan}
+                          value={getLampiranLink(item, poin.urutan)}
+                          disabled={readOnly}
+                          onSave={(val) => onSaveField?.(item.nomor, "lampiran_link", val, poin.urutan)}
+                        />
+                      ) : (() => {
+                        const linkPoin = getLampiranLink(item, poin.urutan);
+                        const hrefPoin = safeHref(linkPoin);
+                        return hrefPoin ? (
+                          <a
+                            href={hrefPoin}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 text-xs font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
+                            aria-label={`Buka evidence item ${item.nomor} bukti ${poin.urutan}`}
+                          >
+                            Buka evidence #{poin.urutan}
+                            <ExternalLinkIcon className="size-3 shrink-0" />
+                          </a>
+                        ) : (
+                          <span className="text-xs text-muted-foreground">—</span>
+                        );
+                      })()}
+                    </div>
                   </div>
 
                   <div>
@@ -201,172 +267,103 @@ export const ItemCard = React.memo(function ItemCard({
 
         <Separator />
 
-        {/* Input & Kontrol Interaktif */}
+        {/* Input & Kontrol Interaktif (Skor & Nilai) */}
         <div className="space-y-3">
           {mode === "cabang" ? (
-            <>
-              {/* Kontrol Cabang: Skor Audite & Lampiran Link */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
-                <div className="space-y-1.5">
-                  <span className="font-semibold text-foreground">Skor Audite (1–5):</span>
-                  {isEditableCabang ? (
-                    <SkorSelect
-                      itemNomor={item.nomor}
-                      value={item.skor_audite}
-                      disabled={readOnly}
-                      onChange={(val) => onSaveField?.(item.nomor, "skor_audite", val)}
-                    />
-                  ) : item.skor_audite !== null && item.skor_audite !== undefined ? (
-                    <Badge variant="default" className="font-semibold text-xs tabular-nums">
-                      {item.skor_audite}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="font-semibold text-foreground">Nilai Skor:</span>
-                  <div className="h-9 flex items-center">
-                    <span className="text-sm font-bold tabular-nums text-foreground">
-                      {nilaiSkorAudite !== null ? formatAngka(nilaiSkorAudite) : "—"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-
+            /* Kontrol Cabang: Skor Audite & Nilai Skor */
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
               <div className="space-y-1.5">
-                <span className="font-semibold text-foreground">Lampiran (Link Evidence):</span>
+                <span className="font-semibold text-foreground">Skor Audite (1–5):</span>
                 {isEditableCabang ? (
-                  <LampiranInput
+                  <SkorSelect
                     itemNomor={item.nomor}
-                    value={item.lampiran_link}
+                    value={item.skor_audite}
                     disabled={readOnly}
-                    onSave={(val) => onSaveField?.(item.nomor, "lampiran_link", val)}
+                    onChange={(val) => onSaveField?.(item.nomor, "skor_audite", val)}
                   />
-                ) : href ? (
-                  <a
-                    href={href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
-                    aria-label={`Buka evidence item ${item.nomor}`}
-                  >
-                    Buka evidence
-                    <ExternalLinkIcon className="size-3 shrink-0" />
-                  </a>
+                ) : item.skor_audite !== null && item.skor_audite !== undefined ? (
+                  <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                    {item.skor_audite}
+                  </Badge>
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
               </div>
-            </>
-          ) : (
-            <>
-              {/* Kontrol Admin: Lampiran (baca-saja), Skor Audite (baca-saja), Validasi, Skor Auditor, Catatan */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pb-1 border-b">
-                <div>
-                  <span className="font-semibold text-foreground">Evidence Cabang: </span>
-                  {href ? (
-                    <a
-                      href={href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
-                      aria-label={`Buka evidence item ${item.nomor}`}
-                    >
-                      Buka evidence
-                      <ExternalLinkIcon className="size-3 shrink-0" />
-                    </a>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
-                  )}
-                </div>
 
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-foreground">Skor Audite:</span>
+              <div className="space-y-1.5">
+                <span className="font-semibold text-foreground">Nilai Skor:</span>
+                <div className="h-9 flex items-center">
+                  <span className="text-sm font-bold tabular-nums text-foreground">
+                    {nilaiSkorAudite !== null ? formatAngka(nilaiSkorAudite) : "—"}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ) : (
+            /* Kontrol Admin: Skor Audite, Skor Auditor + Catatan, dan Nilai Skor Auditor */
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
+              <div className="space-y-1.5">
+                <span className="font-semibold text-foreground">Skor Audite:</span>
+                <div className="h-9 flex items-center gap-2">
                   <Badge variant="outline" className="tabular-nums">
                     {item.skor_audite ?? "—"}
                   </Badge>
-                  <span className="text-muted-foreground">
+                  <span className="text-xs text-muted-foreground">
                     (Nilai: {nilaiSkorAudite !== null ? formatAngka(nilaiSkorAudite) : "—"})
                   </span>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
-                <div className="space-y-1.5">
-                  <span className="font-semibold text-foreground">Validasi & Catatan:</span>
-                  <div className="flex items-center gap-1.5">
-                    {isEditableAdmin && onSaveAdminField ? (
-                      <>
-                        <ValidasiControl
-                          itemNomor={item.nomor}
-                          value={adminItem?.validasi}
-                          disabled={readOnly}
-                          onChange={(val) => onSaveAdminField(item.nomor, "validasi", val)}
-                        />
+              <div className="space-y-1.5">
+                <span className="font-semibold text-foreground">Skor Auditor & Catatan:</span>
+                <div className="flex items-center gap-1.5">
+                  {isEditableAdmin && onSaveAdminField ? (
+                    <>
+                      <SkorSelect
+                        itemNomor={item.nomor}
+                        value={adminItem?.skor_auditor}
+                        disabled={readOnly}
+                        ariaLabel={`Skor Auditor item ${item.nomor}`}
+                        onChange={(val) => onSaveAdminField(item.nomor, "skor_auditor", val)}
+                      />
+                      <CatatanPopover
+                        itemNomor={item.nomor}
+                        catatan={adminItem?.catatan}
+                        disabled={readOnly}
+                        onSave={(val) => onSaveAdminField(item.nomor, "catatan", val)}
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
+                        <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                          {adminItem.skor_auditor}
+                        </Badge>
+                      ) : (
+                        <span className="text-muted-foreground">—</span>
+                      )}
+                      {adminItem?.catatan && (
                         <CatatanPopover
                           itemNomor={item.nomor}
                           catatan={adminItem?.catatan}
-                          disabled={readOnly}
-                          onSave={(val) => onSaveAdminField(item.nomor, "catatan", val)}
+                          disabled={true}
+                          onSave={() => {}}
                         />
-                      </>
-                    ) : (
-                      <>
-                        {adminItem?.validasi === true ? (
-                          <Badge variant="default" className="text-xs">
-                            Benar
-                          </Badge>
-                        ) : adminItem?.validasi === false ? (
-                          <Badge variant="outline" className="text-xs">
-                            Tidak benar
-                          </Badge>
-                        ) : (
-                          <span className="text-xs text-muted-foreground">Belum</span>
-                        )}
-                        {adminItem?.catatan && (
-                          <CatatanPopover
-                            itemNomor={item.nomor}
-                            catatan={adminItem?.catatan}
-                            disabled={true}
-                            onSave={() => {}}
-                          />
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-
-                <div className="space-y-1.5">
-                  <span className="font-semibold text-foreground">Skor Auditor (1–5):</span>
-                  {isEditableAdmin && onSaveAdminField ? (
-                    <SkorSelect
-                      itemNomor={item.nomor}
-                      value={adminItem?.skor_auditor}
-                      disabled={readOnly}
-                      ariaLabel={`Skor Auditor item ${item.nomor}`}
-                      onChange={(val) => onSaveAdminField(item.nomor, "skor_auditor", val)}
-                    />
-                  ) : adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
-                    <Badge variant="default" className="font-semibold text-xs tabular-nums">
-                      {adminItem.skor_auditor}
-                    </Badge>
-                  ) : (
-                    <span className="text-muted-foreground">—</span>
+                      )}
+                    </>
                   )}
                 </div>
+              </div>
 
-                <div className="space-y-1.5">
-                  <span className="font-semibold text-foreground">Nilai Skor Auditor:</span>
-                  <div className="h-9 flex items-center">
-                    <span className="text-sm font-bold tabular-nums text-foreground">
-                      {nilaiSkorAuditor !== null ? formatAngka(nilaiSkorAuditor) : "—"}
-                    </span>
-                  </div>
+              <div className="space-y-1.5">
+                <span className="font-semibold text-foreground">Nilai Skor Auditor:</span>
+                <div className="h-9 flex items-center">
+                  <span className="text-sm font-bold tabular-nums text-foreground">
+                    {nilaiSkorAuditor !== null ? formatAngka(nilaiSkorAuditor) : "—"}
+                  </span>
                 </div>
               </div>
-            </>
+            </div>
           )}
         </div>
       </CardContent>

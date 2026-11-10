@@ -59,7 +59,7 @@ export default async function NilaiAuditPage(props: PageProps) {
             TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
           </h1>
           <p className="text-xs text-muted-foreground">
-            Satuan Internal Audit (SIA) – BMH
+            Satuan Internal Audit BMH
           </p>
           <p className="text-sm font-medium">Penilaian Auditor SIA</p>
         </div>
@@ -101,7 +101,7 @@ export default async function NilaiAuditPage(props: PageProps) {
             TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
           </h1>
           <p className="text-xs text-muted-foreground">
-            Satuan Internal Audit (SIA) – BMH
+            Satuan Internal Audit BMH
           </p>
           <p className="text-sm font-medium">Penilaian Auditor SIA</p>
         </div>
@@ -192,7 +192,7 @@ export default async function NilaiAuditPage(props: PageProps) {
           Periode : {periodeAktif.nama}
         </p>
         <p className="text-xs text-muted-foreground">
-          Satuan Internal Audit (SIA) – BMH
+          Satuan Internal Audit BMH
         </p>
         <p className="text-sm font-semibold text-foreground">
           BMH Perwakilan {cabang.nama}
@@ -218,6 +218,10 @@ export default async function NilaiAuditPage(props: PageProps) {
         periodeId={periodeAktif.id}
         cabangId={cabang.id}
         poinList={poinList}
+        headerInfo={{
+          title: `Penilaian: ${cabang.nama}`,
+          subtitle: `Periode: ${periodeAktif.nama}`,
+        }}
       />
     </main>
   );

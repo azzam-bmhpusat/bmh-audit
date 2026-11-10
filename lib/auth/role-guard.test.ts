@@ -22,6 +22,8 @@ describe("role-guard", () => {
       expect(canAccessRoute("admin", "/nilai-audit")).toBe(true);
       expect(canAccessRoute("admin", "/nilai-audit?cabang=1")).toBe(true);
       expect(canAccessRoute("admin", "/ringkasan")).toBe(true);
+      expect(canAccessRoute("admin", "/manajemen-user")).toBe(true);
+      expect(canAccessRoute("admin", "/manajemen-perwakilan")).toBe(true);
       expect(canAccessRoute("admin", "/dashboard")).toBe(true);
     });
 
@@ -40,17 +42,21 @@ describe("role-guard", () => {
       expect(canAccessRoute("user", "/dashboard/admin")).toBe(false);
       expect(canAccessRoute("user", "/nilai-audit")).toBe(false);
       expect(canAccessRoute("user", "/ringkasan")).toBe(false);
+      expect(canAccessRoute("user", "/manajemen-user")).toBe(false);
+      expect(canAccessRoute("user", "/manajemen-perwakilan")).toBe(false);
     });
   });
 
   describe("getNavItemsForRole", () => {
     it("memberikan menu khusus admin dengan url yang tepat", () => {
       const items = getNavItemsForRole("admin");
-      expect(items).toHaveLength(3);
+      expect(items).toHaveLength(5);
       expect(items.map((i) => i.url)).toEqual([
         "/dashboard/admin",
         "/nilai-audit",
         "/ringkasan",
+        "/manajemen-perwakilan",
+        "/manajemen-user",
       ]);
     });
 

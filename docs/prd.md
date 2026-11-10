@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Nama proyek** | `bmh-audit` |
-| **Pemilik** | Satuan Internal Audit (SIA) – BMH |
+| **Pemilik** | Satuan Internal Audit BMH |
 | **Periode awal** | Semester-I Tahun 2026 |
 | **Status** | Siap dieksekusi |
 | **Pembaca utama** | Agent eksekusi (coding agent). Dokumen ini ditulis agar bisa dikerjakan tanpa bertanya balik. |
@@ -179,7 +179,7 @@ Server action `signOut` → redirect ke `/`.
 ```
 TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
 Periode : {periode.nama}
-Satuan Internal Audit (SIA) – BMH
+Satuan Internal Audit BMH
 BMH Perwakilan {cabang.nama}
 ```
 

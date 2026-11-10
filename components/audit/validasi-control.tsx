@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { cn } from "cn";
 import {
   Select,
   SelectContent,
@@ -11,6 +12,7 @@ import { CheckCircle2Icon, CircleDashedIcon, XCircleIcon } from "lucide-react";
 
 interface ValidasiControlProps {
   itemNomor: number;
+  urutan?: number;
   value: boolean | null | undefined;
   disabled?: boolean;
   onChange: (value: boolean | null) => void;
@@ -19,12 +21,12 @@ interface ValidasiControlProps {
 /**
  * Kontrol 3 keadaan untuk validasi auditor SIA:
  * - Belum (null)
- * - Benar (true)
- * - Tidak benar (false)
- * Menggunakan Select dengan ikon Lucide + teks, tanpa kelas warna palet khusus.
+ * - Benar (true) -> hijau soft
+ * - Tidak benar (false) -> merah soft
  */
 export function ValidasiControl({
   itemNomor,
+  urutan,
   value,
   disabled = false,
   onChange,
@@ -52,8 +54,15 @@ export function ValidasiControl({
     >
       <SelectTrigger
         size="sm"
-        className="h-7 w-28 px-2 text-xs justify-center mx-auto font-medium gap-1.5"
-        aria-label={`Validasi item ${itemNomor}`}
+        className={cn(
+          "h-7 w-28 px-2 text-xs justify-center mx-auto font-medium gap-1.5 transition-colors",
+          value === true &&
+            "bg-success/15 text-success border-success/30 hover:bg-success/20",
+          value === false &&
+            "bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/20",
+          (value === null || value === undefined) && "text-muted-foreground"
+        )}
+        aria-label={`Validasi item ${itemNomor} bukti ${urutan ?? 1}`}
       >
         {value === true ? (
           <span className="inline-flex items-center gap-1.5 truncate">
@@ -74,20 +83,20 @@ export function ValidasiControl({
       </SelectTrigger>
       <SelectContent align="center">
         <SelectItem value="none" className="text-xs">
-          <span className="inline-flex items-center gap-1.5">
-            <CircleDashedIcon className="size-3.5 shrink-0 text-muted-foreground" />
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <CircleDashedIcon className="size-3.5 shrink-0" />
             <span>Belum</span>
           </span>
         </SelectItem>
-        <SelectItem value="true" className="text-xs">
-          <span className="inline-flex items-center gap-1.5">
-            <CheckCircle2Icon className="size-3.5 shrink-0" />
+        <SelectItem value="true" className="text-xs text-success">
+          <span className="inline-flex items-center gap-1.5 font-medium">
+            <CheckCircle2Icon className="size-3.5 shrink-0 text-success" />
             <span>Benar</span>
           </span>
         </SelectItem>
-        <SelectItem value="false" className="text-xs">
-          <span className="inline-flex items-center gap-1.5">
-            <XCircleIcon className="size-3.5 shrink-0" />
+        <SelectItem value="false" className="text-xs text-destructive">
+          <span className="inline-flex items-center gap-1.5 font-medium">
+            <XCircleIcon className="size-3.5 shrink-0 text-destructive" />
             <span>Tidak benar</span>
           </span>
         </SelectItem>

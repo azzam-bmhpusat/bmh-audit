@@ -19,12 +19,14 @@ interface VariabelGroupProps {
   onSaveField?: (
     itemNomor: number,
     field: "skor_audite" | "lampiran_link",
-    value: number | string | null
+    value: number | string | null,
+    urutan?: number
   ) => void;
   onSaveAdminField?: (
     itemNomor: number,
     field: "validasi" | "skor_auditor" | "catatan",
-    value: boolean | number | string | null
+    value: boolean | number | string | null,
+    urutan?: number
   ) => void;
   onSaveBobot?: (itemNomor: number, newBobot: number) => void;
   saveStatuses?: Record<number, { status: SaveStatus; error?: string }>;

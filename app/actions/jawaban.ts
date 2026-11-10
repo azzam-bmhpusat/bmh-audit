@@ -8,6 +8,7 @@ export interface SimpanJawabanInput {
   periodeId: number;
   itemNomor: number;
   field: "skor_audite" | "lampiran_link";
+  urutan?: number;
   value: number | string | null;
 }
 
@@ -19,6 +20,7 @@ const saveInputSchema = z.object({
   periodeId: z.coerce.number().int().positive("ID periode harus valid"),
   itemNomor: itemNomorSchema,
   field: z.enum(["skor_audite", "lampiran_link"]),
+  urutan: z.coerce.number().int().min(1).max(5).optional(),
 });
 
 /**
@@ -37,6 +39,7 @@ export async function simpanJawaban(
     periodeId: input.periodeId,
     itemNomor: input.itemNomor,
     field: input.field,
+    urutan: input.urutan,
   });
 
   if (!baseParsed.success) {
@@ -45,7 +48,7 @@ export async function simpanJawaban(
     return { ok: false, error: errorMsg };
   }
 
-  const { periodeId, itemNomor, field } = baseParsed.data;
+  const { periodeId, itemNomor, field, urutan } = baseParsed.data;
 
   // 2. Validasi nilai field sesuai skema masing-masing
   let validatedValue: number | string | null = null;
@@ -117,6 +120,7 @@ export async function simpanJawaban(
     item_nomor: number;
     skor_audite?: number | null;
     lampiran_link?: string | null;
+    lampiran_links?: Record<string, string | null>;
   } = {
     periode_id: periodeId,
     cabang_id: profile.cabang_id,
@@ -126,7 +130,37 @@ export async function simpanJawaban(
   if (field === "skor_audite") {
     payload.skor_audite = validatedValue as number | null;
   } else if (field === "lampiran_link") {
-    payload.lampiran_link = validatedValue as string | null;
+    if (urutan) {
+      // Ambil lampiran_links yang sudah ada agar tidak menimpa tautan urutan bukti lain
+      const { data: existingRow } = await supabase
+        .from("audit_jawaban")
+        .select("lampiran_links, lampiran_link")
+        .eq("periode_id", periodeId)
+        .eq("cabang_id", profile.cabang_id)
+        .eq("item_nomor", itemNomor)
+        .maybeSingle();
+
+      const existingMap: Record<string, string | null> =
+        (existingRow?.lampiran_links as Record<string, string | null>) ?? {};
+
+      if (existingRow?.lampiran_link && !existingMap["1"]) {
+        existingMap["1"] = existingRow.lampiran_link;
+      }
+
+      const nextMap = { ...existingMap };
+      if (validatedValue) {
+        nextMap[String(urutan)] = validatedValue as string;
+      } else {
+        delete nextMap[String(urutan)];
+      }
+
+      payload.lampiran_links = nextMap;
+      if (urutan === 1) {
+        payload.lampiran_link = (validatedValue as string | null) ?? null;
+      }
+    } else {
+      payload.lampiran_link = validatedValue as string | null;
+    }
   }
 
   // 6. Jalankan upsert dengan target onConflict (periode_id, cabang_id, item_nomor)

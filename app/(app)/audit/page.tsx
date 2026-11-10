@@ -110,7 +110,7 @@ export default async function AuditPage() {
           Periode : {periodeAktif.nama}
         </p>
         <p className="text-xs text-muted-foreground">
-          Satuan Internal Audit (SIA) – BMH
+          Satuan Internal Audit BMH
         </p>
         <p className="text-sm font-semibold text-foreground">
           BMH Perwakilan {cabangNama || "—"}
@@ -135,6 +135,10 @@ export default async function AuditPage() {
         readOnly={!periodeAktif.is_open}
         periodeId={periodeAktif.id}
         poinList={poinList}
+        headerInfo={{
+          title: `BMH Perwakilan ${cabangNama || "—"}`,
+          subtitle: `Periode: ${periodeAktif.nama}`,
+        }}
       />
     </main>
   );
