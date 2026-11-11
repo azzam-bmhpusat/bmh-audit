@@ -3,67 +3,28 @@
 import * as React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type { MatrixRowCabang } from "@/types/audit";
 import { formatPersen } from "@/lib/format";
-import { LayersIcon, CheckCircle2Icon } from "lucide-react";
+import {
+  calculatePilarBreakdown,
+  type PilarSummaryItem,
+} from "@/lib/penilaian/pilar";
+import { LayersIcon } from "lucide-react";
+
+export type { PilarSummaryItem };
+export { calculatePilarBreakdown };
 
 interface UserPilarBreakdownProps {
-  rows: MatrixRowCabang[];
+  rows?: MatrixRowCabang[];
+  pilarList?: PilarSummaryItem[];
 }
 
-interface PilarSummaryItem {
-  kode: string;
-  nama: string;
-  totalBobot: number;
-  totalItem: number;
-  itemTerisi: number;
-  totalNilaiSkor: number;
-  skorMaks: number;
-  persenSkor: number;
-}
-
-export function UserPilarBreakdown({ rows }: UserPilarBreakdownProps) {
+export function UserPilarBreakdown({ rows = [], pilarList: initialList }: UserPilarBreakdownProps) {
   const pilarList = React.useMemo(() => {
-    const map = new Map<string, PilarSummaryItem>();
-
-    for (const r of rows) {
-      const kode = r.pilar_kode || "LAINNYA";
-      const nama = r.pilar_nama || "Pilar Audit";
-      const existing = map.get(kode) || {
-        kode,
-        nama,
-        totalBobot: 0,
-        totalItem: 0,
-        itemTerisi: 0,
-        totalNilaiSkor: 0,
-        skorMaks: 0,
-        persenSkor: 0,
-      };
-
-      existing.totalItem += 1;
-      existing.totalBobot += r.bobot;
-      if (r.skor_audite !== null) {
-        existing.itemTerisi += 1;
-        const nilai = r.nilai_skor ?? r.skor_audite * r.bobot;
-        existing.totalNilaiSkor += nilai;
-      }
-
-      map.set(kode, existing);
-    }
-
-    const result: PilarSummaryItem[] = [];
-    for (const item of map.values()) {
-      item.skorMaks = item.totalBobot * 5;
-      item.persenSkor =
-        item.skorMaks > 0
-          ? Math.round((item.totalNilaiSkor * 10000) / item.skorMaks) / 100
-          : 0;
-      result.push(item);
-    }
-
-    return result;
-  }, [rows]);
+    if (initialList && initialList.length > 0) return initialList;
+    return calculatePilarBreakdown(rows);
+  }, [rows, initialList]);
 
   if (pilarList.length === 0) return null;
 
@@ -79,9 +40,7 @@ export function UserPilarBreakdown({ rows }: UserPilarBreakdownProps) {
             Distribusi pemenuhan instrumen dan estimasi capaian nilai per pilar kepatuhan integratif.
           </CardDescription>
         </div>
-        <Badge variant="outline" className="text-xs font-normal">
-          {pilarList.length} Pilar
-        </Badge>
+        <StatusBadge status="neutral" label={`${pilarList.length} Pilar`} size="xs" />
       </CardHeader>
 
       <CardContent className="p-4 pt-0">
@@ -89,6 +48,14 @@ export function UserPilarBreakdown({ rows }: UserPilarBreakdownProps) {
           {pilarList.map((p) => {
             const isComplete = p.itemTerisi === p.totalItem && p.totalItem > 0;
             const itemPercent = p.totalItem > 0 ? Math.round((p.itemTerisi / p.totalItem) * 100) : 0;
+
+            const progressVariant = isComplete
+              ? "success"
+              : itemPercent >= 75
+              ? "info"
+              : itemPercent >= 50
+              ? "warning"
+              : "danger";
 
             return (
               <div
@@ -101,14 +68,18 @@ export function UserPilarBreakdown({ rows }: UserPilarBreakdownProps) {
                       {p.kode}
                     </span>
                     {isComplete ? (
-                      <Badge variant="success" className="text-[10px] px-1.5 py-0 h-4 gap-0.5">
-                        <CheckCircle2Icon className="size-2.5" />
-                        <span>Lengkap</span>
-                      </Badge>
+                      <StatusBadge
+                        status="success"
+                        label="Lengkap"
+                        icon={true}
+                        size="xs"
+                      />
                     ) : (
-                      <span className="text-[10px] text-muted-foreground tabular-nums">
-                        {itemPercent}% terisi
-                      </span>
+                      <StatusBadge
+                        status={itemPercent >= 50 ? "info" : "warning"}
+                        label={`${itemPercent}%`}
+                        size="xs"
+                      />
                     )}
                   </div>
 
@@ -125,7 +96,12 @@ export function UserPilarBreakdown({ rows }: UserPilarBreakdownProps) {
                     </span>
                   </div>
 
-                  <Progress value={p.itemTerisi} max={p.totalItem} className="h-1.5" />
+                  <Progress
+                    value={p.itemTerisi}
+                    max={p.totalItem}
+                    variant={progressVariant}
+                    className="h-1.5"
+                  />
 
                   <div className="flex items-center justify-between text-[10px] text-muted-foreground tabular-nums">
                     <span>

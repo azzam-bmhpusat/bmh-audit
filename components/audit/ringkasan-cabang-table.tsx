@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatAngka, formatPersen } from "@/lib/format";
 
@@ -116,16 +117,16 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
                     </TableCell>
 
                     <TableCell className="text-center tabular-nums">
-                      <div className="flex flex-col items-center gap-0.5">
+                      <div className="flex flex-col items-center gap-1">
                         <span className="font-medium">
                           {item.itemTerisiAudite} / {item.totalItem} item
                         </span>
-                        <Badge
-                          variant={isAuditeLengkap ? "default" : "secondary"}
-                          className="text-[10px] px-1.5 py-0 h-4"
+                        <StatusBadge
+                          status={isAuditeLengkap ? "success" : item.itemTerisiAudite > 0 ? "warning" : "neutral"}
+                          size="xs"
                         >
                           {formatPersen(item.persenAudite)}
-                        </Badge>
+                        </StatusBadge>
                       </div>
                     </TableCell>
 
@@ -134,16 +135,16 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
                     </TableCell>
 
                     <TableCell className="text-center tabular-nums">
-                      <div className="flex flex-col items-center gap-0.5">
+                      <div className="flex flex-col items-center gap-1">
                         <span className="font-medium">
                           {item.itemDinilaiAuditor} / {item.totalItem} item
                         </span>
-                        <Badge
-                          variant={isAuditorLengkap ? "default" : "secondary"}
-                          className="text-[10px] px-1.5 py-0 h-4"
+                        <StatusBadge
+                          status={isAuditorLengkap ? "success" : item.itemDinilaiAuditor > 0 ? "warning" : "neutral"}
+                          size="xs"
                         >
                           {formatPersen(item.persenAuditor)}
-                        </Badge>
+                        </StatusBadge>
                       </div>
                     </TableCell>
 
@@ -185,8 +186,12 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
             Tidak ada cabang yang cocok dengan pencarian &quot;{search}&quot;.
           </div>
         ) : (
-          filteredData.map((item, idx) => (
-            <Card key={item.cabangId} className="shadow-xs border">
+          filteredData.map((item, idx) => {
+            const isAuditeLengkap = item.itemTerisiAudite === item.totalItem && item.totalItem > 0;
+            const isAuditorLengkap = item.itemDinilaiAuditor === item.totalItem && item.totalItem > 0;
+
+            return (
+              <Card key={item.cabangId} className="shadow-xs border">
               <CardHeader className="p-3.5 pb-2 border-b bg-muted/20 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Badge variant="outline" className="text-[10px] tabular-nums">
@@ -204,17 +209,33 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
               </CardHeader>
               <CardContent className="p-3.5 space-y-3 text-xs">
                 <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <span className="text-muted-foreground">Progres Cabang:</span>
-                    <div className="font-semibold tabular-nums">
-                      {item.itemTerisiAudite} / {item.totalItem} ({formatPersen(item.persenAudite)})
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold tabular-nums">
+                        {item.itemTerisiAudite}/{item.totalItem}
+                      </span>
+                      <StatusBadge
+                        status={isAuditeLengkap ? "success" : item.itemTerisiAudite > 0 ? "warning" : "neutral"}
+                        size="xs"
+                      >
+                        {formatPersen(item.persenAudite)}
+                      </StatusBadge>
                     </div>
                   </div>
 
-                  <div className="space-y-0.5">
+                  <div className="space-y-1">
                     <span className="text-muted-foreground">Penilaian SIA:</span>
-                    <div className="font-semibold tabular-nums">
-                      {item.itemDinilaiAuditor} / {item.totalItem} ({formatPersen(item.persenAuditor)})
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-semibold tabular-nums">
+                        {item.itemDinilaiAuditor}/{item.totalItem}
+                      </span>
+                      <StatusBadge
+                        status={isAuditorLengkap ? "success" : item.itemDinilaiAuditor > 0 ? "warning" : "neutral"}
+                        size="xs"
+                      >
+                        {formatPersen(item.persenAuditor)}
+                      </StatusBadge>
                     </div>
                   </div>
                 </div>
@@ -245,7 +266,8 @@ export function RingkasanCabangTable({ data, periodeId }: RingkasanCabangTablePr
                 </div>
               </CardContent>
             </Card>
-          ))
+          );
+        })
         )}
       </div>
     </div>

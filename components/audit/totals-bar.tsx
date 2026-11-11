@@ -3,8 +3,17 @@
 import * as React from "react";
 import { TableCell, TableFooter, TableRow } from "@/components/ui/table";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { Progress } from "@/components/ui/progress";
 import { formatAngka, formatPersen, formatRasio } from "@/lib/format";
 import type { MatrixTree } from "@/types/audit";
+
+function getCapaianStatus(persen: number): "success" | "info" | "warning" | "danger" {
+  if (persen >= 80) return "success";
+  if (persen >= 65) return "info";
+  if (persen >= 50) return "warning";
+  return "danger";
+}
 
 interface TotalsFooterProps {
   data: MatrixTree;
@@ -128,6 +137,7 @@ export function TotalsFooter({ data, mode }: TotalsFooterProps) {
 interface TotalsSummaryCardProps {
   data: MatrixTree;
   title?: string;
+  compact?: boolean;
 }
 
 /**
@@ -136,31 +146,95 @@ interface TotalsSummaryCardProps {
 export function TotalsSummaryCard({
   data,
   title = "Ringkasan Pengisian Audit",
+  compact = false,
 }: TotalsSummaryCardProps) {
+  const isLengkap = data.totalItem > 0 && data.itemTerisi === data.totalItem;
+  const progresPersen = data.totalItem > 0 ? (data.itemTerisi / data.totalItem) * 100 : 0;
+  const capaianStatus = getCapaianStatus(data.persenAudite);
+
+  if (compact) {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-3 py-1.5 rounded-lg border border-border/80 bg-card text-xs shadow-2xs">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted-foreground">Progres:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {data.itemTerisi} / {data.totalItem} item
+          </span>
+          <StatusBadge
+            status={isLengkap ? "success" : data.itemTerisi > 0 ? "warning" : "neutral"}
+            size="xs"
+            icon={true}
+          >
+            {isLengkap ? "Lengkap" : data.itemTerisi > 0 ? "Belum Lengkap" : "Belum Diisi"}
+          </StatusBadge>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Total Bobot:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {formatAngka(data.totalBobot)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Nilai Skor:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {formatAngka(data.totalNilaiSkor)}{" "}
+            <span className="text-[10px] font-normal text-muted-foreground">
+              / {formatAngka(data.skorMaksimumIdeal)}
+            </span>
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Capaian:</span>
+          <StatusBadge status={capaianStatus} size="xs">
+            {formatPersen(data.persenAudite)}
+          </StatusBadge>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold tracking-tight">
-          {title}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold tracking-tight">
+            {title}
+          </CardTitle>
+          <StatusBadge
+            status={isLengkap ? "success" : data.itemTerisi > 0 ? "warning" : "neutral"}
+            size="sm"
+            icon={true}
+          >
+            {isLengkap ? "Seluruh Butir Lengkap" : `${data.itemTerisi} dari ${data.totalItem} Terisi`}
+          </StatusBadge>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Progres Pengisian</span>
             <div className="text-xl font-bold tabular-nums">
               {data.itemTerisi} / {data.totalItem} item
             </div>
+            <Progress
+              value={progresPersen}
+              variant={isLengkap ? "success" : "warning"}
+              className="h-1.5 w-full"
+            />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Total Bobot</span>
             <div className="text-xl font-bold tabular-nums">
               {formatAngka(data.totalBobot)}
             </div>
+            <div className="text-[11px] text-muted-foreground">Bobot instrumen audit</div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Nilai Skor Audite</span>
             <div className="text-xl font-bold tabular-nums">
               {formatAngka(data.totalNilaiSkor)}{" "}
@@ -168,13 +242,20 @@ export function TotalsSummaryCard({
                 / {formatAngka(data.skorMaksimumIdeal)}
               </span>
             </div>
+            <div className="text-[11px] text-muted-foreground">Dari skor maksimum ideal</div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Capaian Audite</span>
-            <div className="text-xl font-bold tabular-nums">
-              {formatPersen(data.persenAudite)}
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold tabular-nums">
+                {formatPersen(data.persenAudite)}
+              </span>
+              <StatusBadge status={capaianStatus} size="sm">
+                {data.persenAudite >= 80 ? "Sangat Baik" : data.persenAudite >= 65 ? "Baik" : data.persenAudite >= 50 ? "Cukup" : "Perlu Perbaikan"}
+              </StatusBadge>
             </div>
+            <div className="text-[11px] text-muted-foreground">Klasifikasi kepatuhan</div>
           </div>
         </div>
       </CardContent>
@@ -188,6 +269,7 @@ export function TotalsSummaryCard({
 export function TotalsAdminSummaryCard({
   data,
   title = "Ringkasan Penilaian Auditor SIA",
+  compact = false,
 }: TotalsSummaryCardProps) {
   const itemDinilai = React.useMemo(() => {
     let count = 0;
@@ -207,30 +289,93 @@ export function TotalsAdminSummaryCard({
     return count;
   }, [data?.pilarList]);
 
+  const isLengkap = data.totalItem > 0 && itemDinilai === data.totalItem;
+  const progresPersen = data.totalItem > 0 ? (itemDinilai / data.totalItem) * 100 : 0;
+  const capaianStatus = getCapaianStatus(data.persenAuditor ?? 0);
+
+  if (compact) {
+    return (
+      <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 px-3 py-1.5 rounded-lg border border-border/80 bg-card text-xs shadow-2xs">
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-muted-foreground">Dinilai Auditor:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {itemDinilai} / {data.totalItem} item
+          </span>
+          <StatusBadge
+            status={isLengkap ? "success" : itemDinilai > 0 ? "warning" : "neutral"}
+            size="xs"
+            icon={true}
+          >
+            {isLengkap ? "Lengkap" : itemDinilai > 0 ? "Sebagian" : "Belum"}
+          </StatusBadge>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Total Bobot:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {formatAngka(data.totalBobot)}
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Nilai SIA:</span>
+          <span className="font-bold tabular-nums text-foreground">
+            {formatAngka(data.totalNilaiSkorAuditor ?? 0)}{" "}
+            <span className="text-[10px] font-normal text-muted-foreground">
+              / {formatAngka(data.skorMaksimumIdeal)}
+            </span>
+          </span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <span className="text-[11px] text-muted-foreground">Capaian:</span>
+          <StatusBadge status={capaianStatus} size="xs">
+            {formatPersen(data.persenAuditor ?? 0)}
+          </StatusBadge>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <Card className="w-full">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-semibold tracking-tight">
-          {title}
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-sm font-semibold tracking-tight">
+            {title}
+          </CardTitle>
+          <StatusBadge
+            status={isLengkap ? "success" : itemDinilai > 0 ? "warning" : "neutral"}
+            size="sm"
+            icon={true}
+          >
+            {isLengkap ? "Lengkap Dinilai" : `${itemDinilai} dari ${data.totalItem} Dinilai`}
+          </StatusBadge>
+        </div>
       </CardHeader>
       <CardContent>
         <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Dinilai Auditor</span>
             <div className="text-xl font-bold tabular-nums">
               {itemDinilai} / {data.totalItem} item
             </div>
+            <Progress
+              value={progresPersen}
+              variant={isLengkap ? "success" : "warning"}
+              className="h-1.5 w-full"
+            />
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Total Bobot</span>
             <div className="text-xl font-bold tabular-nums">
               {formatAngka(data.totalBobot)}
             </div>
+            <div className="text-[11px] text-muted-foreground">Bobot instrumen audit</div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Nilai Skor SIA</span>
             <div className="text-xl font-bold tabular-nums">
               {formatAngka(data.totalNilaiSkorAuditor ?? 0)}{" "}
@@ -238,13 +383,20 @@ export function TotalsAdminSummaryCard({
                 / {formatAngka(data.skorMaksimumIdeal)}
               </span>
             </div>
+            <div className="text-[11px] text-muted-foreground">Dari skor maksimum ideal</div>
           </div>
 
-          <div className="space-y-1">
+          <div className="space-y-1.5">
             <span className="text-xs text-muted-foreground">Capaian SIA</span>
-            <div className="text-xl font-bold tabular-nums">
-              {formatPersen(data.persenAuditor ?? 0)}
+            <div className="flex items-center gap-2">
+              <span className="text-xl font-bold tabular-nums">
+                {formatPersen(data.persenAuditor ?? 0)}
+              </span>
+              <StatusBadge status={capaianStatus} size="sm">
+                {(data.persenAuditor ?? 0) >= 80 ? "Sangat Baik" : (data.persenAuditor ?? 0) >= 65 ? "Baik" : (data.persenAuditor ?? 0) >= 50 ? "Cukup" : "Perlu Perbaikan"}
+              </StatusBadge>
             </div>
+            <div className="text-[11px] text-muted-foreground">Klasifikasi kepatuhan auditor</div>
           </div>
         </div>
       </CardContent>

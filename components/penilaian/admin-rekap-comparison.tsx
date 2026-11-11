@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge, type StatusType } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -18,6 +19,8 @@ interface AdminRekapComparisonProps {
   penilaian: PenilaianAdmin;
 }
 
+export type RekapComparisonProps = AdminRekapComparisonProps;
+
 const idDecimalFormatter = new Intl.NumberFormat("id-ID", {
   minimumFractionDigits: 2,
   maximumFractionDigits: 2,
@@ -31,19 +34,19 @@ export function AdminRekapComparison({
   const isZeroAudite = penilaian.jumlah_butir_terisi === 0;
   const isZeroAuditor = penilaian.jumlah_butir_diaudit === 0;
 
-  const getBadgeVariant = (nilai: string) => {
+  const getPredikatStatus = (nilai: string): StatusType => {
     switch (nilai.toUpperCase()) {
       case "A":
-        return "default" as const;
+        return "success";
       case "B":
-        return "secondary" as const;
+        return "info";
       case "C":
+        return "warning";
       case "D":
-        return "outline" as const;
       case "E":
-        return "destructive" as const;
+        return "danger";
       default:
-        return "outline" as const;
+        return "neutral";
     }
   };
 
@@ -121,12 +124,13 @@ export function AdminRekapComparison({
                         Belum ada isian
                       </span>
                     ) : (
-                      <Badge
-                        variant={getBadgeVariant(penilaian.nilai_kepatuhan_audite)}
+                      <StatusBadge
+                        status={getPredikatStatus(penilaian.nilai_kepatuhan_audite)}
+                        size="sm"
                         className="font-bold px-2.5 py-0.5 text-xs"
                       >
                         {penilaian.nilai_kepatuhan_audite}
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </TableCell>
                 </TableRow>
@@ -228,12 +232,13 @@ export function AdminRekapComparison({
                         Belum diaudit
                       </span>
                     ) : (
-                      <Badge
-                        variant={getBadgeVariant(penilaian.nilai_kepatuhan_auditor)}
+                      <StatusBadge
+                        status={getPredikatStatus(penilaian.nilai_kepatuhan_auditor)}
+                        size="sm"
                         className="font-bold px-2.5 py-0.5 text-xs"
                       >
                         {penilaian.nilai_kepatuhan_auditor}
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </TableCell>
                 </TableRow>
@@ -268,42 +273,48 @@ export function AdminRekapComparison({
                 <span className="text-muted-foreground font-medium">
                   Selisih Skor / Nilai Akhir:
                 </span>
-                <div className="flex items-center gap-3">
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 font-semibold tabular-nums",
-                      penilaian.selisih_skor < 0
-                        ? "text-destructive"
-                        : "text-foreground"
-                    )}
-                  >
-                    {penilaian.selisih_skor < 0 ? (
-                      <ArrowDownIcon className="size-3" />
-                    ) : penilaian.selisih_skor > 0 ? (
-                      <ArrowUpIcon className="size-3" />
-                    ) : (
-                      <MinusIcon className="size-3 text-muted-foreground" />
-                    )}
-                    <span>
-                      {penilaian.selisih_skor > 0 ? "+" : ""}
-                      {penilaian.selisih_skor} poin
-                    </span>
-                  </div>
+                {isZeroAuditor ? (
+                  <span className="text-xs text-muted-foreground font-medium">
+                    Belum diaudit
+                  </span>
+                ) : (
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={cn(
+                        "flex items-center gap-1 font-semibold tabular-nums",
+                        penilaian.selisih_skor < 0
+                          ? "text-destructive"
+                          : "text-foreground"
+                      )}
+                    >
+                      {penilaian.selisih_skor < 0 ? (
+                        <ArrowDownIcon className="size-3" />
+                      ) : penilaian.selisih_skor > 0 ? (
+                        <ArrowUpIcon className="size-3" />
+                      ) : (
+                        <MinusIcon className="size-3 text-muted-foreground" />
+                      )}
+                      <span>
+                        {penilaian.selisih_skor > 0 ? "+" : ""}
+                        {penilaian.selisih_skor} poin
+                      </span>
+                    </div>
 
-                  <div
-                    className={cn(
-                      "flex items-center gap-1 font-bold tabular-nums text-sm",
-                      penilaian.selisih_nilai_akhir < 0
-                        ? "text-destructive"
-                        : "text-foreground"
-                    )}
-                  >
-                    <span>
-                      ({penilaian.selisih_nilai_akhir > 0 ? "+" : ""}
-                      {idDecimalFormatter.format(penilaian.selisih_nilai_akhir)}%)
-                    </span>
+                    <div
+                      className={cn(
+                        "flex items-center gap-1 font-bold tabular-nums text-sm",
+                        penilaian.selisih_nilai_akhir < 0
+                          ? "text-destructive"
+                          : "text-foreground"
+                      )}
+                    >
+                      <span>
+                        ({penilaian.selisih_nilai_akhir > 0 ? "+" : ""}
+                        {idDecimalFormatter.format(penilaian.selisih_nilai_akhir)}%)
+                      </span>
+                    </div>
                   </div>
-                </div>
+                )}
               </div>
             </div>
           </CardContent>
@@ -312,3 +323,5 @@ export function AdminRekapComparison({
     </div>
   );
 }
+
+export const RekapComparison = AdminRekapComparison;

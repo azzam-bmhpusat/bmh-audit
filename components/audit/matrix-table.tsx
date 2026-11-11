@@ -18,6 +18,7 @@ import { useMatrixJawaban } from "./use-matrix-jawaban";
 import { useMatrixAdmin } from "./use-matrix-admin";
 import { PortalContainerContext } from "@/components/ui/portal-context";
 import { Toaster } from "@/components/ui/sonner";
+import { StatusBadge } from "@/components/ui/status-badge";
 import type {
   ItemPoin,
   MatrixRowAdmin,
@@ -226,7 +227,7 @@ function MatrixTableView({
         className={cn(
           "space-y-4",
           isOverlayOpen &&
-            "fixed inset-0 z-50 flex flex-col bg-background/98 backdrop-blur-xs p-4 sm:p-6 overflow-hidden space-y-3",
+            "fixed inset-0 z-50 flex flex-col bg-background/98 backdrop-blur-xs p-2 sm:px-4 sm:py-2.5 overflow-hidden space-y-2",
           isFullscreen && !isExiting && "animate-in fade-in-0 zoom-in-95 duration-250 ease-out",
           isExiting && "animate-out fade-out-0 zoom-out-95 duration-200 ease-in fill-mode-forwards"
         )}
@@ -238,6 +239,9 @@ function MatrixTableView({
         {isOverlayOpen && headerInfo && (
           <div className="flex items-center justify-between border-b pb-2 px-1 text-xs no-print shrink-0 animate-in fade-in duration-200">
             <div className="flex items-center gap-2 min-w-0">
+              <StatusBadge status="info" size="xs">
+                Layar Penuh
+              </StatusBadge>
               <span className="font-bold uppercase tracking-wider text-foreground truncate">
                 {headerInfo.title || "Instrumen Audit"}
               </span>
@@ -260,18 +264,33 @@ function MatrixTableView({
         {/* Ringkasan status audite live di atas tabel (hanya mode cabang) */}
         {mode === "cabang" && showSummaryCard && (
           <div className="shrink-0">
-            <TotalsSummaryCard data={activeTree} />
+            <TotalsSummaryCard data={activeTree} compact={isOverlayOpen} />
           </div>
         )}
 
         {/* Toolbar kontrol atas tabel */}
         <div className="flex flex-wrap items-center justify-between gap-2 no-print shrink-0">
-          <div className="text-xs text-muted-foreground">
-            Total instrumen:{" "}
-            <span className="font-semibold text-foreground">
-              {activeTree.totalItem} item
-            </span>{" "}
-            ({activeTree.pilarList.length} pilar, {allVariabelCodes.length} variabel)
+          <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+            <span>
+              Total instrumen:{" "}
+              <span className="font-semibold text-foreground">
+                {activeTree.totalItem} item
+              </span>{" "}
+              ({activeTree.pilarList.length} pilar, {allVariabelCodes.length} variabel)
+            </span>
+            {activeTree.itemTerisi === activeTree.totalItem && activeTree.totalItem > 0 ? (
+              <StatusBadge status="success" size="xs" icon={true}>
+                Selesai
+              </StatusBadge>
+            ) : activeTree.itemTerisi > 0 ? (
+              <StatusBadge status="warning" size="xs" icon={true}>
+                {activeTree.itemTerisi}/{activeTree.totalItem} Terisi
+              </StatusBadge>
+            ) : (
+              <StatusBadge status="neutral" size="xs">
+                Belum Terisi
+              </StatusBadge>
+            )}
           </div>
 
           <div className="flex flex-wrap items-center gap-2">
@@ -450,9 +469,9 @@ function MatrixTableView({
 
           {/* Baris total untuk tampilan kartu */}
           {mode === "admin" ? (
-            <TotalsAdminSummaryCard data={activeTree} />
+            <TotalsAdminSummaryCard data={activeTree} compact={isOverlayOpen} />
           ) : (
-            !showSummaryCard && <TotalsSummaryCard data={activeTree} />
+            !showSummaryCard && <TotalsSummaryCard data={activeTree} compact={isOverlayOpen} />
           )}
         </div>
       )}

@@ -187,21 +187,21 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
       <div className="flex items-center gap-3">
         <DropdownMenu>
           <DropdownMenuTrigger
+            disabled={isLoggingOut}
             render={
               <Button
                 variant="outline"
                 size="sm"
-                className="gap-2"
-                disabled={isLoggingOut}
-              />
+                className="gap-2 cursor-pointer"
+              >
+                <UserIcon className="size-4 text-muted-foreground" />
+                <span className="max-w-[120px] truncate sm:max-w-[180px] font-medium text-xs sm:text-sm">
+                  {displayName}
+                </span>
+                <ChevronDownIcon className="size-3.5 text-muted-foreground" />
+              </Button>
             }
-          >
-            <UserIcon className="size-4 text-muted-foreground" />
-            <span className="max-w-[120px] truncate sm:max-w-[180px] font-medium text-xs sm:text-sm">
-              {displayName}
-            </span>
-            <ChevronDownIcon className="size-3.5 text-muted-foreground" />
-          </DropdownMenuTrigger>
+          />
 
           <DropdownMenuContent align="end" className="w-56">
             <DropdownMenuGroup>

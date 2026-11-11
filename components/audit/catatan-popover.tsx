@@ -63,7 +63,7 @@ export function CatatanPopover({
             disabled={disabled}
             className={cn(
               "size-6 relative",
-              hasCatatan && "font-semibold"
+              hasCatatan && "bg-warning-bg text-warning-text border-warning-border border font-semibold"
             )}
             aria-label={`Catatan auditor item ${itemNomor}`}
           />
@@ -71,7 +71,13 @@ export function CatatanPopover({
       >
         <MessageSquareIcon className="size-3.5" />
         {hasCatatan && (
-          <span className="sr-only">Ada catatan auditor</span>
+          <>
+            <span
+              className="absolute -top-0.5 -right-0.5 size-1.5 rounded-full bg-warning-text"
+              aria-hidden="true"
+            />
+            <span className="sr-only">Ada catatan auditor</span>
+          </>
         )}
       </PopoverTrigger>
       <PopoverContent align="center" side="top" className="w-80 p-3 space-y-3">

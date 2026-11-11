@@ -1,11 +1,22 @@
 import { Suspense } from "react";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertCircleIcon, InfoIcon, SearchIcon } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  AlertCircleIcon,
+  InfoIcon,
+  Building2Icon,
+  ArrowRightIcon,
+  ShieldCheckIcon,
+  FileTextIcon,
+  CheckCircle2Icon,
+} from "lucide-react";
 import { itemPoinSchema, matrixRowAdminSchema, searchParamsSchema } from "@/lib/schemas";
 import { buildMatrixTree } from "@/lib/matrix";
 import { MatrixTable } from "@/components/audit/matrix-table";
@@ -56,18 +67,30 @@ export default async function NilaiAuditPage(props: PageProps) {
   if (!parsedParams.cabang) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight uppercase">
-            TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Satuan Internal Audit BMH
-          </p>
-          <p className="text-sm font-medium">Penilaian Auditor SIA</p>
+        {/* Header Halaman Modern */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/60">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 border-primary/30 text-primary bg-primary/5">
+                Portal Auditor SIA
+              </Badge>
+              {periodeAktif && (
+                <Badge variant={periodeAktif.is_open ? "success" : "secondary"} className="text-[11px] px-2 py-0.5">
+                  Periode: {periodeAktif.nama}
+                </Badge>
+              )}
+            </div>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              Penilaian Audit Perwakilan
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Matriks instrumen kepatuhan integratif LAZNAS BMH — Pilih cabang untuk memulai pengujian skor & verifikasi bukti
+            </p>
+          </div>
         </div>
 
         {/* Pemilih Cabang & Periode interaktif */}
-        <Suspense fallback={<div className="h-16 rounded-lg border bg-card/50 animate-pulse" />}>
+        <Suspense fallback={<div className="h-16 rounded-xl border bg-card/50 animate-pulse" />}>
           <CabangPicker
             cabangList={cabangList}
             periodeList={periodeList}
@@ -75,17 +98,93 @@ export default async function NilaiAuditPage(props: PageProps) {
           />
         </Suspense>
 
-        <Card className="border-dashed">
-          <CardHeader className="text-center py-10 space-y-2">
-            <SearchIcon className="size-8 mx-auto text-muted-foreground" />
-            <CardTitle className="text-base font-semibold">
-              Pilih Perwakilan BMH untuk mulai menilai.
-            </CardTitle>
+        {/* Card Petunjuk Alur Kerja Singkat */}
+        <div className="grid gap-4 sm:grid-cols-3">
+          <Card className="bg-card/60 border-border/60 shadow-xs">
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-center gap-2 text-primary font-semibold text-xs">
+                <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center font-bold text-xs">
+                  1
+                </div>
+                <span>Pilih Perwakilan</span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 pt-1">
+              <p className="text-xs text-muted-foreground">
+                Gunakan search bar di atas atau klik langsung salah satu cabang di bawah.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border/60 shadow-xs">
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-center gap-2 text-primary font-semibold text-xs">
+                <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center font-bold text-xs">
+                  2
+                </div>
+                <span>Uji Petik & Verifikasi</span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 pt-1">
+              <p className="text-xs text-muted-foreground">
+                Bandingkan skor mandiri cabang dengan tautan bukti dukung evidence di Google Drive.
+              </p>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-card/60 border-border/60 shadow-xs">
+            <CardHeader className="p-4 pb-2">
+              <div className="flex items-center gap-2 text-primary font-semibold text-xs">
+                <div className="size-6 rounded-full bg-primary/10 flex items-center justify-center font-bold text-xs">
+                  3
+                </div>
+                <span>Beri Skor & Finalisasi</span>
+              </div>
+            </CardHeader>
+            <CardContent className="p-4 pt-1">
+              <p className="text-xs text-muted-foreground">
+                Isi skor auditor (1-5) dan tetapkan status audit menjadi &quot;Sudah Diaudit&quot;.
+              </p>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Akses Cepat Daftar Semua Perwakilan */}
+        <Card className="border-border/70 shadow-xs">
+          <CardHeader className="pb-3 border-b border-border/50">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <CardTitle className="text-base font-semibold flex items-center gap-2">
+                  <Building2Icon className="size-4 text-primary" />
+                  <span>Daftar Seluruh Perwakilan ({cabangList.length})</span>
+                </CardTitle>
+                <CardDescription className="text-xs">
+                  Klik langsung salah satu perwakilan di bawah untuk membuka instrumen auditnya
+                </CardDescription>
+              </div>
+            </div>
           </CardHeader>
-          <CardContent className="text-center pb-8">
-            <p className="text-sm text-muted-foreground max-w-md mx-auto">
-              Gunakan pemilih cabang di atas untuk memuat instrumen penilaian audit kepatuhan cabang terkait.
-            </p>
+          <CardContent className="p-4 sm:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2.5">
+              {cabangList.map((c) => {
+                const targetUrl = `/nilai-audit?cabang=${c.id}${periodeAktif ? `&periode=${periodeAktif.id}` : ""}`;
+                return (
+                  <Link
+                    key={c.id}
+                    href={targetUrl}
+                    className="group flex items-center justify-between p-3 rounded-lg border border-border/60 bg-background hover:bg-accent/40 hover:border-primary/40 transition-all shadow-2xs"
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <span className="size-2 rounded-full bg-primary/60 group-hover:bg-primary transition-colors shrink-0" />
+                      <span className="text-xs font-medium text-foreground truncate group-hover:text-primary transition-colors">
+                        {c.nama}
+                      </span>
+                    </div>
+                    <ArrowRightIcon className="size-3 text-muted-foreground opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 transition-all shrink-0 ml-1" />
+                  </Link>
+                );
+              })}
+            </div>
           </CardContent>
         </Card>
       </main>
@@ -98,17 +197,18 @@ export default async function NilaiAuditPage(props: PageProps) {
   if (!cabang) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
-        <div className="space-y-1">
-          <h1 className="text-xl font-bold tracking-tight uppercase">
-            TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Satuan Internal Audit BMH
-          </p>
-          <p className="text-sm font-medium">Penilaian Auditor SIA</p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/60">
+          <div className="space-y-1">
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
+              Penilaian Audit Perwakilan
+            </h1>
+            <p className="text-xs sm:text-sm text-muted-foreground">
+              Satuan Internal Audit (SIA) LAZNAS BMH
+            </p>
+          </div>
         </div>
 
-        <Suspense fallback={<div className="h-16 rounded-lg border bg-card/50 animate-pulse" />}>
+        <Suspense fallback={<div className="h-16 rounded-xl border bg-card/50 animate-pulse" />}>
           <CabangPicker
             cabangList={cabangList}
             periodeList={periodeList}
@@ -120,7 +220,7 @@ export default async function NilaiAuditPage(props: PageProps) {
           <AlertCircleIcon className="size-4" />
           <AlertTitle>Perhatian</AlertTitle>
           <AlertDescription>
-            Cabang tidak ditemukan. Pilih cabang yang valid untuk mulai menilai.
+            Perwakilan tidak ditemukan. Silakan gunakan pemilih cabang di atas untuk memilih perwakilan yang valid.
           </AlertDescription>
         </Alert>
       </main>
@@ -129,12 +229,12 @@ export default async function NilaiAuditPage(props: PageProps) {
 
   if (!periodeAktif) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
         <Alert>
           <InfoIcon className="size-4" />
           <AlertTitle>Informasi</AlertTitle>
           <AlertDescription>
-            Belum ada periode audit yang tersedia.
+            Belum ada periode audit yang tersedia di sistem.
           </AlertDescription>
         </Alert>
       </main>
@@ -183,8 +283,29 @@ export default async function NilaiAuditPage(props: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
+      {/* Header Halaman Modern */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-3 border-b border-border/60">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="text-xs font-semibold px-2 py-0.5 border-primary/30 text-primary bg-primary/5">
+              Portal Auditor SIA
+            </Badge>
+            <Badge variant={periodeAktif.is_open ? "success" : "secondary"} className="text-[11px] px-2 py-0.5">
+              Periode: {periodeAktif.nama}
+            </Badge>
+          </div>
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
+            <span>Penilaian Audit:</span>
+            <span className="text-primary font-bold">BMH Perwakilan {cabang.nama}</span>
+          </h1>
+          <p className="text-xs sm:text-sm text-muted-foreground">
+            Lakukan verifikasi bukti dukung dan input skor auditor secara objektif pada tabel matriks di bawah
+          </p>
+        </div>
+      </div>
+
       {/* Pemilih Cabang & Periode interaktif di atas tabel */}
-      <Suspense fallback={<div className="h-16 rounded-lg border bg-card/50 animate-pulse" />}>
+      <Suspense fallback={<div className="h-16 rounded-xl border bg-card/50 animate-pulse" />}>
         <CabangPicker
           cabangList={cabangList}
           periodeList={periodeList}
@@ -192,22 +313,6 @@ export default async function NilaiAuditPage(props: PageProps) {
           selectedPeriodeId={periodeAktif.id}
         />
       </Suspense>
-
-      {/* Header formal instrumen audit kepatuhan */}
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold tracking-tight uppercase">
-          TABEL MATRIKS INSTRUMEN AUDIT KEPATUHAN INTEGRATIF LAZNAS BMH
-        </h1>
-        <p className="text-sm font-medium text-foreground">
-          Periode : {periodeAktif.nama}
-        </p>
-        <p className="text-xs text-muted-foreground">
-          Satuan Internal Audit BMH
-        </p>
-        <p className="text-sm font-semibold text-foreground">
-          BMH Perwakilan {cabang.nama}
-        </p>
-      </div>
 
       {/* Kontrol Pemberian Status Audit & Tombol "Sudah Diaudit" dengan Popup Konfirmasi */}
       <AuditStatusControl
@@ -228,7 +333,7 @@ export default async function NilaiAuditPage(props: PageProps) {
           <InfoIcon className="size-4" />
           <AlertTitle>Periode Ditutup</AlertTitle>
           <AlertDescription>
-            Periode ini berstatus ditutup untuk cabang. Auditor tetap dapat melakukan penilaian.
+            Periode ini berstatus ditutup untuk audite cabang. Auditor SIA tetap dapat melakukan pengujian dan penilaian.
           </AlertDescription>
         </Alert>
       )}
@@ -242,7 +347,7 @@ export default async function NilaiAuditPage(props: PageProps) {
         cabangId={cabang.id}
         poinList={poinList}
         headerInfo={{
-          title: `Penilaian: ${cabang.nama}`,
+          title: `Penilaian: BMH Perwakilan ${cabang.nama}`,
           subtitle: `Periode: ${periodeAktif.nama}`,
           cabangNama: cabang.nama,
           periodeNama: periodeAktif.nama,

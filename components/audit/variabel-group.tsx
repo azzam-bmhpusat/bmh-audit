@@ -5,6 +5,7 @@ import { ChevronDownIcon, ChevronRightIcon } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { formatAngka } from "@/lib/format";
 import { ItemRows } from "./item-rows";
 import type { MatrixRowAdmin, MatrixRowCabang, VariabelGroup as VariabelGroupType } from "@/types/audit";
@@ -72,9 +73,19 @@ export function VariabelGroup({
             <span className="font-semibold text-foreground text-sm">
               {variabel.kode}: {variabel.nama}
             </span>
-            <Badge variant="outline" className="text-xs font-normal">
+            <StatusBadge
+              status={
+                variabel.itemTerisi === variabel.totalItem && variabel.totalItem > 0
+                  ? "success"
+                  : variabel.itemTerisi > 0
+                  ? "warning"
+                  : "neutral"
+              }
+              size="xs"
+              icon={true}
+            >
               {variabel.itemTerisi}/{variabel.totalItem} terisi
-            </Badge>
+            </StatusBadge>
           </div>
         </TableCell>
 

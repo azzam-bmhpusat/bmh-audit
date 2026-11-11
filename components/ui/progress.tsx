@@ -4,15 +4,27 @@ import * as React from "react"
 import { Progress as ProgressPrimitive } from "@base-ui/react/progress"
 import { cn } from "cn"
 
+type ProgressVariant = "default" | "success" | "warning" | "danger" | "info"
+
 type ProgressProps = Omit<React.ComponentProps<typeof ProgressPrimitive.Root>, "value"> & {
   value?: number | null
   max?: number
+  variant?: ProgressVariant
+}
+
+const variantIndicatorClasses: Record<ProgressVariant, string> = {
+  default: "bg-primary",
+  success: "bg-success-text",
+  warning: "bg-warning-text",
+  danger: "bg-danger-text",
+  info: "bg-info-text",
 }
 
 function Progress({
   className,
   value = 0,
   max = 100,
+  variant = "default",
   ...props
 }: ProgressProps) {
   const safeValue = value ?? 0
@@ -33,7 +45,10 @@ function Progress({
       <ProgressPrimitive.Track className="h-full w-full">
         <ProgressPrimitive.Indicator
           data-slot="progress-indicator"
-          className="h-full bg-primary transition-all duration-300 ease-in-out"
+          className={cn(
+            "h-full transition-all duration-300 ease-in-out",
+            variantIndicatorClasses[variant]
+          )}
           style={{ width: `${percentage}%` }}
         />
       </ProgressPrimitive.Track>

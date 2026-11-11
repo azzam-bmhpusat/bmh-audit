@@ -12,7 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
-import type { PenilaianCabang } from "@/types/audit";
+import { RekapComparison } from "@/components/penilaian/admin-rekap-comparison";
+import type { PenilaianAdmin } from "@/types/audit";
 import {
   AlertCircleIcon,
   AlertTriangleIcon,
@@ -21,7 +22,7 @@ import {
 } from "lucide-react";
 
 interface RekapTableCabangProps {
-  penilaian: PenilaianCabang;
+  penilaian: PenilaianAdmin;
   isOpen?: boolean;
 }
 
@@ -38,37 +39,24 @@ export function RekapTableCabang({
 }: RekapTableCabangProps) {
   const isZeroFilled = penilaian.jumlah_butir_terisi === 0;
 
-  const displayNilaiKepatuhan = isZeroFilled
-    ? "—"
-    : penilaian.nilai_kepatuhan;
-
-  const displayPredikat = isZeroFilled
-    ? "Belum ada penilaian"
-    : penilaian.predikat_kepatuhan;
-
-  const displayStatus = isZeroFilled
-    ? "Belum ada penilaian"
-    : penilaian.status_kepatuhan;
-
   const displayKeterangan = isZeroFilled
     ? "Cabang belum mengisi instrumen audit kepatuhan. Lengkapi isian untuk memunculkan evaluasi kepatuhan."
     : penilaian.keterangan_tindak_lanjut;
 
-  const getBadgeVariant = (nilai: string) => {
-    switch (nilai.toUpperCase()) {
-      case "A":
-        return "default" as const;
-      case "B":
-        return "secondary" as const;
-      case "C":
-      case "D":
-        return "outline" as const;
-      case "E":
-        return "destructive" as const;
+  const getAuditStatusBadge = (status: string) => {
+    switch (status) {
+      case "Sudah Diaudit":
+        return <Badge variant="default">{status}</Badge>;
+      case "Sedang Diaudit":
+        return <Badge variant="secondary">{status}</Badge>;
       default:
-        return "outline" as const;
+        return <Badge variant="outline">{status}</Badge>;
     }
   };
+
+  const hasWajibPtk = Boolean(
+    penilaian.wajib_ptk_auditor ?? (penilaian as unknown as { wajib_ptk?: boolean }).wajib_ptk
+  );
 
   return (
     <div className="space-y-6">
@@ -164,7 +152,7 @@ export function RekapTableCabang({
             </Alert>
           )}
 
-          {penilaian.wajib_ptk && !isZeroFilled && (
+          {hasWajibPtk && !isZeroFilled && (
             <Alert variant="destructive">
               <AlertCircleIcon className="size-4" />
               <AlertTitle className="font-semibold text-xs">
@@ -179,15 +167,17 @@ export function RekapTableCabang({
         </CardContent>
       </Card>
 
-      {/* 3. Tabel Rekapitulasi (2 Kolom: Komponen | Keterangan) */}
+      {/* 3. Rekapitulasi Penilaian & Perbandingan Skor (Isian Cabang vs Sudah Di Audit) */}
+      <RekapComparison penilaian={penilaian} />
+
+      {/* 4. Tabel Informasi Entitas & Parameter Audit (Tanpa Duplikasi Skor) */}
       <div className="space-y-3">
         <div className="space-y-1">
           <h3 className="text-base font-semibold tracking-tight">
-            Hasil Penilaian & Rekapitulasi Kepatuhan Lembaga
+            Informasi Entitas & Parameter Audit
           </h3>
           <p className="text-xs text-muted-foreground">
-            Rekapitulasi resmi skor dan status kepatuhan berdasarkan data view
-            database
+            Parameter audit kepatuhan resmi berdasarkan data perwakilan lembaga
           </p>
         </div>
 
@@ -222,6 +212,13 @@ export function RekapTableCabang({
               </TableRow>
 
               <TableRow>
+                <TableCell className="font-medium">Status Audit</TableCell>
+                <TableCell>
+                  {getAuditStatusBadge(penilaian.status_audit || "Belum Diaudit")}
+                </TableCell>
+              </TableRow>
+
+              <TableRow>
                 <TableCell className="font-medium">
                   Jumlah Indikator Pertanyaan
                 </TableCell>
@@ -246,71 +243,6 @@ export function RekapTableCabang({
                 </TableCell>
                 <TableCell className="tabular-nums font-semibold">
                   {idIntegerFormatter.format(penilaian.skor_maksimum_ideal)}
-                </TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell className="font-medium">
-                  Jumlah Butir Soal Terisi
-                </TableCell>
-                <TableCell className="tabular-nums">
-                  {penilaian.jumlah_butir_terisi_teks}
-                </TableCell>
-              </TableRow>
-
-              <TableRow className="bg-muted/20">
-                <TableCell className="font-medium">
-                  Total Nilai Skor Diperoleh
-                </TableCell>
-                <TableCell className="tabular-nums font-bold text-base">
-                  {idIntegerFormatter.format(penilaian.total_nilai_skor)}
-                </TableCell>
-              </TableRow>
-
-              <TableRow className="bg-muted/40 font-semibold">
-                <TableCell>Nilai Akhir Kepatuhan (Skala 100)</TableCell>
-                <TableCell className="tabular-nums font-bold text-lg">
-                  {idDecimalFormatter.format(penilaian.nilai_akhir)}
-                </TableCell>
-              </TableRow>
-
-              <TableRow className="border-t-2">
-                <TableCell className="font-bold uppercase tracking-wider text-xs">
-                  NILAI KEPATUHAN
-                </TableCell>
-                <TableCell>
-                  {isZeroFilled ? (
-                    <span className="text-sm text-muted-foreground font-medium">
-                      Belum ada penilaian
-                    </span>
-                  ) : (
-                    <Badge
-                      variant={getBadgeVariant(displayNilaiKepatuhan)}
-                      className="text-base font-bold px-3 py-1"
-                    >
-                      {displayNilaiKepatuhan}
-                    </Badge>
-                  )}
-                </TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell className="font-bold uppercase tracking-wider text-xs">
-                  PREDIKAT KEPATUHAN
-                </TableCell>
-                <TableCell className="font-semibold text-sm">
-                  {displayPredikat}
-                </TableCell>
-              </TableRow>
-
-              <TableRow>
-                <TableCell className="font-bold uppercase tracking-wider text-xs">
-                  STATUS KEPATUHAN
-                </TableCell>
-                <TableCell>
-                  <span className="font-semibold text-sm tracking-wide">
-                    {displayStatus}
-                  </span>
                 </TableCell>
               </TableRow>
 

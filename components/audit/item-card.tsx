@@ -4,6 +4,7 @@ import * as React from "react";
 import { ExternalLinkIcon } from "lucide-react";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Separator } from "@/components/ui/separator";
 import { safeHref } from "@/lib/safe-link";
 import { formatAngka } from "@/lib/format";
@@ -208,15 +209,17 @@ export const ItemCard = React.memo(function ItemCard({
                           ) : (() => {
                             const valStatus = getValidasiStatus(adminItem, poin.urutan);
                             return valStatus === true ? (
-                              <Badge variant="success" className="text-xs">
+                              <StatusBadge status="success" size="xs">
                                 Benar
-                              </Badge>
+                              </StatusBadge>
                             ) : valStatus === false ? (
-                              <Badge variant="destructive" className="text-xs">
+                              <StatusBadge status="danger" size="xs">
                                 Tidak benar
-                              </Badge>
+                              </StatusBadge>
                             ) : (
-                              <span className="text-xs text-muted-foreground">Belum</span>
+                              <StatusBadge status="neutral" size="xs">
+                                Belum
+                              </StatusBadge>
                             );
                           })()}
                         </div>
@@ -240,7 +243,7 @@ export const ItemCard = React.memo(function ItemCard({
                             href={hrefPoin}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="inline-flex items-center gap-1 text-xs font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
+                            className="inline-flex items-center gap-1 text-xs font-medium text-info-text underline underline-offset-4 hover:opacity-80 transition-opacity"
                             aria-label={`Buka evidence item ${item.nomor} bukti ${poin.urutan}`}
                           >
                             Buka evidence #{poin.urutan}
@@ -282,9 +285,9 @@ export const ItemCard = React.memo(function ItemCard({
                     onChange={(val) => onSaveField?.(item.nomor, "skor_audite", val)}
                   />
                 ) : item.skor_audite !== null && item.skor_audite !== undefined ? (
-                  <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                  <StatusBadge status="info" size="sm" className="font-semibold tabular-nums">
                     {item.skor_audite}
-                  </Badge>
+                  </StatusBadge>
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
@@ -336,9 +339,9 @@ export const ItemCard = React.memo(function ItemCard({
                   ) : (
                     <>
                       {adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
-                        <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                        <StatusBadge status="success" size="sm" className="font-semibold tabular-nums">
                           {adminItem.skor_auditor}
-                        </Badge>
+                        </StatusBadge>
                       ) : (
                         <span className="text-muted-foreground">—</span>
                       )}

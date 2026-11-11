@@ -27,8 +27,8 @@ export function SaveIndicator({
 
   if (status === "saving") {
     return (
-      <div className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-        <Loader2Icon className="size-3 animate-spin shrink-0" />
+      <div className="inline-flex items-center gap-1 text-[11px] text-info-text font-medium">
+        <Loader2Icon className="size-3 animate-spin shrink-0 text-info-text" />
         <span>menyimpan…</span>
       </div>
     );
@@ -36,8 +36,8 @@ export function SaveIndicator({
 
   if (status === "saved") {
     return (
-      <div className="inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-        <CheckIcon className="size-3 shrink-0" />
+      <div className="inline-flex items-center gap-1 text-[11px] text-success-text font-medium">
+        <CheckIcon className="size-3 shrink-0 text-success-text" />
         <span>tersimpan</span>
       </div>
     );
@@ -45,9 +45,9 @@ export function SaveIndicator({
 
   if (status === "error") {
     return (
-      <div className="inline-flex flex-wrap items-center gap-1.5 text-[11px] text-foreground font-medium">
+      <div className="inline-flex flex-wrap items-center gap-1.5 text-[11px] text-danger-text font-medium">
         <span className="inline-flex items-center gap-1">
-          <AlertCircleIcon className="size-3 shrink-0" />
+          <AlertCircleIcon className="size-3 shrink-0 text-danger-text" />
           <span>gagal</span>
         </span>
         {onRetry && (

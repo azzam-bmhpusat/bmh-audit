@@ -4,6 +4,7 @@ import * as React from "react";
 import { ExternalLinkIcon } from "lucide-react";
 import { TableCell, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { safeHref } from "@/lib/safe-link";
 import { formatAngka } from "@/lib/format";
 import {
@@ -86,7 +87,7 @@ export const ItemRows = React.memo(function ItemRows({
             key={`${item.nomor}-${poin.urutan}`}
             className={cn(
               "border-b transition-colors",
-              isHighlighted && "bg-muted/40"
+              isHighlighted && "bg-info-bg/30"
             )}
           >
             {/* 1. No (rowspan) */}
@@ -183,7 +184,7 @@ export const ItemRows = React.memo(function ItemRows({
                     href={hrefPoin}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-1 font-medium underline underline-offset-4 hover:opacity-80 transition-opacity"
+                    className="inline-flex items-center gap-1 font-medium text-info-text underline underline-offset-4 hover:opacity-80 transition-opacity"
                     aria-label={`Buka evidence item ${item.nomor} bukti ${poin.urutan}`}
                   >
                     Buka evidence
@@ -209,15 +210,17 @@ export const ItemRows = React.memo(function ItemRows({
                 ) : (() => {
                   const valStatus = getValidasiStatus(adminItem, poin.urutan);
                   return valStatus === true ? (
-                    <Badge variant="success" className="text-xs">
+                    <StatusBadge status="success" size="xs">
                       Benar
-                    </Badge>
+                    </StatusBadge>
                   ) : valStatus === false ? (
-                    <Badge variant="destructive" className="text-xs">
+                    <StatusBadge status="danger" size="xs">
                       Tidak benar
-                    </Badge>
+                    </StatusBadge>
                   ) : (
-                    <span className="text-xs text-muted-foreground">Belum</span>
+                    <StatusBadge status="neutral" size="xs">
+                      Belum
+                    </StatusBadge>
                   );
                 })()}
               </TableCell>
@@ -238,14 +241,14 @@ export const ItemRows = React.memo(function ItemRows({
                 {isHighlighted && (
                   <div className="flex flex-col gap-1 shrink-0 pt-0.5">
                     {isMatchAudite && (
-                      <Badge variant="default" className="text-[10px] px-1.5 py-0 h-4">
+                      <StatusBadge status="info" size="xs">
                         Skor Audite
-                      </Badge>
+                      </StatusBadge>
                     )}
                     {isMatchAuditor && (
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4">
+                      <StatusBadge status="success" size="xs">
                         Skor Auditor
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </div>
                 )}
@@ -273,9 +276,9 @@ export const ItemRows = React.memo(function ItemRows({
                     />
                   </div>
                 ) : item.skor_audite !== null && item.skor_audite !== undefined ? (
-                  <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                  <StatusBadge status="info" size="sm" className="font-semibold tabular-nums">
                     {item.skor_audite}
-                  </Badge>
+                  </StatusBadge>
                 ) : (
                   <span className="text-muted-foreground">—</span>
                 )}
@@ -328,9 +331,9 @@ export const ItemRows = React.memo(function ItemRows({
                 ) : (
                   <div className="flex items-center justify-center gap-1">
                     {adminItem?.skor_auditor !== null && adminItem?.skor_auditor !== undefined ? (
-                      <Badge variant="default" className="font-semibold text-xs tabular-nums">
+                      <StatusBadge status="success" size="sm" className="font-semibold tabular-nums">
                         {adminItem.skor_auditor}
-                      </Badge>
+                      </StatusBadge>
                     ) : (
                       <span className="text-muted-foreground">—</span>
                     )}

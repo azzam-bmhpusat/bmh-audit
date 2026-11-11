@@ -5,10 +5,10 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPenilaianCabang, getPenilaianAdmin } from "@/lib/penilaian/queries";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { StatusBadge } from "@/components/ui/status-badge";
 import {
   Table,
   TableBody,
@@ -20,10 +20,13 @@ import {
 import { PeriodePicker } from "@/components/penilaian/periode-picker";
 import { UserKepatuhanHero } from "@/components/dashboard/user-kepatuhan-hero";
 import { UserPilarBreakdown } from "@/components/dashboard/user-pilar-breakdown";
+import { calculatePilarBreakdown } from "@/lib/penilaian/pilar";
+import { UserDashboardCharts } from "@/components/dashboard/user-dashboard-charts";
 import { nilaiSkor, skorMaksimum, subtotal } from "@/lib/scoring";
 import { matrixRowCabangSchema, searchParamsSchema } from "@/lib/schemas";
 import type { PenilaianAdmin, Periode } from "@/types/audit";
 import { z } from "zod";
+import { cn } from "cn";
 import {
   AlertCircleIcon,
   CheckCircle2Icon,
@@ -86,7 +89,7 @@ export default async function UserDashboardPage(props: PageProps) {
   if (periodeList.length === 0) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
-        <Alert>
+        <Alert variant="info">
           <InfoIcon className="size-4" />
           <AlertTitle>Informasi</AlertTitle>
           <AlertDescription>
@@ -161,6 +164,15 @@ export default async function UserDashboardPage(props: PageProps) {
 
   const daftarBelumTerisi = rows.filter((r) => r.skor_audite === null);
 
+  // 4. Data visualisasi chart & breakdown
+  const pilarList = calculatePilarBreakdown(rows);
+  const itemStats = {
+    totalItem,
+    itemTerisi,
+    itemBerlampiran,
+    itemBelumTerisi,
+  };
+
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
       {/* Header Halaman & Pemilih Periode */}
@@ -194,7 +206,7 @@ export default async function UserDashboardPage(props: PageProps) {
 
       {/* Banner informasi jika form dikunci oleh auditor */}
       {isLocked && isOpen && (
-        <Alert variant="destructive">
+        <Alert variant="warning">
           <AlertCircleIcon className="size-4" />
           <AlertTitle>Form Isian Audit Dikunci</AlertTitle>
           <AlertDescription>
@@ -206,7 +218,7 @@ export default async function UserDashboardPage(props: PageProps) {
 
       {/* Banner informasi jika periode ditutup */}
       {!isOpen && (
-        <Alert>
+        <Alert variant="info">
           <InfoIcon className="size-4" />
           <AlertTitle>Periode Audit Ditutup</AlertTitle>
           <AlertDescription>
@@ -230,7 +242,7 @@ export default async function UserDashboardPage(props: PageProps) {
       />
 
       {/* =========================================================================
-          KARTU METRIK OPERASIONAL
+          KARTU METRIK OPERASIONAL (AKSEN SOFT TINT SEMANTIK)
           ========================================================================= */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Progres Pengisian */}
@@ -239,7 +251,16 @@ export default async function UserDashboardPage(props: PageProps) {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Progres Pengisian
             </CardTitle>
-            <ClockIcon className="size-4 text-muted-foreground" />
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-md border",
+                itemTerisi === totalItem
+                  ? "bg-success-bg text-success-text border-success-border"
+                  : "bg-info-bg text-info-text border-info-border"
+              )}
+            >
+              <ClockIcon className="size-3.5" />
+            </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="text-2xl font-bold tabular-nums">
@@ -249,7 +270,11 @@ export default async function UserDashboardPage(props: PageProps) {
               </span>
             </div>
             <div className="mt-2 space-y-1">
-              <Progress value={itemTerisi} max={totalItem} />
+              <Progress
+                value={itemTerisi}
+                max={totalItem}
+                variant={itemTerisi === totalItem ? "success" : "info"}
+              />
               <p className="text-[11px] text-muted-foreground text-right tabular-nums">
                 {Math.round((itemTerisi / totalItem) * 100)}% selesai
               </p>
@@ -263,7 +288,16 @@ export default async function UserDashboardPage(props: PageProps) {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Bukti Pendukung
             </CardTitle>
-            <PaperclipIcon className="size-4 text-muted-foreground" />
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-md border",
+                itemBerlampiran > 0
+                  ? "bg-info-bg text-info-text border-info-border"
+                  : "bg-muted text-muted-foreground border-border"
+              )}
+            >
+              <PaperclipIcon className="size-3.5" />
+            </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="text-2xl font-bold tabular-nums">
@@ -286,7 +320,16 @@ export default async function UserDashboardPage(props: PageProps) {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Item Belum Terisi
             </CardTitle>
-            <AlertCircleIcon className="size-4 text-muted-foreground" />
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-md border",
+                itemBelumTerisi === 0
+                  ? "bg-success-bg text-success-text border-success-border"
+                  : "bg-warning-bg text-warning-text border-warning-border"
+              )}
+            >
+              <AlertCircleIcon className="size-3.5" />
+            </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="text-2xl font-bold tabular-nums">
@@ -307,21 +350,32 @@ export default async function UserDashboardPage(props: PageProps) {
             <CardTitle className="text-xs font-medium text-muted-foreground">
               Status Audit SIA
             </CardTitle>
-            <ShieldCheckIcon className="size-4 text-muted-foreground" />
+            <div
+              className={cn(
+                "flex size-7 items-center justify-center rounded-md border",
+                statusAudit === "Sudah Diaudit"
+                  ? "bg-success-bg text-success-text border-success-border"
+                  : statusAudit === "Sedang Diaudit"
+                  ? "bg-info-bg text-info-text border-info-border"
+                  : "bg-warning-bg text-warning-text border-warning-border"
+              )}
+            >
+              <ShieldCheckIcon className="size-3.5" />
+            </div>
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="mt-1">
-              <Badge
-                variant={
+              <StatusBadge
+                status={
                   statusAudit === "Sudah Diaudit"
                     ? "success"
                     : statusAudit === "Sedang Diaudit"
-                    ? "secondary"
-                    : "outline"
+                    ? "info"
+                    : "warning"
                 }
-              >
-                {statusAudit}
-              </Badge>
+                label={statusAudit}
+                icon={true}
+              />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
               {isLocked
@@ -335,9 +389,14 @@ export default async function UserDashboardPage(props: PageProps) {
       </div>
 
       {/* =========================================================================
+          VISUALISASI GRAFIK SHADCN (RECHARTS): CAPAIAN PILAR & KELENGKAPAN BUKTI
+          ========================================================================= */}
+      <UserDashboardCharts pilarList={pilarList} itemStats={itemStats} />
+
+      {/* =========================================================================
           CAPAIAN 5 PILAR KEPATUHAN
           ========================================================================= */}
-      <UserPilarBreakdown rows={rows} />
+      <UserPilarBreakdown pilarList={pilarList} />
 
       {/* =========================================================================
           DAFTAR ITEM BELUM DIISI / KARTU TUNTAS
@@ -353,16 +412,18 @@ export default async function UserDashboardPage(props: PageProps) {
                 Lengkapi seluruh item penilaian mandiri berikut untuk memaksimalkan capaian kepatuhan cabang Anda.
               </CardDescription>
             </div>
-            <Badge variant="outline" className="w-fit">
-              {daftarBelumTerisi.length} Item Tersisa
-            </Badge>
+            <StatusBadge
+              status="warning"
+              label={`${daftarBelumTerisi.length} Item Tersisa`}
+              icon={true}
+            />
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {daftarBelumTerisi.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center space-y-2">
-              <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
-                <CheckCircle2Icon className="size-6" />
+              <div className="flex size-12 items-center justify-center rounded-full bg-success-bg text-success-text border border-success-border">
+                <CheckCircle2Icon className="size-6 text-success-text" />
               </div>
               <p className="text-base font-semibold text-foreground">Alhamdulillah, seluruh 72 item telah terisi lengkap!</p>
               <p className="text-xs text-muted-foreground max-w-md">

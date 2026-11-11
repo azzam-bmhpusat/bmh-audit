@@ -7,6 +7,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge, type StatusType } from "@/components/ui/status-badge";
 import type { AuditPredikat } from "@/types/audit";
 import { cn } from "@/lib/utils";
 
@@ -19,19 +20,19 @@ export function PredikatTable({
   predikatList,
   activeNilai,
 }: PredikatTableProps) {
-  const getBadgeVariant = (nilai: string) => {
+  const getPredikatStatus = (nilai: string): StatusType => {
     switch (nilai.toUpperCase()) {
       case "A":
-        return "default" as const;
+        return "success";
       case "B":
-        return "secondary" as const;
+        return "info";
       case "C":
+        return "warning";
       case "D":
-        return "outline" as const;
       case "E":
-        return "destructive" as const;
+        return "danger";
       default:
-        return "outline" as const;
+        return "neutral";
     }
   };
 
@@ -82,12 +83,13 @@ export function PredikatTable({
                 >
                   <TableCell className="font-medium">
                     <div className="flex items-center gap-2">
-                      <Badge
-                        variant={getBadgeVariant(item.nilai)}
-                        className="font-bold px-2 py-0.5 text-xs"
+                      <StatusBadge
+                        status={getPredikatStatus(item.nilai)}
+                        size="sm"
+                        className="font-bold px-2.5 py-0.5 text-xs"
                       >
                         {item.nilai}
-                      </Badge>
+                      </StatusBadge>
                       {isActive && (
                         <span className="text-[11px] font-semibold text-primary">
                           (Posisi Anda)

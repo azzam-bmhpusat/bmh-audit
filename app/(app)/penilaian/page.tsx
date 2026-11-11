@@ -2,13 +2,17 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { getPredikat, getPenilaianCabang } from "@/lib/penilaian/queries";
+import {
+  getPredikat,
+  getPenilaianCabang,
+  getPenilaianAdmin,
+} from "@/lib/penilaian/queries";
 import { PredikatTable } from "@/components/penilaian/predikat-table";
 import { RekapTableCabang } from "@/components/penilaian/rekap-table-cabang";
 import { PeriodePicker } from "@/components/penilaian/periode-picker";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { searchParamsSchema } from "@/lib/schemas";
-import type { Periode } from "@/types/audit";
+import type { PenilaianAdmin, Periode } from "@/types/audit";
 import { AlertCircleIcon, InfoIcon } from "lucide-react";
 
 export const instant = false;
@@ -81,15 +85,61 @@ export default async function PreviewPenilaianUserPage(props: PageProps) {
   const periodeId = periodeAktif?.id ?? periodeList[0].id;
   const isOpen = periodeAktif?.is_open ?? true;
 
-  // 2. Query paralel tabel standar predikat & rekap penilaian cabang
-  const [predikatList, penilaianCabang] = await Promise.all([
+  // 2. Query paralel tabel standar predikat & rekap penilaian cabang + admin
+  const [predikatList, penilaianCabang, rawPenilaianAdmin] = await Promise.all([
     getPredikat(),
     getPenilaianCabang(periodeId),
+    getPenilaianAdmin(periodeId, profile.cabang_id),
   ]);
 
+  const penilaianAdmin = rawPenilaianAdmin as PenilaianAdmin | null;
+
+  // Fallback ke struktur PenilaianAdmin jika penilaianAdmin null tetapi penilaianCabang ada
+  const penilaian: PenilaianAdmin | null =
+    penilaianAdmin ??
+    (penilaianCabang
+      ? {
+          periode_id: penilaianCabang.periode_id,
+          cabang_id: penilaianCabang.cabang_id,
+          nama_lembaga: penilaianCabang.nama_lembaga,
+          entitas_audit: penilaianCabang.entitas_audit,
+          periode_audit: penilaianCabang.periode_audit,
+          jumlah_indikator: penilaianCabang.jumlah_indikator,
+          total_bobot: penilaianCabang.total_bobot,
+          skor_maksimum_ideal: penilaianCabang.skor_maksimum_ideal,
+          jumlah_butir_terisi: penilaianCabang.jumlah_butir_terisi,
+          jumlah_butir_belum_terisi: penilaianCabang.jumlah_butir_belum_terisi,
+          jumlah_butir_terisi_teks: penilaianCabang.jumlah_butir_terisi_teks,
+          persen_kelengkapan: penilaianCabang.persen_kelengkapan,
+          jumlah_butir_berlampiran: penilaianCabang.jumlah_butir_berlampiran,
+          jumlah_bukti_diunggah: 0,
+          total_nilai_skor_audite: penilaianCabang.total_nilai_skor,
+          nilai_akhir_audite: penilaianCabang.nilai_akhir,
+          nilai_kepatuhan_audite: penilaianCabang.nilai_kepatuhan,
+          predikat_kepatuhan_audite: penilaianCabang.predikat_kepatuhan,
+          status_kepatuhan_audite: penilaianCabang.status_kepatuhan,
+          status_audit: "Belum Diaudit",
+          jumlah_butir_diaudit: 0,
+          jumlah_butir_diaudit_teks: `0 / ${penilaianCabang.jumlah_indikator} Butir`,
+          jumlah_terisi_belum_diaudit: penilaianCabang.jumlah_butir_terisi,
+          jumlah_bukti_tervalidasi: 0,
+          total_nilai_skor_auditor: 0,
+          nilai_akhir_auditor: 0,
+          nilai_kepatuhan_auditor: "—",
+          predikat_kepatuhan_auditor: "Belum diaudit",
+          status_kepatuhan_auditor: "Belum diaudit",
+          wajib_ptk_auditor: penilaianCabang.wajib_ptk,
+          keterangan_tindak_lanjut: penilaianCabang.keterangan_tindak_lanjut,
+          selisih_skor: 0,
+          selisih_nilai_akhir: 0,
+        }
+      : null);
+
   const activeNilai =
-    penilaianCabang && penilaianCabang.jumlah_butir_terisi > 0
-      ? penilaianCabang.nilai_kepatuhan
+    penilaian && penilaian.jumlah_butir_diaudit > 0
+      ? penilaian.nilai_kepatuhan_auditor
+      : penilaian && penilaian.jumlah_butir_terisi > 0
+      ? penilaian.nilai_kepatuhan_audite
       : null;
 
   return (
@@ -111,7 +161,7 @@ export default async function PreviewPenilaianUserPage(props: PageProps) {
         />
       </div>
 
-      {/* Bagian 1: Tabel Standar Predikat (Highlight Hasil Cabang) */}
+      {/* Bagian 1: Tabel Standar Predikat (Highlight Hasil Audit / Mandiri) */}
       <section>
         <PredikatTable
           predikatList={predikatList}
@@ -121,9 +171,9 @@ export default async function PreviewPenilaianUserPage(props: PageProps) {
 
       {/* Bagian 2: Tabel Rekapitulasi & Indikator Kelengkapan */}
       <section>
-        {penilaianCabang ? (
+        {penilaian ? (
           <RekapTableCabang
-            penilaian={penilaianCabang}
+            penilaian={penilaian}
             isOpen={isOpen}
           />
         ) : (

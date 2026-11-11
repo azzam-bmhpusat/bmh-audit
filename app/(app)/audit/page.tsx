@@ -127,7 +127,7 @@ export default async function AuditPage() {
 
       {/* Banner informasi jika form dikunci oleh auditor */}
       {isFormLocked && periodeAktif.is_open && (
-        <Alert variant="destructive">
+        <Alert variant="warning">
           <LockIcon className="size-4" />
           <AlertTitle>Form Isian Dikunci oleh Auditor</AlertTitle>
           <AlertDescription>
@@ -138,7 +138,7 @@ export default async function AuditPage() {
 
       {/* Banner informasi jika periode ditutup */}
       {!periodeAktif.is_open && (
-        <Alert>
+        <Alert variant="info">
           <InfoIcon className="size-4" />
           <AlertTitle>Periode Ditutup</AlertTitle>
           <AlertDescription>

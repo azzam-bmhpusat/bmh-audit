@@ -3,8 +3,8 @@
 import * as React from "react";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { StatusBadge, type StatusType } from "@/components/ui/status-badge";
 import type { PenilaianAdmin, PenilaianCabang } from "@/types/audit";
 import {
   AwardIcon,
@@ -75,39 +75,34 @@ export function UserKepatuhanHero({
     penilaianSIA?.keterangan_tindak_lanjut ||
     "Hasil evaluasi kepatuhan resmi diterbitkan oleh Tim Auditor SIA BMH.";
 
-  // Helper styling badge huruf nilai kepatuhan
-  const getGradeStyle = (grade: string) => {
+  // Helper styling huruf nilai kepatuhan berbasis soft tint
+  const getGradeStyle = (grade: string): { bg: string; status: StatusType } => {
     switch (grade.toUpperCase()) {
       case "A":
         return {
-          bg: "bg-emerald-600 text-white dark:bg-emerald-500",
-          ring: "ring-emerald-500/20 bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-400 border-emerald-300 dark:border-emerald-800",
-          badge: "success" as const,
+          bg: "bg-success-bg text-success-text border border-success-border",
+          status: "success",
         };
       case "B":
         return {
-          bg: "bg-blue-600 text-white dark:bg-blue-500",
-          ring: "ring-blue-500/20 bg-blue-50 text-blue-700 dark:bg-blue-950/40 dark:text-blue-400 border-blue-300 dark:border-blue-800",
-          badge: "secondary" as const,
+          bg: "bg-info-bg text-info-text border border-info-border",
+          status: "info",
         };
       case "C":
         return {
-          bg: "bg-amber-500 text-white dark:bg-amber-600",
-          ring: "ring-amber-500/20 bg-amber-50 text-amber-700 dark:bg-amber-950/40 dark:text-amber-400 border-amber-300 dark:border-amber-800",
-          badge: "outline" as const,
+          bg: "bg-warning-bg text-warning-text border border-warning-border",
+          status: "warning",
         };
       case "D":
       case "E":
         return {
-          bg: "bg-rose-600 text-white dark:bg-rose-500",
-          ring: "ring-rose-500/20 bg-rose-50 text-rose-700 dark:bg-rose-950/40 dark:text-rose-400 border-rose-300 dark:border-rose-800",
-          badge: "destructive" as const,
+          bg: "bg-danger-bg text-danger-text border border-danger-border",
+          status: "danger",
         };
       default:
         return {
-          bg: "bg-muted-foreground/40 text-muted-foreground",
-          ring: "ring-muted/20 bg-muted/30 text-muted-foreground border-border",
-          badge: "outline" as const,
+          bg: "bg-neutral-bg text-neutral-text border border-neutral-border",
+          status: "neutral",
         };
     }
   };
@@ -127,22 +122,22 @@ export function UserKepatuhanHero({
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           {/* Kolom Kiri: Grade Letter / Icon, Predikat, dan Keterangan Status */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 min-w-0">
-            {/* Box Huruf / Status Besar */}
+            {/* Box Huruf / Status Besar (Soft Tint Semantik) */}
             {isAudited ? (
               <div
                 className={cn(
-                  "flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-3xl sm:text-4xl font-extrabold tracking-tight transition-transform",
+                  "flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-xs text-3xl sm:text-4xl font-extrabold tracking-tight transition-transform",
                   gradeStyleSIA.bg
                 )}
               >
                 {nilaiHurufSIA}
               </div>
             ) : isSedangDiaudit ? (
-              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-blue-600 bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-xs text-info-text bg-info-bg border border-info-border">
                 <ClockIcon className="size-10 sm:size-12 animate-pulse" />
               </div>
             ) : (
-              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-amber-700 bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-xs text-warning-text bg-warning-bg border border-warning-border">
                 <ClockIcon className="size-10 sm:size-12" />
               </div>
             )}
@@ -156,41 +151,55 @@ export function UserKepatuhanHero({
 
                 {isAudited ? (
                   <>
-                    <Badge variant="success" className="text-[11px] font-semibold gap-1">
-                      <CheckCircle2Icon className="size-3" />
-                      <span>Sudah Diaudit</span>
-                    </Badge>
-                    <Badge variant={gradeStyleSIA.badge} className="text-[11px] font-semibold">
-                      {statusKepatuhanSIA}
-                    </Badge>
+                    <StatusBadge
+                      status="success"
+                      label="Sudah Diaudit"
+                      icon={true}
+                      size="default"
+                    />
+                    <StatusBadge
+                      status={gradeStyleSIA.status}
+                      label={statusKepatuhanSIA}
+                      size="default"
+                    />
                     {wajibPtkSIA ? (
-                      <Badge variant="destructive" className="gap-1 text-[11px]">
-                        <AlertTriangleIcon className="size-3" />
-                        <span>Wajib PTK</span>
-                      </Badge>
+                      <StatusBadge
+                        status="danger"
+                        label="Wajib PTK"
+                        icon={<AlertTriangleIcon className="size-3.5" />}
+                        size="default"
+                      />
                     ) : (
-                      <Badge variant="success" className="gap-1 text-[11px]">
-                        <CheckCircle2Icon className="size-3" />
-                        <span>Bebas PTK</span>
-                      </Badge>
+                      <StatusBadge
+                        status="success"
+                        label="Bebas PTK"
+                        icon={true}
+                        size="default"
+                      />
                     )}
                   </>
                 ) : isSedangDiaudit ? (
-                  <Badge variant="secondary" className="text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 gap-1">
-                    <ClockIcon className="size-3" />
-                    <span>Sedang Diaudit</span>
-                  </Badge>
+                  <StatusBadge
+                    status="info"
+                    label="Sedang Diaudit"
+                    icon={true}
+                    size="default"
+                  />
                 ) : (
-                  <Badge variant="outline" className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 gap-1">
-                    <InfoIcon className="size-3" />
-                    <span>Belum Diaudit</span>
-                  </Badge>
+                  <StatusBadge
+                    status="warning"
+                    label="Belum Diaudit"
+                    icon={<InfoIcon className="size-3.5" />}
+                    size="default"
+                  />
                 )}
 
                 {isLocked && (
-                  <Badge variant="secondary" className="text-[10px]">
-                    Form Dikunci
-                  </Badge>
+                  <StatusBadge
+                    status="neutral"
+                    label="Form Dikunci"
+                    size="default"
+                  />
                 )}
               </div>
 
@@ -245,7 +254,7 @@ export function UserKepatuhanHero({
                 <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
                   Status Penilaian Resmi
                 </span>
-                <div className="text-sm sm:text-base font-semibold text-amber-700 dark:text-amber-400">
+                <div className="text-sm sm:text-base font-semibold text-warning-text">
                   {isSedangDiaudit ? "Pemeriksaan Berlangsung" : "Menunggu Antrean Audit"}
                 </div>
                 <p className="text-[11px] text-muted-foreground">
@@ -307,9 +316,9 @@ export function UserKepatuhanHero({
                 className={cn(
                   "font-bold tabular-nums",
                   selisihNilai > 0
-                    ? "text-emerald-600 dark:text-emerald-400"
+                    ? "text-success-text"
                     : selisihNilai < 0
-                    ? "text-rose-600 dark:text-rose-400"
+                    ? "text-danger-text"
                     : "text-muted-foreground"
                 )}
               >
@@ -328,9 +337,11 @@ export function UserKepatuhanHero({
                 <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
                   Skor Pengisian Mandiri (Self-Assessment)
                 </span>
-                <Badge variant="outline" className="text-[10px] h-5">
-                  Sementara
-                </Badge>
+                <StatusBadge
+                  status="neutral"
+                  label="Sementara"
+                  size="xs"
+                />
               </div>
               <p className="text-[11px] text-muted-foreground">
                 {isMandiriEmpty

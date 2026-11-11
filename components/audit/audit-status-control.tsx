@@ -2,6 +2,7 @@
 
 import * as React from "react";
 import { Badge } from "@/components/ui/badge";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -173,34 +174,22 @@ export function AuditStatusControl({
     switch (status) {
       case "Sudah Diaudit":
         return (
-          <Badge
-            variant="outline"
-            className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-medium gap-1 px-2.5 py-1 text-xs shadow-xs"
-          >
-            <CheckCircle2Icon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
-            <span>Sudah Diaudit</span>
-          </Badge>
+          <StatusBadge status="success" icon={true} size="default">
+            Sudah Diaudit
+          </StatusBadge>
         );
       case "Sedang Diaudit":
         return (
-          <Badge
-            variant="outline"
-            className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 font-medium gap-1 px-2.5 py-1 text-xs shadow-xs"
-          >
-            <ClockIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
-            <span>Sedang Diaudit</span>
-          </Badge>
+          <StatusBadge status="warning" icon={true} size="default">
+            Sedang Diaudit
+          </StatusBadge>
         );
       case "Belum Diaudit":
       default:
         return (
-          <Badge
-            variant="outline"
-            className="bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30 border-dashed font-medium gap-1 px-2.5 py-1 text-xs"
-          >
-            <AlertCircleIcon className="size-3.5 text-rose-600 dark:text-rose-400" />
-            <span>Belum Diaudit</span>
-          </Badge>
+          <StatusBadge status="danger" icon={true} size="default">
+            Belum Diaudit
+          </StatusBadge>
         );
     }
   };
@@ -223,13 +212,9 @@ export function AuditStatusControl({
 
             {/* Badge Status Kunci Form */}
             {isLocked && (
-              <Badge
-                variant="outline"
-                className="border-destructive/40 text-destructive bg-destructive/5 font-medium gap-1 px-2.5 py-1 text-xs"
-              >
-                <LockIcon className="size-3" />
-                <span>Form Terkunci</span>
-              </Badge>
+              <StatusBadge status="danger" size="default" icon={<LockIcon className="size-3" />}>
+                Form Terkunci
+              </StatusBadge>
             )}
           </div>
 
@@ -287,7 +272,7 @@ export function AuditStatusControl({
                 type="button"
                 variant="default"
                 size="sm"
-                className="gap-1.5 shadow-xs cursor-pointer font-medium h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-700/20"
+                className="gap-1.5 shadow-xs cursor-pointer font-medium h-8 text-xs"
                 onClick={() => handleOpenStatusDialog("Sudah Diaudit")}
               >
                 <CheckCircle2Icon className="size-3.5" />
@@ -298,10 +283,10 @@ export function AuditStatusControl({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="gap-1.5 cursor-pointer font-medium h-8 text-xs border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
+                className="gap-1.5 cursor-pointer font-medium h-8 text-xs border-warning-border text-warning-text hover:bg-warning-bg/80"
                 onClick={() => handleOpenStatusDialog("Sedang Diaudit")}
               >
-                <RotateCcwIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
+                <RotateCcwIcon className="size-3.5 text-warning-text" />
                 <span>Buka Kembali Audit</span>
               </Button>
             )}
@@ -329,40 +314,40 @@ export function AuditStatusControl({
                   <DropdownMenuItem
                     disabled={currentStatus === "Sudah Diaudit"}
                     onClick={() => handleOpenStatusDialog("Sudah Diaudit")}
-                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-emerald-700 dark:text-emerald-300 focus:bg-emerald-500/15 focus:text-emerald-800 dark:focus:text-emerald-200"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-success-text focus:bg-success-bg focus:text-success-text"
                   >
-                    <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <CheckCircle2Icon className="size-4 text-success-text shrink-0" />
                     <span className="font-medium">Sudah Diaudit</span>
                     {currentStatus === "Sudah Diaudit" && (
-                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 font-medium">
+                      <StatusBadge status="success" size="xs" className="ml-auto">
                         Aktif
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={currentStatus === "Sedang Diaudit"}
                     onClick={() => handleOpenStatusDialog("Sedang Diaudit")}
-                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-amber-700 dark:text-amber-300 focus:bg-amber-500/15 focus:text-amber-800 dark:focus:text-amber-200"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-warning-text focus:bg-warning-bg focus:text-warning-text"
                   >
-                    <ClockIcon className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <ClockIcon className="size-4 text-warning-text shrink-0" />
                     <span className="font-medium">Sedang Diaudit</span>
                     {currentStatus === "Sedang Diaudit" && (
-                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 font-medium">
+                      <StatusBadge status="warning" size="xs" className="ml-auto">
                         Aktif
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={currentStatus === "Belum Diaudit"}
                     onClick={() => handleOpenStatusDialog("Belum Diaudit")}
-                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-rose-700 dark:text-rose-300 focus:bg-rose-500/15 focus:text-rose-800 dark:focus:text-rose-200"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-danger-text focus:bg-danger-bg focus:text-danger-text"
                   >
-                    <AlertCircleIcon className="size-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <AlertCircleIcon className="size-4 text-danger-text shrink-0" />
                     <span className="font-medium">Belum Diaudit</span>
                     {currentStatus === "Belum Diaudit" && (
-                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-rose-500/40 text-rose-700 dark:text-rose-300 bg-rose-500/10 font-medium">
+                      <StatusBadge status="danger" size="xs" className="ml-auto">
                         Aktif
-                      </Badge>
+                      </StatusBadge>
                     )}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
@@ -406,7 +391,7 @@ export function AuditStatusControl({
               {targetStatus === "Sudah Diaudit" && (
                 <>
                   {!isAuditLengkap && jumlahBelumDinilai > 0 ? (
-                    <Alert variant="destructive" className="py-2.5">
+                    <Alert variant="warning" className="py-2.5">
                       <AlertTriangleIcon className="size-4" />
                       <AlertTitle className="text-xs font-semibold">
                         Peringatan Kelengkapan Butir
@@ -419,8 +404,8 @@ export function AuditStatusControl({
                       </AlertDescription>
                     </Alert>
                   ) : (
-                    <Alert className="py-2.5 border-primary/30 bg-primary/5 text-foreground">
-                      <CheckCircle2Icon className="size-4 text-primary" />
+                    <Alert variant="success" className="py-2.5">
+                      <CheckCircle2Icon className="size-4" />
                       <AlertTitle className="text-xs font-semibold">
                         Instrumen Terpenuhi
                       </AlertTitle>
@@ -508,7 +493,7 @@ export function AuditStatusControl({
                   isian (selama periode audit masih aktif).
                 </div>
               ) : (
-                <Alert variant="destructive" className="py-2.5">
+                <Alert variant="warning" className="py-2.5">
                   <AlertTriangleIcon className="size-4" />
                   <AlertTitle className="text-xs font-semibold">
                     Perhatian Penguncian Form

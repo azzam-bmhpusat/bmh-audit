@@ -55,27 +55,28 @@ export function ValidasiControl({
       <SelectTrigger
         size="sm"
         className={cn(
-          "h-7 w-28 px-2 text-xs justify-center mx-auto font-medium gap-1.5 transition-colors",
+          "h-7 w-28 px-2 text-xs justify-center mx-auto font-medium gap-1.5 transition-colors border",
           value === true &&
-            "bg-success/15 text-success border-success/30 hover:bg-success/20",
+            "bg-success-bg text-success-text border-success-border hover:bg-success-bg/80",
           value === false &&
-            "bg-destructive/15 text-destructive border-destructive/30 hover:bg-destructive/20",
-          (value === null || value === undefined) && "text-muted-foreground"
+            "bg-danger-bg text-danger-text border-danger-border hover:bg-danger-bg/80",
+          (value === null || value === undefined) &&
+            "bg-neutral-bg/50 text-neutral-text border-neutral-border"
         )}
         aria-label={`Validasi item ${itemNomor} bukti ${urutan ?? 1}`}
       >
         {value === true ? (
           <span className="inline-flex items-center gap-1.5 truncate">
-            <CheckCircle2Icon className="size-3.5 shrink-0" />
+            <CheckCircle2Icon className="size-3.5 shrink-0 text-success-text" />
             <span>Benar</span>
           </span>
         ) : value === false ? (
           <span className="inline-flex items-center gap-1.5 truncate">
-            <XCircleIcon className="size-3.5 shrink-0" />
+            <XCircleIcon className="size-3.5 shrink-0 text-danger-text" />
             <span>Tidak benar</span>
           </span>
         ) : (
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground truncate">
+          <span className="inline-flex items-center gap-1.5 text-neutral-text truncate">
             <CircleDashedIcon className="size-3.5 shrink-0" />
             <span>Belum</span>
           </span>
@@ -83,20 +84,20 @@ export function ValidasiControl({
       </SelectTrigger>
       <SelectContent align="center">
         <SelectItem value="none" className="text-xs">
-          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5 text-neutral-text">
             <CircleDashedIcon className="size-3.5 shrink-0" />
             <span>Belum</span>
           </span>
         </SelectItem>
-        <SelectItem value="true" className="text-xs text-success">
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <CheckCircle2Icon className="size-3.5 shrink-0 text-success" />
+        <SelectItem value="true" className="text-xs text-success-text font-medium">
+          <span className="inline-flex items-center gap-1.5">
+            <CheckCircle2Icon className="size-3.5 shrink-0 text-success-text" />
             <span>Benar</span>
           </span>
         </SelectItem>
-        <SelectItem value="false" className="text-xs text-destructive">
-          <span className="inline-flex items-center gap-1.5 font-medium">
-            <XCircleIcon className="size-3.5 shrink-0 text-destructive" />
+        <SelectItem value="false" className="text-xs text-danger-text font-medium">
+          <span className="inline-flex items-center gap-1.5">
+            <XCircleIcon className="size-3.5 shrink-0 text-danger-text" />
             <span>Tidak benar</span>
           </span>
         </SelectItem>
