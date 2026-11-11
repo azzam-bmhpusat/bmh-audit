@@ -112,6 +112,22 @@ export async function simpanJawaban(
     };
   }
 
+  // 4b. Verifikasi status kunci form cabang (apakah dikunci oleh auditor)
+  const { data: statusCabang } = await supabase
+    .from("audit_status_cabang")
+    .select("is_locked")
+    .eq("periode_id", periodeId)
+    .eq("cabang_id", profile.cabang_id)
+    .maybeSingle();
+
+  if (statusCabang?.is_locked) {
+    return {
+      ok: false,
+      error:
+        "Form audit untuk cabang Anda telah dikunci oleh Auditor SIA. Isian tidak dapat diubah.",
+    };
+  }
+
   // 5. Susun payload upsert HANYA menyertakan kolom yang diubah (partial upsert)
   // Ini krusial agar pengubahan link tidak menghapus skor, dan sebaliknya.
   const payload: {

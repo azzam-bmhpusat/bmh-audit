@@ -10,7 +10,9 @@ import { itemPoinSchema, matrixRowAdminSchema, searchParamsSchema } from "@/lib/
 import { buildMatrixTree } from "@/lib/matrix";
 import { MatrixTable } from "@/components/audit/matrix-table";
 import { CabangPicker } from "@/components/audit/cabang-picker";
-import type { Cabang, Periode } from "@/types/audit";
+import { AuditStatusControl } from "@/components/audit/audit-status-control";
+import { getPenilaianAdmin } from "@/lib/penilaian/queries";
+import type { Cabang, PenilaianAdmin, Periode } from "@/types/audit";
 import { z } from "zod";
 
 export const instant = false;
@@ -139,8 +141,8 @@ export default async function NilaiAuditPage(props: PageProps) {
     );
   }
 
-  // 3. Query paralel v_audit_matrix_admin dan v_audit_item_poin
-  const [matrixRes, poinRes] = await Promise.all([
+  // 3. Query paralel v_audit_matrix_admin, v_audit_item_poin, rekap penilaian admin, dan status kunci cabang
+  const [matrixRes, poinRes, penilaianRes, lockStatusRes] = await Promise.all([
     supabase
       .from("v_audit_matrix_admin")
       .select("*")
@@ -152,6 +154,13 @@ export default async function NilaiAuditPage(props: PageProps) {
       .select("*")
       .order("item_nomor")
       .order("urutan"),
+    getPenilaianAdmin(periodeAktif.id, cabang.id).catch(() => null),
+    supabase
+      .from("audit_status_cabang")
+      .select("is_locked")
+      .eq("periode_id", periodeAktif.id)
+      .eq("cabang_id", cabang.id)
+      .maybeSingle(),
   ]);
 
   if (matrixRes.error) {
@@ -167,6 +176,7 @@ export default async function NilaiAuditPage(props: PageProps) {
   // 4. Validasi skema toleran
   const rows = z.array(matrixRowAdminSchema).parse(matrixRes.data);
   const poinList = z.array(itemPoinSchema).parse(poinRes.data);
+  const penilaianData = penilaianRes as PenilaianAdmin | null;
 
   // 5. Susun struktur pohon matriks
   const tree = buildMatrixTree(rows, poinList);
@@ -198,6 +208,19 @@ export default async function NilaiAuditPage(props: PageProps) {
           BMH Perwakilan {cabang.nama}
         </p>
       </div>
+
+      {/* Kontrol Pemberian Status Audit & Tombol "Sudah Diaudit" dengan Popup Konfirmasi */}
+      <AuditStatusControl
+        periodeId={periodeAktif.id}
+        cabangId={cabang.id}
+        cabangNama={`BMH Perwakilan ${cabang.nama}`}
+        periodeNama={periodeAktif.nama}
+        initialStatus={penilaianData?.status_audit || "Belum Diaudit"}
+        initialIsLocked={lockStatusRes?.data?.is_locked ?? false}
+        jumlahButirTerisi={penilaianData?.jumlah_butir_terisi ?? tree.itemTerisi}
+        jumlahButirDiaudit={penilaianData?.jumlah_butir_diaudit ?? 0}
+        jumlahIndikator={penilaianData?.jumlah_indikator ?? tree.totalItem}
+      />
 
       {/* Banner informasi jika periode ditutup (admin tetap dapat menilai) */}
       {!periodeAktif.is_open && (

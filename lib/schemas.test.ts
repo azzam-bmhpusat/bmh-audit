@@ -16,6 +16,8 @@ import {
   updatePeriodeSchema,
   togglePeriodeStatusSchema,
   deletePeriodeSchema,
+  updateStatusAuditSchema,
+  toggleLockFormSchema,
   searchParamsSchema,
   matrixRowCabangSchema,
   matrixRowAdminSchema,
@@ -406,6 +408,70 @@ describe("schemas", () => {
       expect(getValidasiStatus(parsed as MatrixRowAdmin, 2)).toBe(false);
       expect(getValidasiStatus(parsed as MatrixRowAdmin, 3)).toBe(null);
       expect(getValidasiStatus(parsed as MatrixRowAdmin, 4)).toBe(null);
+    });
+  });
+
+  describe("updateStatusAuditSchema", () => {
+    it("menerima payload status audit yang valid", () => {
+      const validPayload = {
+        periodeId: "1",
+        cabangId: 5,
+        status: "Sudah Diaudit",
+        catatan: "Pemeriksaan instrumen selesai 100%.",
+      };
+      const result = updateStatusAuditSchema.safeParse(validPayload);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.periodeId).toBe(1);
+        expect(result.data.status).toBe("Sudah Diaudit");
+      }
+    });
+
+    it("menolak status selain enum yang ditentukan", () => {
+      const invalidPayload = {
+        periodeId: 1,
+        cabangId: 5,
+        status: "Selesai",
+      };
+      const result = updateStatusAuditSchema.safeParse(invalidPayload);
+      expect(result.success).toBe(false);
+    });
+
+    it("menolak jika ID periode atau cabang negatif atau 0", () => {
+      const invalidPayload = {
+        periodeId: 0,
+        cabangId: -1,
+        status: "Sedang Diaudit",
+      };
+      const result = updateStatusAuditSchema.safeParse(invalidPayload);
+      expect(result.success).toBe(false);
+    });
+  });
+
+  describe("toggleLockFormSchema", () => {
+    it("menerima payload kunci form yang valid", () => {
+      const validPayload = {
+        periodeId: "1",
+        cabangId: 3,
+        isLocked: true,
+        catatan: "Form dikunci setelah pemeriksaan selesai",
+      };
+      const result = toggleLockFormSchema.safeParse(validPayload);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.isLocked).toBe(true);
+        expect(result.data.cabangId).toBe(3);
+      }
+    });
+
+    it("menolak jika isLocked bukan boolean", () => {
+      const invalidPayload = {
+        periodeId: 1,
+        cabangId: 3,
+        isLocked: "locked",
+      };
+      const result = toggleLockFormSchema.safeParse(invalidPayload);
+      expect(result.success).toBe(false);
     });
   });
 });

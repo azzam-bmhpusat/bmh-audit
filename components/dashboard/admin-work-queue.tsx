@@ -21,7 +21,6 @@ import {
   ClipboardCheckIcon,
   SearchIcon,
   FileCheckIcon,
-  ArrowRightIcon,
   CheckCircle2Icon,
   ClockIcon,
   AlertCircleIcon,

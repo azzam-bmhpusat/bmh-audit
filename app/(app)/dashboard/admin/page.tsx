@@ -18,7 +18,6 @@ import {
   Building2Icon,
   CheckCircle2Icon,
   ClockIcon,
-  ClipboardCheckIcon,
   BarChart3Icon,
   FileCheckIcon,
   InfoIcon,

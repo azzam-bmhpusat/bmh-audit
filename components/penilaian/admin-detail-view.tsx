@@ -4,6 +4,7 @@ import * as React from "react";
 import { useRouter } from "next/navigation";
 import { PredikatTable } from "@/components/penilaian/predikat-table";
 import { AdminRekapComparison } from "@/components/penilaian/admin-rekap-comparison";
+import { AuditStatusControl } from "@/components/audit/audit-status-control";
 import { MatrixTable } from "@/components/audit/matrix-table";
 import type {
   AuditPredikat,
@@ -21,6 +22,7 @@ interface AdminDetailViewProps {
   predikatList: AuditPredikat[];
   matrixTree: MatrixTree<MatrixRowAdmin>;
   poinList: ItemPoin[];
+  isLocked?: boolean;
 }
 
 export function AdminDetailView({
@@ -30,6 +32,7 @@ export function AdminDetailView({
   predikatList,
   matrixTree,
   poinList,
+  isLocked = false,
 }: AdminDetailViewProps) {
   const router = useRouter();
 
@@ -59,6 +62,21 @@ export function AdminDetailView({
       </section>
 
       <Separator />
+
+      {/* Kontrol Status Audit & Tombol "Sudah Diaudit" */}
+      <AuditStatusControl
+        periodeId={periodeId}
+        cabangId={cabangId}
+        cabangNama={penilaian.entitas_audit}
+        periodeNama={penilaian.periode_audit}
+        initialStatus={penilaian.status_audit}
+        initialIsLocked={isLocked}
+        jumlahButirTerisi={penilaian.jumlah_butir_terisi}
+        jumlahButirDiaudit={penilaian.jumlah_butir_diaudit}
+        jumlahIndikator={penilaian.jumlah_indikator}
+        onStatusUpdated={handleSavedSuccess}
+        onLockToggled={handleSavedSuccess}
+      />
 
       {/* ============================================================== */}
       {/* BAGIAN 2: Rekapitulasi 2 Blok (Isian Cabang vs Sudah Di Audit) */}

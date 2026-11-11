@@ -8,6 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
     "check:design": "node scripts/check-design.mjs",
     "verify:backend": "node --env-file=.env.local scripts/verify-backend.mjs"
   },

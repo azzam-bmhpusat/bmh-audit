@@ -20,8 +20,7 @@ import {
 import { PeriodePicker } from "@/components/penilaian/periode-picker";
 import { UserKepatuhanHero } from "@/components/dashboard/user-kepatuhan-hero";
 import { UserPilarBreakdown } from "@/components/dashboard/user-pilar-breakdown";
-import { nilaiSkor, persen, skorMaksimum, subtotal } from "@/lib/scoring";
-import { formatPersen } from "@/lib/format";
+import { nilaiSkor, skorMaksimum, subtotal } from "@/lib/scoring";
 import { matrixRowCabangSchema, searchParamsSchema } from "@/lib/schemas";
 import type { Periode } from "@/types/audit";
 import { z } from "zod";
@@ -140,7 +139,6 @@ export default async function UserDashboardPage(props: PageProps) {
   const totalNilaiSkor = subtotal(
     rows.map((r) => r.nilai_skor ?? nilaiSkor(r.skor_audite, r.bobot))
   );
-  const persenMandiri = persen(totalNilaiSkor, skorMaks);
 
   const daftarBelumTerisi = rows.filter((r) => r.skor_audite === null);
 

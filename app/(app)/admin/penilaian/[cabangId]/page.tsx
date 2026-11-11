@@ -78,12 +78,18 @@ export default async function AdminReviewDetailPage(props: PageProps) {
 
   const periodeId = periodeAktif?.id ?? periodeList[0].id;
 
-  // 2. Query paralel: Standar predikat, Rekap admin cabang tunggal, Matriks admin 72 butir, Detail 5 poin
-  const [predikatList, penilaianData, matrixRows, poinList] = await Promise.all([
+  // 2. Query paralel: Standar predikat, Rekap admin cabang tunggal, Matriks admin 72 butir, Detail 5 poin, dan status kunci cabang
+  const [predikatList, penilaianData, matrixRows, poinList, lockStatusRes] = await Promise.all([
     getPredikat(),
     getPenilaianAdmin(periodeId, cabangId),
     getMatrixAdmin(periodeId, cabangId),
     getItemPoinList(),
+    supabase
+      .from("audit_status_cabang")
+      .select("is_locked")
+      .eq("periode_id", periodeId)
+      .eq("cabang_id", cabangId)
+      .maybeSingle(),
   ]);
 
   const penilaian = penilaianData as PenilaianAdmin | null;
@@ -91,6 +97,8 @@ export default async function AdminReviewDetailPage(props: PageProps) {
   if (!penilaian) {
     notFound();
   }
+
+  const isFormLocked = lockStatusRes?.data?.is_locked ?? false;
 
   // 3. Susun pohon struktur matriks (Pilar -> Variabel -> Item + Poin)
   const matrixTree = buildMatrixTree(matrixRows, poinList);
@@ -139,6 +147,7 @@ export default async function AdminReviewDetailPage(props: PageProps) {
         predikatList={predikatList}
         matrixTree={matrixTree}
         poinList={poinList}
+        isLocked={isFormLocked}
       />
     </main>
   );

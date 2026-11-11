@@ -7,6 +7,7 @@
 import { createClient } from "@supabase/supabase-js";
 
 /* harus sama dengan lib/auth/nama-email.ts */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 function namaToEmail(nama) {
   const slug = nama
     .trim()

@@ -342,3 +342,23 @@ export const deletePeriodeSchema = z.object({
   id: z.coerce.number().int().positive("ID periode harus valid"),
 });
 
+export const statusAuditEnum = z.enum([
+  "Belum Diaudit",
+  "Sedang Diaudit",
+  "Sudah Diaudit",
+]);
+
+export const updateStatusAuditSchema = z.object({
+  periodeId: z.coerce.number().int().positive("ID periode harus valid"),
+  cabangId: z.coerce.number().int().positive("ID cabang harus valid"),
+  status: statusAuditEnum,
+  catatan: z.string().max(1000, "Catatan maksimal 1000 karakter").optional().nullable(),
+});
+
+export const toggleLockFormSchema = z.object({
+  periodeId: z.coerce.number().int().positive("ID periode harus valid"),
+  cabangId: z.coerce.number().int().positive("ID cabang harus valid"),
+  isLocked: z.boolean(),
+  catatan: z.string().max(1000, "Catatan maksimal 1000 karakter").optional().nullable(),
+});
+

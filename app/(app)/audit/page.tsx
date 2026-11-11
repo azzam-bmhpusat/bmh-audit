@@ -3,7 +3,7 @@ import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircleIcon, InfoIcon } from "lucide-react";
+import { AlertCircleIcon, InfoIcon, LockIcon } from "lucide-react";
 import { itemPoinSchema, matrixRowCabangSchema } from "@/lib/schemas";
 import { buildMatrixTree } from "@/lib/matrix";
 import { MatrixTable } from "@/components/audit/matrix-table";
@@ -67,8 +67,8 @@ export default async function AuditPage() {
     );
   }
 
-  // 2. Query paralel matriks cabang dan poin item (Hanya v_audit_matrix_cabang, bukan admin)
-  const [matrixRes, poinRes] = await Promise.all([
+  // 2. Query paralel matriks cabang, poin item, dan status kunci cabang
+  const [matrixRes, poinRes, lockStatusRes] = await Promise.all([
     supabase
       .from("v_audit_matrix_cabang")
       .select("*")
@@ -80,6 +80,12 @@ export default async function AuditPage() {
       .select("*")
       .order("item_nomor")
       .order("urutan"),
+    supabase
+      .from("audit_status_cabang")
+      .select("is_locked")
+      .eq("periode_id", periodeAktif.id)
+      .eq("cabang_id", profile.cabang_id)
+      .maybeSingle(),
   ]);
 
   if (matrixRes.error) {
@@ -95,6 +101,8 @@ export default async function AuditPage() {
   // 3. Validasi skema toleran
   const rows = z.array(matrixRowCabangSchema).parse(matrixRes.data);
   const poinList = z.array(itemPoinSchema).parse(poinRes.data);
+  const isFormLocked = lockStatusRes?.data?.is_locked ?? false;
+  const isReadOnly = !periodeAktif.is_open || isFormLocked;
 
   // 4. Susun struktur pohon matriks (Pilar -> Variabel -> Item)
   const tree = buildMatrixTree(rows, poinList);
@@ -117,6 +125,17 @@ export default async function AuditPage() {
         </p>
       </div>
 
+      {/* Banner informasi jika form dikunci oleh auditor */}
+      {isFormLocked && periodeAktif.is_open && (
+        <Alert variant="destructive">
+          <LockIcon className="size-4" />
+          <AlertTitle>Form Isian Dikunci oleh Auditor</AlertTitle>
+          <AlertDescription>
+            Auditor SIA telah mengunci form isian audit untuk perwakilan Anda pada periode ini. Isian instrumen berstatus hanya-baca (read-only).
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Banner informasi jika periode ditutup */}
       {!periodeAktif.is_open && (
         <Alert>
@@ -132,7 +151,7 @@ export default async function AuditPage() {
       <MatrixTable
         mode="cabang"
         data={tree}
-        readOnly={!periodeAktif.is_open}
+        readOnly={isReadOnly}
         periodeId={periodeAktif.id}
         poinList={poinList}
         headerInfo={{
