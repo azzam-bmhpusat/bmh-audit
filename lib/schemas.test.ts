@@ -18,6 +18,7 @@ import {
   deletePeriodeSchema,
   updateStatusAuditSchema,
   toggleLockFormSchema,
+  updatePredikatSchema,
   searchParamsSchema,
   matrixRowCabangSchema,
   matrixRowAdminSchema,
@@ -472,6 +473,80 @@ describe("schemas", () => {
       };
       const result = toggleLockFormSchema.safeParse(invalidPayload);
       expect(result.success).toBe(false);
+    });
+  });
+
+  describe("updatePredikatSchema", () => {
+    const validPredikat = {
+      nilai: "A",
+      predikat: "Sangat Patuh (Excellence / Platinum)",
+      status_kepatuhan: "SANGAT PATUH",
+      batas_bawah: 90,
+      batas_atas: 100,
+      keterangan: "Seluruh sistem kepatuhan terpenuhi dengan bukti lengkap.",
+      wajib_ptk: false,
+    };
+
+    it("menerima data predikat yang valid", () => {
+      const result = updatePredikatSchema.safeParse(validPredikat);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.nilai).toBe("A");
+        expect(result.data.batas_bawah).toBe(90);
+        expect(result.data.batas_atas).toBe(100);
+        expect(result.data.wajib_ptk).toBe(false);
+      }
+    });
+
+    it("menerima batas angka bertipe string numerik (coerced)", () => {
+      const payload = {
+        ...validPredikat,
+        batas_bawah: "85.5",
+        batas_atas: "89.99",
+      };
+      const result = updatePredikatSchema.safeParse(payload);
+      expect(result.success).toBe(true);
+      if (result.success) {
+        expect(result.data.batas_bawah).toBe(85.5);
+        expect(result.data.batas_atas).toBe(89.99);
+      }
+    });
+
+    it("menolak jika batas_atas lebih kecil dari batas_bawah", () => {
+      const payload = {
+        ...validPredikat,
+        batas_bawah: 95,
+        batas_atas: 80,
+      };
+      const result = updatePredikatSchema.safeParse(payload);
+      expect(result.success).toBe(false);
+      if (!result.success) {
+        expect(result.error.issues[0]?.message).toContain(
+          "Batas atas harus lebih besar atau sama dengan batas bawah"
+        );
+      }
+    });
+
+    it("menolak jika batas_bawah di bawah 0 atau batas_atas di atas 100", () => {
+      const belowZero = {
+        ...validPredikat,
+        batas_bawah: -5,
+      };
+      expect(updatePredikatSchema.safeParse(belowZero).success).toBe(false);
+
+      const above100 = {
+        ...validPredikat,
+        batas_atas: 105,
+      };
+      expect(updatePredikatSchema.safeParse(above100).success).toBe(false);
+    });
+
+    it("menolak jika string wajib kosong", () => {
+      const emptyPredikat = {
+        ...validPredikat,
+        predikat: "   ",
+      };
+      expect(updatePredikatSchema.safeParse(emptyPredikat).success).toBe(false);
     });
   });
 });

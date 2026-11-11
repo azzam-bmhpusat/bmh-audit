@@ -232,6 +232,43 @@ export const auditPredikatSchema = z.object({
   rentang_teks: z.string(),
 });
 
+export const updatePredikatSchema = z
+  .object({
+    nilai: z
+      .string()
+      .trim()
+      .min(1, "Nilai predikat harus ditentukan")
+      .max(2, "Nilai predikat maksimal 2 karakter"),
+    predikat: z
+      .string()
+      .trim()
+      .min(1, "Nama predikat tidak boleh kosong")
+      .max(200, "Nama predikat maksimal 200 karakter"),
+    status_kepatuhan: z
+      .string()
+      .trim()
+      .min(1, "Status kepatuhan tidak boleh kosong")
+      .max(200, "Status kepatuhan maksimal 200 karakter"),
+    batas_bawah: z.coerce
+      .number()
+      .min(0, "Batas bawah minimal 0")
+      .max(100, "Batas bawah maksimal 100"),
+    batas_atas: z.coerce
+      .number()
+      .min(0, "Batas atas minimal 0")
+      .max(100, "Batas atas maksimal 100"),
+    keterangan: z
+      .string()
+      .trim()
+      .min(1, "Keterangan & tindak lanjut tidak boleh kosong")
+      .max(1000, "Keterangan maksimal 1000 karakter"),
+    wajib_ptk: z.boolean().default(false),
+  })
+  .refine((data) => data.batas_atas >= data.batas_bawah, {
+    message: "Batas atas harus lebih besar atau sama dengan batas bawah",
+    path: ["batas_atas"],
+  });
+
 export const penilaianCabangSchema = z.object({
   periode_id: z.coerce.number().int(),
   cabang_id: z.coerce.number().int(),

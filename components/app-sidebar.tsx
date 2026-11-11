@@ -16,7 +16,7 @@ import {
   SidebarRail,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { getNavItemsForRole } from "@/lib/auth/role-guard";
+import { getNavGroupsForRole } from "@/lib/auth/role-guard";
 import type { Role } from "@/types/audit";
 import { ShieldCheckIcon } from "lucide-react";
 
@@ -27,7 +27,7 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
 export function AppSidebar({ role, ...props }: AppSidebarProps) {
   const pathname = usePathname();
   const { isMobile, setOpenMobile } = useSidebar();
-  const navItems = getNavItemsForRole(role);
+  const navGroups = getNavGroupsForRole(role);
 
   return (
     <Sidebar collapsible="icon" {...props}>
@@ -53,43 +53,45 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
       </SidebarHeader>
 
       <SidebarContent>
-        <SidebarGroup>
-          <SidebarGroupLabel>Menu Utama</SidebarGroupLabel>
-          <SidebarMenu className="gap-1">
-            {navItems.map((item) => {
-              // Menentukan status aktif menu
-              const isExactMatch = pathname === item.url;
-              const isSubMatch =
-                item.url !== "/dashboard" &&
-                item.url !== "/dashboard/admin" &&
-                item.url !== "/dashboard/user" &&
-                pathname.startsWith(item.url);
-              const isActive = isExactMatch || isSubMatch;
+        {navGroups.map((group) => (
+          <SidebarGroup key={group.label}>
+            <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+            <SidebarMenu className="gap-1">
+              {group.items.map((item) => {
+                  // Menentukan status aktif menu
+                  const isExactMatch = pathname === item.url;
+                  const isSubMatch =
+                    item.url !== "/dashboard" &&
+                    item.url !== "/dashboard/admin" &&
+                    item.url !== "/dashboard/user" &&
+                    pathname.startsWith(item.url);
+                  const isActive = isExactMatch || isSubMatch;
 
-              return (
-                <SidebarMenuItem key={item.url} className="my-0.5">
-                  <SidebarMenuButton
-                    isActive={isActive}
-                    tooltip={item.title}
-                    render={
-                      <Link
-                        href={item.url}
-                        onClick={() => {
-                          if (isMobile) {
-                            setOpenMobile(false);
-                          }
-                        }}
-                      />
-                    }
-                  >
-                    <item.icon className="size-4" />
-                    <span>{item.title}</span>
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-              );
-            })}
-          </SidebarMenu>
-        </SidebarGroup>
+                  return (
+                    <SidebarMenuItem key={item.url} className="my-0.5">
+                      <SidebarMenuButton
+                        isActive={isActive}
+                        tooltip={item.title}
+                        render={
+                          <Link
+                            href={item.url}
+                            onClick={() => {
+                              if (isMobile) {
+                                setOpenMobile(false);
+                              }
+                            }}
+                          />
+                        }
+                      >
+                        <item.icon className="size-4" />
+                        <span>{item.title}</span>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroup>
+        ))}
       </SidebarContent>
 
       {/* Footer minimalis: tidak menduplikasi dropdown profil */}

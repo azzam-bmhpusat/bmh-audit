@@ -32,13 +32,13 @@ export default async function AuthenticatedAppLayout({
   return (
     <SidebarProvider defaultOpen={defaultOpen}>
       <AppSidebar role={profile.role} />
-      <SidebarInset className="flex min-h-screen flex-1 min-w-0 flex-col bg-background overflow-x-hidden">
+      <SidebarInset className="flex min-h-screen flex-1 min-w-0 flex-col bg-background">
         <AppHeader
           nama={profile.nama}
           role={profile.role}
           cabangNama={cabangNama}
         />
-        <div className="flex-1 w-full min-w-0 overflow-x-hidden">
+        <div className="flex-1 w-full min-w-0">
           {children}
         </div>
       </SidebarInset>

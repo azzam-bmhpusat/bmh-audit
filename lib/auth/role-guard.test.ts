@@ -3,6 +3,7 @@ import {
   getRoleHome,
   canAccessRoute,
   getNavItemsForRole,
+  getNavGroupsForRole,
 } from "./role-guard";
 
 describe("role-guard", () => {
@@ -74,6 +75,41 @@ describe("role-guard", () => {
       const items = getNavItemsForRole("user");
       expect(items).toHaveLength(3);
       expect(items.map((i) => i.url)).toEqual([
+        "/dashboard/user",
+        "/audit",
+        "/penilaian",
+      ]);
+    });
+  });
+
+  describe("getNavGroupsForRole", () => {
+    it("memisahkan menu utama dan manajemen/pengaturan untuk admin", () => {
+      const groups = getNavGroupsForRole("admin");
+      expect(groups).toHaveLength(2);
+
+      const mainGroup = groups[0];
+      expect(mainGroup.label).toBe("Menu Utama");
+      expect(mainGroup.items.map((i) => i.url)).toEqual([
+        "/dashboard/admin",
+        "/admin/penilaian",
+        "/nilai-audit",
+        "/ringkasan",
+      ]);
+
+      const managementGroup = groups[1];
+      expect(managementGroup.label).toBe("Manajemen & Pengaturan");
+      expect(managementGroup.items.map((i) => i.url)).toEqual([
+        "/manajemen-perwakilan",
+        "/manajemen-user",
+        "/pengaturan",
+      ]);
+    });
+
+    it("menampilkan satu grup menu utama untuk user", () => {
+      const groups = getNavGroupsForRole("user");
+      expect(groups).toHaveLength(1);
+      expect(groups[0].label).toBe("Menu Utama");
+      expect(groups[0].items.map((i) => i.url)).toEqual([
         "/dashboard/user",
         "/audit",
         "/penilaian",

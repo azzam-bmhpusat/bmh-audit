@@ -74,8 +74,8 @@ export async function getPenilaianAdmin(
   if (cabangId) {
     const { data, error } = await query.eq("cabang_id", cabangId).maybeSingle();
     if (error) {
-      console.error("[getPenilaianAdmin] Gagal memuat cabang:", error.message);
-      throw new Error("Gagal memuat data penilaian cabang.");
+      console.warn("[getPenilaianAdmin] Catatan memuat penilaian cabang:", error.message);
+      return null;
     }
     if (!data) return null;
     return penilaianAdminSchema.parse(data) as PenilaianAdmin;

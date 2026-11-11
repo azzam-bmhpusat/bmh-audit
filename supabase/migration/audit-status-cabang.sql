@@ -54,7 +54,37 @@ create policy "audit_status_cabang_admin_all"
 
 grant select, insert, update, delete on public.audit_status_cabang to authenticated;
 
--- 3. Perbarui view v_penilaian_admin agar memprioritaskan status manual jika ada
+-- 3. Izinkan akun cabang membaca skor penilaian auditor untuk cabangnya sendiri
+drop policy if exists "penilaian_auditor_select_own" on public.audit_penilaian_auditor;
+create policy "penilaian_auditor_select_own"
+  on public.audit_penilaian_auditor
+  for select
+  to authenticated
+  using (
+    (select public.is_admin())
+    or cabang_id = (select public.my_cabang_id())
+  );
+
+-- 4. Buat ulang view matriks admin (v_audit_matrix_admin) agar cabang bisa membaca barisnya sendiri
+drop view if exists public.v_audit_matrix_admin cascade;
+create view public.v_audit_matrix_admin
+with (security_invoker = true) as
+select
+  m.*,
+  coalesce(a.validasi, '{}'::jsonb) as validasi,
+  a.skor_auditor,
+  a.skor_auditor * m.bobot  as nilai_skor_auditor,
+  a.catatan
+from public.v_audit_matrix_cabang m
+left join public.audit_penilaian_auditor a
+  on  a.periode_id = m.periode_id
+  and a.cabang_id  = m.cabang_id
+  and a.item_nomor = m.nomor
+where (select public.is_admin()) or m.cabang_id = (select public.my_cabang_id());
+
+grant select on public.v_audit_matrix_admin to authenticated;
+
+-- 5. Perbarui view v_penilaian_admin agar memprioritaskan status manual jika ada
 drop view if exists public.v_penilaian_admin cascade;
 create view public.v_penilaian_admin
 with (security_invoker = true) as

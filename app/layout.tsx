@@ -23,7 +23,7 @@ export default function RootLayout({
       lang="id"
       className={`${plusJakartaSans.variable} font-sans h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col overflow-x-hidden max-w-full">
+      <body className="min-h-full flex flex-col overflow-x-clip max-w-full">
         {children}
         <Toaster richColors position="top-right" />
       </body>

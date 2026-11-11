@@ -153,7 +153,7 @@ export function AppHeader({ nama, role, cabangNama }: AppHeaderProps) {
   };
 
   return (
-    <header className="sticky top-0 z-10 flex h-14 shrink-0 items-center justify-between border-b bg-background/95 px-4 backdrop-blur-sm sm:px-6">
+    <header className="sticky top-0 z-40 flex h-14 shrink-0 items-center justify-between border-b border-border/50 bg-background/70 px-4 backdrop-blur-md supports-backdrop-filter:bg-background/70 transition-[background-color,border-color] duration-200 sm:px-6">
       {/* Sisi Kiri: SidebarTrigger + Breadcrumb */}
       <div className="flex items-center gap-2">
         <SidebarTrigger className="-ml-1" />

@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
-import { getPenilaianCabang } from "@/lib/penilaian/queries";
+import { getPenilaianCabang, getPenilaianAdmin } from "@/lib/penilaian/queries";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -22,7 +22,7 @@ import { UserKepatuhanHero } from "@/components/dashboard/user-kepatuhan-hero";
 import { UserPilarBreakdown } from "@/components/dashboard/user-pilar-breakdown";
 import { nilaiSkor, skorMaksimum, subtotal } from "@/lib/scoring";
 import { matrixRowCabangSchema, searchParamsSchema } from "@/lib/schemas";
-import type { Periode } from "@/types/audit";
+import type { PenilaianAdmin, Periode } from "@/types/audit";
 import { z } from "zod";
 import {
   AlertCircleIcon,
@@ -104,22 +104,41 @@ export default async function UserDashboardPage(props: PageProps) {
   const periodeId = periodeAktif?.id ?? periodeList[0].id;
   const isOpen = periodeAktif?.is_open ?? true;
 
-  // 2. Query paralel: Data matriks cabang & rekapitulasi penilaian resmi
-  const [{ data: rawMatrix, error: matrixError }, penilaianCabang] =
-    await Promise.all([
-      supabase
-        .from("v_audit_matrix_cabang")
-        .select("*")
-        .eq("periode_id", periodeId)
-        .eq("cabang_id", profile.cabang_id)
-        .order("nomor"),
-      getPenilaianCabang(periodeId),
-    ]);
+  // 2. Query paralel: Data matriks cabang, rekapitulasi penilaian mandiri, penilaian SIA, dan status kunci
+  const [
+    { data: rawMatrix, error: matrixError },
+    penilaianCabang,
+    penilaianAdminData,
+    statusCabangRes,
+  ] = await Promise.all([
+    supabase
+      .from("v_audit_matrix_cabang")
+      .select("*")
+      .eq("periode_id", periodeId)
+      .eq("cabang_id", profile.cabang_id)
+      .order("nomor"),
+    getPenilaianCabang(periodeId),
+    getPenilaianAdmin(periodeId, profile.cabang_id).catch(() => null),
+    supabase
+      .from("audit_status_cabang")
+      .select("status, is_locked, catatan, updated_at")
+      .eq("periode_id", periodeId)
+      .eq("cabang_id", profile.cabang_id)
+      .maybeSingle(),
+  ]);
 
   if (matrixError) {
     console.error("Gagal mengambil data matriks cabang:", matrixError);
     throw new Error("Gagal memuat ringkasan audit cabang.");
   }
+
+  const penilaianSIA = penilaianAdminData as PenilaianAdmin | null;
+  const statusAudit =
+    statusCabangRes?.data?.status ??
+    penilaianSIA?.status_audit ??
+    "Belum Diaudit";
+  const isLocked = Boolean(statusCabangRes?.data?.is_locked);
+  const catatanAuditor = statusCabangRes?.data?.catatan ?? null;
 
   const rows = z.array(matrixRowCabangSchema).parse(rawMatrix ?? []);
 
@@ -165,13 +184,25 @@ export default async function UserDashboardPage(props: PageProps) {
             render={<Link href="/audit" />}
             nativeButton={false}
             className="gap-1.5 h-9 text-xs"
-            disabled={!isOpen}
+            disabled={!isOpen || isLocked}
           >
             <FileSpreadsheetIcon className="size-4" />
             <span>Instrumen Audit</span>
           </Button>
         </div>
       </div>
+
+      {/* Banner informasi jika form dikunci oleh auditor */}
+      {isLocked && isOpen && (
+        <Alert variant="destructive">
+          <AlertCircleIcon className="size-4" />
+          <AlertTitle>Form Isian Audit Dikunci</AlertTitle>
+          <AlertDescription>
+            Form pengisian instrumen untuk cabang Anda telah dikunci oleh Auditor SIA.
+            {catatanAuditor ? ` Catatan Auditor: "${catatanAuditor}".` : " Pengisian instrumen berstatus hanya-baca (read-only)."}
+          </AlertDescription>
+        </Alert>
+      )}
 
       {/* Banner informasi jika periode ditutup */}
       {!isOpen && (
@@ -185,13 +216,17 @@ export default async function UserDashboardPage(props: PageProps) {
       )}
 
       {/* =========================================================================
-          POSISI PALING ATAS: NILAI KEPATUHAN & PREDIKAT KEPATUHAN LEMBAGA
+          POSISI PALING ATAS: HIGHLIGHT HASIL AUDIT RESMI SIA & SKOR MANDIRI
           ========================================================================= */}
       <UserKepatuhanHero
-        penilaian={penilaianCabang}
+        penilaianSIA={penilaianSIA}
+        penilaianMandiri={penilaianCabang}
+        statusAudit={statusAudit}
+        catatanAuditor={catatanAuditor}
+        isLocked={isLocked}
         skorMaks={skorMaks}
-        totalNilaiSkor={totalNilaiSkor}
-        isOpen={isOpen}
+        totalNilaiSkorMandiri={totalNilaiSkor}
+        isOpen={isOpen && !isLocked}
       />
 
       {/* =========================================================================
@@ -266,24 +301,34 @@ export default async function UserDashboardPage(props: PageProps) {
           </CardContent>
         </Card>
 
-        {/* Card 4: Status Keterbukaan & Validasi SIA */}
+        {/* Card 4: Status Audit SIA */}
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-medium text-muted-foreground">
-              Status Instrumen
+              Status Audit SIA
             </CardTitle>
             <ShieldCheckIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="mt-1">
-              <Badge variant={isOpen ? "default" : "secondary"}>
-                {isOpen ? "Terbuka untuk Pengisian" : "Terkunci (Ditutup)"}
+              <Badge
+                variant={
+                  statusAudit === "Sudah Diaudit"
+                    ? "success"
+                    : statusAudit === "Sedang Diaudit"
+                    ? "secondary"
+                    : "outline"
+                }
+              >
+                {statusAudit}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {isOpen
-                ? "Dapat mengubah jawaban & bukti"
-                : "Arsip riwayat evaluasi"}
+              {isLocked
+                ? "Form dikunci oleh Auditor"
+                : isOpen
+                ? "Instrumen terbuka untuk diisi"
+                : "Periode audit telah ditutup"}
             </p>
           </CardContent>
         </Card>

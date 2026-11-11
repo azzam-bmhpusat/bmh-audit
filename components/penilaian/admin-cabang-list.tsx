@@ -19,6 +19,9 @@ import {
   ChevronRightIcon,
   SearchIcon,
   SlidersHorizontalIcon,
+  CheckCircle2Icon,
+  ClockIcon,
+  AlertCircleIcon,
 } from "lucide-react";
 
 interface AdminCabangListProps {
@@ -97,14 +100,34 @@ export function AdminCabangList({
   const getStatusBadge = (status: string) => {
     switch (status) {
       case "Sudah Diaudit":
-        return <Badge variant="secondary">Sudah Diaudit</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-medium text-xs gap-1"
+          >
+            <CheckCircle2Icon className="size-3 text-emerald-600 dark:text-emerald-400" />
+            <span>Sudah Diaudit</span>
+          </Badge>
+        );
       case "Sedang Diaudit":
-        return <Badge variant="outline">Sedang Diaudit</Badge>;
+        return (
+          <Badge
+            variant="outline"
+            className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 font-medium text-xs gap-1"
+          >
+            <ClockIcon className="size-3 text-amber-600 dark:text-amber-400" />
+            <span>Sedang Diaudit</span>
+          </Badge>
+        );
       case "Belum Diaudit":
       default:
         return (
-          <Badge variant="outline" className="text-muted-foreground border-dashed">
-            Belum Diaudit
+          <Badge
+            variant="outline"
+            className="bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30 border-dashed font-medium text-xs gap-1"
+          >
+            <AlertCircleIcon className="size-3 text-rose-600 dark:text-rose-400" />
+            <span>Belum Diaudit</span>
           </Badge>
         );
     }

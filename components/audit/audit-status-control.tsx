@@ -173,18 +173,21 @@ export function AuditStatusControl({
     switch (status) {
       case "Sudah Diaudit":
         return (
-          <Badge variant="default" className="font-medium gap-1 px-2.5 py-1 text-xs shadow-xs">
-            <CheckCircle2Icon className="size-3.5" />
+          <Badge
+            variant="outline"
+            className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-medium gap-1 px-2.5 py-1 text-xs shadow-xs"
+          >
+            <CheckCircle2Icon className="size-3.5 text-emerald-600 dark:text-emerald-400" />
             <span>Sudah Diaudit</span>
           </Badge>
         );
       case "Sedang Diaudit":
         return (
           <Badge
-            variant="secondary"
-            className="border font-medium gap-1 px-2.5 py-1 text-xs"
+            variant="outline"
+            className="bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-500/30 font-medium gap-1 px-2.5 py-1 text-xs shadow-xs"
           >
-            <ClockIcon className="size-3.5" />
+            <ClockIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
             <span>Sedang Diaudit</span>
           </Badge>
         );
@@ -193,9 +196,9 @@ export function AuditStatusControl({
         return (
           <Badge
             variant="outline"
-            className="text-muted-foreground border-dashed font-medium gap-1 px-2.5 py-1 text-xs"
+            className="bg-rose-500/10 text-rose-700 dark:text-rose-300 border-rose-500/30 border-dashed font-medium gap-1 px-2.5 py-1 text-xs"
           >
-            <AlertCircleIcon className="size-3.5" />
+            <AlertCircleIcon className="size-3.5 text-rose-600 dark:text-rose-400" />
             <span>Belum Diaudit</span>
           </Badge>
         );
@@ -284,7 +287,7 @@ export function AuditStatusControl({
                 type="button"
                 variant="default"
                 size="sm"
-                className="gap-1.5 shadow-xs cursor-pointer font-medium h-8 text-xs"
+                className="gap-1.5 shadow-xs cursor-pointer font-medium h-8 text-xs bg-emerald-600 hover:bg-emerald-700 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500 border border-emerald-700/20"
                 onClick={() => handleOpenStatusDialog("Sudah Diaudit")}
               >
                 <CheckCircle2Icon className="size-3.5" />
@@ -295,10 +298,10 @@ export function AuditStatusControl({
                 type="button"
                 variant="outline"
                 size="sm"
-                className="gap-1.5 cursor-pointer font-medium h-8 text-xs text-muted-foreground hover:text-foreground"
+                className="gap-1.5 cursor-pointer font-medium h-8 text-xs border-amber-500/40 text-amber-700 dark:text-amber-400 hover:bg-amber-500/10"
                 onClick={() => handleOpenStatusDialog("Sedang Diaudit")}
               >
-                <RotateCcwIcon className="size-3.5" />
+                <RotateCcwIcon className="size-3.5 text-amber-600 dark:text-amber-400" />
                 <span>Buka Kembali Audit</span>
               </Button>
             )}
@@ -317,35 +320,50 @@ export function AuditStatusControl({
                   </Button>
                 }
               />
-              <DropdownMenuContent align="end" className="w-48 text-xs">
+              <DropdownMenuContent align="end" className="w-52 text-xs p-1.5">
                 <DropdownMenuGroup>
-                  <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+                  <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider px-2 py-1.5">
                     Ubah Status Manual
                   </DropdownMenuLabel>
-                  <DropdownMenuSeparator />
+                  <DropdownMenuSeparator className="my-1" />
                   <DropdownMenuItem
                     disabled={currentStatus === "Sudah Diaudit"}
                     onClick={() => handleOpenStatusDialog("Sudah Diaudit")}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-emerald-700 dark:text-emerald-300 focus:bg-emerald-500/15 focus:text-emerald-800 dark:focus:text-emerald-200"
                   >
-                    <CheckCircle2Icon className="size-3.5 text-primary" />
-                    <span>Sudah Diaudit</span>
+                    <CheckCircle2Icon className="size-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                    <span className="font-medium">Sudah Diaudit</span>
+                    {currentStatus === "Sudah Diaudit" && (
+                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-emerald-500/40 text-emerald-700 dark:text-emerald-300 bg-emerald-500/10 font-medium">
+                        Aktif
+                      </Badge>
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={currentStatus === "Sedang Diaudit"}
                     onClick={() => handleOpenStatusDialog("Sedang Diaudit")}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-amber-700 dark:text-amber-300 focus:bg-amber-500/15 focus:text-amber-800 dark:focus:text-amber-200"
                   >
-                    <ClockIcon className="size-3.5 text-muted-foreground" />
-                    <span>Sedang Diaudit</span>
+                    <ClockIcon className="size-4 text-amber-600 dark:text-amber-400 shrink-0" />
+                    <span className="font-medium">Sedang Diaudit</span>
+                    {currentStatus === "Sedang Diaudit" && (
+                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-amber-500/40 text-amber-700 dark:text-amber-300 bg-amber-500/10 font-medium">
+                        Aktif
+                      </Badge>
+                    )}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     disabled={currentStatus === "Belum Diaudit"}
                     onClick={() => handleOpenStatusDialog("Belum Diaudit")}
-                    className="gap-2 cursor-pointer"
+                    className="gap-2.5 cursor-pointer py-2 px-2.5 rounded-md text-rose-700 dark:text-rose-300 focus:bg-rose-500/15 focus:text-rose-800 dark:focus:text-rose-200"
                   >
-                    <AlertCircleIcon className="size-3.5 text-muted-foreground" />
-                    <span>Belum Diaudit</span>
+                    <AlertCircleIcon className="size-4 text-rose-600 dark:text-rose-400 shrink-0" />
+                    <span className="font-medium">Belum Diaudit</span>
+                    {currentStatus === "Belum Diaudit" && (
+                      <Badge variant="outline" className="ml-auto text-[10px] py-0 px-1.5 border-rose-500/40 text-rose-700 dark:text-rose-300 bg-rose-500/10 font-medium">
+                        Aktif
+                      </Badge>
+                    )}
                   </DropdownMenuItem>
                 </DropdownMenuGroup>
               </DropdownMenuContent>

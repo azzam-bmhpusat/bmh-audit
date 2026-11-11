@@ -18,6 +18,17 @@ export interface NavItem {
   icon: LucideIcon;
 }
 
+export interface NavGroup {
+  label: string;
+  items: NavItem[];
+}
+
+export const MANAGEMENT_NAV_URLS = [
+  "/manajemen-perwakilan",
+  "/manajemen-user",
+  "/pengaturan",
+] as const;
+
 /**
  * Menentukan rute dashboard utama berdasarkan role pengguna.
  */
@@ -121,3 +132,38 @@ export function getNavItemsForRole(role: Role): NavItem[] {
     },
   ];
 }
+
+/**
+ * Mengembalikan grup menu navigasi sidebar sesuai role pengguna.
+ * Memisahkan Menu Utama dari Manajemen & Pengaturan untuk role admin.
+ */
+export function getNavGroupsForRole(role: Role): NavGroup[] {
+  const allItems = getNavItemsForRole(role);
+  if (role === "admin") {
+    const mainItems = allItems.filter(
+      (item) => !(MANAGEMENT_NAV_URLS as readonly string[]).includes(item.url)
+    );
+    const managementItems = allItems.filter((item) =>
+      (MANAGEMENT_NAV_URLS as readonly string[]).includes(item.url)
+    );
+
+    return [
+      {
+        label: "Menu Utama",
+        items: mainItems,
+      },
+      {
+        label: "Manajemen & Pengaturan",
+        items: managementItems,
+      },
+    ];
+  }
+
+  return [
+    {
+      label: "Menu Utama",
+      items: allItems,
+    },
+  ];
+}
+

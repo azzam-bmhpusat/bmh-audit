@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import type { PenilaianCabang } from "@/types/audit";
+import type { PenilaianAdmin, PenilaianCabang } from "@/types/audit";
 import {
   AwardIcon,
   AlertTriangleIcon,
@@ -13,13 +13,19 @@ import {
   FileSpreadsheetIcon,
   ChevronRightIcon,
   ShieldCheckIcon,
+  ClockIcon,
+  InfoIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface UserKepatuhanHeroProps {
-  penilaian: PenilaianCabang | null;
+  penilaianSIA: PenilaianAdmin | null;
+  penilaianMandiri: PenilaianCabang | null;
+  statusAudit?: string;
+  catatanAuditor?: string | null;
+  isLocked?: boolean;
   skorMaks: number;
-  totalNilaiSkor: number;
+  totalNilaiSkorMandiri: number;
   isOpen: boolean;
 }
 
@@ -29,26 +35,45 @@ const idDecimalFormatter = new Intl.NumberFormat("id-ID", {
 });
 
 export function UserKepatuhanHero({
-  penilaian,
+  penilaianSIA,
+  penilaianMandiri,
+  statusAudit = "Belum Diaudit",
+  catatanAuditor,
+  isLocked = false,
   skorMaks,
-  totalNilaiSkor,
+  totalNilaiSkorMandiri,
   isOpen,
 }: UserKepatuhanHeroProps) {
-  const isZeroFilled = !penilaian || penilaian.jumlah_butir_terisi === 0;
+  // Evaluasi status audit
+  const isAudited =
+    statusAudit === "Sudah Diaudit" ||
+    Boolean(penilaianSIA?.jumlah_butir_diaudit && penilaianSIA.jumlah_butir_diaudit > 0);
+  const isSedangDiaudit = statusAudit === "Sedang Diaudit";
 
-  const displayNilai = isZeroFilled ? "—" : (penilaian?.nilai_kepatuhan || "—");
-  const displayPredikat = isZeroFilled
-    ? "Belum Ada Penilaian"
-    : (penilaian?.predikat_kepatuhan || "Belum Ada Penilaian");
-  const displayStatus = isZeroFilled
-    ? "Instrumen Belum Diisi"
-    : (penilaian?.status_kepatuhan || "Belum Ada Evaluasi");
-  const displayKeterangan = isZeroFilled
-    ? "Lengkapi seluruh item instrumen audit kepatuhan untuk mendapatkan hasil evaluasi dan predikat kepatuhan lembaga."
-    : (penilaian?.keterangan_tindak_lanjut || "—");
+  // Nilai Mandiri (Self-Assessment)
+  const isMandiriEmpty = !penilaianMandiri || penilaianMandiri.jumlah_butir_terisi === 0;
+  const nilaiAkhirMandiri = isMandiriEmpty ? 0 : (penilaianMandiri?.nilai_akhir ?? 0);
+  const nilaiHurufMandiri = isMandiriEmpty ? "—" : (penilaianMandiri?.nilai_kepatuhan || "—");
+  const predikatMandiri = isMandiriEmpty
+    ? "Belum Ada Pengisian"
+    : (penilaianMandiri?.predikat_kepatuhan || "Belum Ada Penilaian");
 
-  const nilaiAkhir = isZeroFilled ? 0 : (penilaian?.nilai_akhir ?? 0);
-  const wajibPtk = Boolean(penilaian?.wajib_ptk);
+  // Nilai SIA (Auditor)
+  const nilaiAkhirSIA = penilaianSIA?.nilai_akhir_auditor ?? 0;
+  const nilaiHurufSIA = penilaianSIA?.nilai_kepatuhan_auditor || "—";
+  const predikatSIA = penilaianSIA?.predikat_kepatuhan_auditor || "Belum Ada Penilaian";
+  const statusKepatuhanSIA = penilaianSIA?.status_kepatuhan_auditor || "Belum Ada Evaluasi";
+  const wajibPtkSIA = Boolean(penilaianSIA?.wajib_ptk_auditor);
+  const totalNilaiSkorSIA = penilaianSIA?.total_nilai_skor_auditor ?? 0;
+  const selisihNilai =
+    penilaianSIA?.selisih_nilai_akhir ??
+    (nilaiAkhirSIA > 0 ? Number((nilaiAkhirSIA - nilaiAkhirMandiri).toFixed(2)) : 0);
+
+  // Keterangan tindak lanjut
+  const keteranganSIA =
+    catatanAuditor?.trim() ||
+    penilaianSIA?.keterangan_tindak_lanjut ||
+    "Hasil evaluasi kepatuhan resmi diterbitkan oleh Tim Auditor SIA BMH.";
 
   // Helper styling badge huruf nilai kepatuhan
   const getGradeStyle = (grade: string) => {
@@ -87,7 +112,7 @@ export function UserKepatuhanHero({
     }
   };
 
-  const gradeStyle = getGradeStyle(displayNilai);
+  const gradeStyleSIA = getGradeStyle(nilaiHurufSIA);
 
   return (
     <Card className="relative overflow-hidden border shadow-sm bg-gradient-to-br from-card via-card to-muted/20">
@@ -95,68 +120,139 @@ export function UserKepatuhanHero({
         <ShieldCheckIcon className="size-48" />
       </div>
 
-      <CardContent className="p-5 sm:p-6">
+      <CardContent className="p-5 sm:p-6 space-y-4">
+        {/* ============================================================== */}
+        {/* BAGIAN UTAMA: HIGHLIGHT SKOR & PREDIKAT RESMI SIA             */}
+        {/* ============================================================== */}
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
-          {/* Kolom Kiri: Grade Letter, Predikat, dan Keterangan */}
+          {/* Kolom Kiri: Grade Letter / Icon, Predikat, dan Keterangan Status */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-5 min-w-0">
-            {/* Box Nilai Huruf Kepatuhan Besar */}
-            <div
-              className={cn(
-                "flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-3xl sm:text-4xl font-extrabold tracking-tight transition-transform",
-                gradeStyle.bg
-              )}
-            >
-              {displayNilai}
-            </div>
+            {/* Box Huruf / Status Besar */}
+            {isAudited ? (
+              <div
+                className={cn(
+                  "flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-3xl sm:text-4xl font-extrabold tracking-tight transition-transform",
+                  gradeStyleSIA.bg
+                )}
+              >
+                {nilaiHurufSIA}
+              </div>
+            ) : isSedangDiaudit ? (
+              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-blue-600 bg-blue-100 dark:bg-blue-950/60 dark:text-blue-300 border border-blue-200 dark:border-blue-800">
+                <ClockIcon className="size-10 sm:size-12 animate-pulse" />
+              </div>
+            ) : (
+              <div className="flex aspect-square size-20 sm:size-24 shrink-0 items-center justify-center rounded-2xl shadow-sm text-amber-700 bg-amber-100 dark:bg-amber-950/60 dark:text-amber-300 border border-amber-300 dark:border-amber-800">
+                <ClockIcon className="size-10 sm:size-12" />
+              </div>
+            )}
 
-            {/* Keterangan Kepatuhan */}
+            {/* Keterangan Kepatuhan & Status Audit */}
             <div className="space-y-1.5 min-w-0">
               <div className="flex flex-wrap items-center gap-2">
                 <span className="text-[11px] font-semibold tracking-wider uppercase text-muted-foreground">
-                  Nilai & Predikat Kepatuhan
+                  Hasil Audit Resmi SIA
                 </span>
-                {!isZeroFilled && (
-                  <Badge variant={gradeStyle.badge} className="text-[11px] font-semibold">
-                    {displayStatus}
+
+                {isAudited ? (
+                  <>
+                    <Badge variant="success" className="text-[11px] font-semibold gap-1">
+                      <CheckCircle2Icon className="size-3" />
+                      <span>Sudah Diaudit</span>
+                    </Badge>
+                    <Badge variant={gradeStyleSIA.badge} className="text-[11px] font-semibold">
+                      {statusKepatuhanSIA}
+                    </Badge>
+                    {wajibPtkSIA ? (
+                      <Badge variant="destructive" className="gap-1 text-[11px]">
+                        <AlertTriangleIcon className="size-3" />
+                        <span>Wajib PTK</span>
+                      </Badge>
+                    ) : (
+                      <Badge variant="success" className="gap-1 text-[11px]">
+                        <CheckCircle2Icon className="size-3" />
+                        <span>Bebas PTK</span>
+                      </Badge>
+                    )}
+                  </>
+                ) : isSedangDiaudit ? (
+                  <Badge variant="secondary" className="text-[11px] font-semibold text-blue-700 dark:text-blue-300 bg-blue-100 dark:bg-blue-950/60 border-blue-200 dark:border-blue-800 gap-1">
+                    <ClockIcon className="size-3" />
+                    <span>Sedang Diaudit</span>
+                  </Badge>
+                ) : (
+                  <Badge variant="outline" className="text-[11px] font-semibold text-amber-700 dark:text-amber-400 border-amber-300 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 gap-1">
+                    <InfoIcon className="size-3" />
+                    <span>Belum Diaudit</span>
                   </Badge>
                 )}
-                {!isZeroFilled && wajibPtk && (
-                  <Badge variant="destructive" className="gap-1 text-[11px]">
-                    <AlertTriangleIcon className="size-3" />
-                    <span>Wajib PTK</span>
-                  </Badge>
-                )}
-                {!isZeroFilled && !wajibPtk && (
-                  <Badge variant="success" className="gap-1 text-[11px]">
-                    <CheckCircle2Icon className="size-3" />
-                    <span>Bebas PTK</span>
+
+                {isLocked && (
+                  <Badge variant="secondary" className="text-[10px]">
+                    Form Dikunci
                   </Badge>
                 )}
               </div>
 
-              <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
-                {displayPredikat}
-              </h2>
+              {/* Judul Predikat Utama */}
+              {isAudited ? (
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+                  {predikatSIA}
+                </h2>
+              ) : isSedangDiaudit ? (
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+                  Sedang Dalam Proses Audit SIA
+                </h2>
+              ) : (
+                <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground truncate">
+                  Menunggu Pemeriksaan Auditor SIA
+                </h2>
+              )}
 
-              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 max-w-xl">
-                {displayKeterangan}
-              </p>
+              {/* Keterangan Narasi */}
+              {isAudited ? (
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 max-w-xl">
+                  {keteranganSIA}
+                </p>
+              ) : isSedangDiaudit ? (
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 max-w-xl">
+                  Auditor SIA sedang memeriksa bukti pendukung dan kesesuaian instrumen cabang Anda. Skor resmi akan ditampilkan setelah audit selesai.
+                </p>
+              ) : (
+                <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 max-w-xl">
+                  Hasil audit dan predikat kepatuhan resmi dari Auditor SIA belum tersedia. Tim Auditor SIA akan melakukan audit kepatuhan terhadap instrumen yang telah Anda isi.
+                </p>
+              )}
             </div>
           </div>
 
-          {/* Kolom Kanan: Skor Akhir & Tombol Aksi Cepat */}
+          {/* Kolom Kanan: Skor Angka & Tombol Navigasi */}
           <div className="flex flex-col sm:flex-row lg:flex-col items-start sm:items-center lg:items-end justify-between gap-4 pt-4 sm:pt-0 border-t sm:border-t-0 lg:border-l lg:pl-6 border-border/60 shrink-0">
-            <div className="lg:text-right space-y-0.5">
-              <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
-                Nilai Akhir (Skala 100)
-              </span>
-              <div className="text-3xl sm:text-4xl font-extrabold tabular-nums tracking-tight text-foreground">
-                {idDecimalFormatter.format(nilaiAkhir)}
+            {isAudited ? (
+              <div className="lg:text-right space-y-0.5">
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  Skor Akhir SIA (Skala 100)
+                </span>
+                <div className="text-3xl sm:text-4xl font-extrabold tabular-nums tracking-tight text-foreground">
+                  {idDecimalFormatter.format(nilaiAkhirSIA)}
+                </div>
+                <p className="text-[11px] text-muted-foreground tabular-nums">
+                  {idDecimalFormatter.format(totalNilaiSkorSIA)} dari {idDecimalFormatter.format(skorMaks)} Poin Ideal
+                </p>
               </div>
-              <p className="text-[11px] text-muted-foreground tabular-nums">
-                {idDecimalFormatter.format(totalNilaiSkor)} dari {idDecimalFormatter.format(skorMaks)} Poin Ideal
-              </p>
-            </div>
+            ) : (
+              <div className="lg:text-right space-y-1">
+                <span className="text-[11px] font-medium text-muted-foreground uppercase tracking-wide">
+                  Status Penilaian Resmi
+                </span>
+                <div className="text-sm sm:text-base font-semibold text-amber-700 dark:text-amber-400">
+                  {isSedangDiaudit ? "Pemeriksaan Berlangsung" : "Menunggu Antrean Audit"}
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  {penilaianMandiri?.jumlah_butir_terisi ?? 0} dari {skorMaks / 5} butir siap diperiksa
+                </p>
+              </div>
+            )}
 
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <Button
@@ -184,6 +280,78 @@ export function UserKepatuhanHero({
             </div>
           </div>
         </div>
+
+        {/* ============================================================== */}
+        {/* BAGIAN BAWAH: TAMPILAN SKOR MANDIRI (SELF-ASSESSMENT)          */}
+        {/* ============================================================== */}
+        {isAudited ? (
+          // Kondisi 1: Sudah Diaudit -> Tampilkan komparasi Skor Mandiri vs Skor SIA
+          <div className="pt-3 border-t border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs bg-muted/40 px-3.5 py-2.5 rounded-lg">
+            <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 text-muted-foreground">
+              <span className="font-semibold text-foreground">Skor Pengisian Mandiri (Audite):</span>
+              <span className="font-bold text-foreground tabular-nums">
+                {idDecimalFormatter.format(nilaiAkhirMandiri)}
+              </span>
+              <span>/ 100</span>
+              <span className="text-[11px]">
+                (Grade {nilaiHurufMandiri} • {predikatMandiri})
+              </span>
+              <span className="text-[11px] text-muted-foreground">
+                • {idDecimalFormatter.format(totalNilaiSkorMandiri)} Poin
+              </span>
+            </div>
+
+            <div className="flex items-center gap-1.5 text-xs">
+              <span className="text-muted-foreground">Penyesuaian SIA:</span>
+              <span
+                className={cn(
+                  "font-bold tabular-nums",
+                  selisihNilai > 0
+                    ? "text-emerald-600 dark:text-emerald-400"
+                    : selisihNilai < 0
+                    ? "text-rose-600 dark:text-rose-400"
+                    : "text-muted-foreground"
+                )}
+              >
+                {selisihNilai > 0
+                  ? `+${idDecimalFormatter.format(selisihNilai)}`
+                  : idDecimalFormatter.format(selisihNilai)}{" "}
+                poin
+              </span>
+            </div>
+          </div>
+        ) : (
+          // Kondisi 2 & 3: Belum / Sedang Diaudit -> Highlight Skor Mandiri sebagai acuan saat ini
+          <div className="pt-3 border-t border-border/70 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs bg-muted/30 p-3.5 rounded-lg border border-border/60">
+            <div className="space-y-0.5">
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Skor Pengisian Mandiri (Self-Assessment)
+                </span>
+                <Badge variant="outline" className="text-[10px] h-5">
+                  Sementara
+                </Badge>
+              </div>
+              <p className="text-[11px] text-muted-foreground">
+                {isMandiriEmpty
+                  ? "Anda belum mengisi butir instrumen audit kepatuhan perwakilan."
+                  : `Capaian mandiri berdasarkan ${penilaianMandiri?.jumlah_butir_terisi ?? 0} butir terisi. Belum diverifikasi oleh Auditor SIA.`}
+              </p>
+            </div>
+
+            <div className="flex items-baseline gap-2 sm:text-right shrink-0">
+              <div className="text-2xl font-bold tabular-nums text-foreground">
+                {isMandiriEmpty ? "0,00" : idDecimalFormatter.format(nilaiAkhirMandiri)}
+              </div>
+              <div className="text-xs text-muted-foreground">
+                / 100{" "}
+                <span className="font-semibold text-foreground">
+                  ({nilaiHurufMandiri} • {predikatMandiri})
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

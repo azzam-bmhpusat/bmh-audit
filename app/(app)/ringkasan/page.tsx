@@ -113,7 +113,7 @@ export default async function RingkasanPage(props: PageProps) {
       <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2 border-b">
         <div className="space-y-1">
           <h1 className="text-xl font-bold tracking-tight uppercase">
-            Ringkasan Hasil Audit Seluruh Cabang
+            Ringkasan Hasil Audit Seluruh Perwakilan
           </h1>
           <p className="text-xs text-muted-foreground">
             Satuan Internal Audit BMH | Rekapitulasi Nasional Kepatuhan Integratif
@@ -130,14 +130,14 @@ export default async function RingkasanPage(props: PageProps) {
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-medium text-muted-foreground">
-              Total Perwakilan / Cabang
+              Total Perwakilan
             </CardTitle>
             <Building2Icon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="text-2xl font-bold tabular-nums">
               {totalCabangCount}{" "}
-              <span className="text-xs font-normal text-muted-foreground">cabang</span>
+              <span className="text-xs font-normal text-muted-foreground">perwakilan</span>
             </div>
           </CardContent>
         </Card>
@@ -153,7 +153,7 @@ export default async function RingkasanPage(props: PageProps) {
             <div className="text-2xl font-bold tabular-nums">
               {fullyEvaluatedCount}{" "}
               <span className="text-xs font-normal text-muted-foreground">
-                / {totalCabangCount} cabang
+                / {totalCabangCount} perwakilan
               </span>
             </div>
           </CardContent>

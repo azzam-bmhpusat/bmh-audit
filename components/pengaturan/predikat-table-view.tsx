@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Table,
@@ -11,7 +12,9 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { AwardIcon, ShieldCheckIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { AwardIcon, ShieldCheckIcon, PencilIcon } from "lucide-react";
+import { PredikatDialog } from "./predikat-dialog";
 import type { AuditPredikat } from "@/types/audit";
 
 interface PredikatTableViewProps {
@@ -19,6 +22,15 @@ interface PredikatTableViewProps {
 }
 
 export function PredikatTableView({ predikatList }: PredikatTableViewProps) {
+  const router = useRouter();
+  const [isDialogOpen, setIsDialogOpen] = React.useState(false);
+  const [selectedPredikatForEdit, setSelectedPredikatForEdit] = React.useState<AuditPredikat | null>(null);
+
+  const handleOpenEdit = (item: AuditPredikat) => {
+    setSelectedPredikatForEdit(item);
+    setIsDialogOpen(true);
+  };
+
   return (
     <div className="space-y-6">
       <Card className="shadow-none">
@@ -49,13 +61,14 @@ export function PredikatTableView({ predikatList }: PredikatTableViewProps) {
                   <TableHead className="w-[180px] text-xs">Status Kepatuhan</TableHead>
                   <TableHead className="w-[120px] text-center text-xs">Wajib PTK</TableHead>
                   <TableHead className="text-xs">Keterangan & Tindak Lanjut</TableHead>
+                  <TableHead className="w-[90px] text-center text-xs">Aksi</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {predikatList.length === 0 ? (
                   <TableRow>
                     <TableCell
-                      colSpan={6}
+                      colSpan={7}
                       className="h-24 text-center text-xs text-muted-foreground"
                     >
                       Data standar predikat belum tersedia di database.
@@ -94,6 +107,17 @@ export function PredikatTableView({ predikatList }: PredikatTableViewProps) {
                       <TableCell className="text-xs text-muted-foreground leading-relaxed">
                         {item.keterangan}
                       </TableCell>
+                      <TableCell className="text-center">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-8 gap-1.5 px-2.5 text-xs font-medium"
+                          onClick={() => handleOpenEdit(item)}
+                        >
+                          <PencilIcon className="size-3.5" />
+                          <span>Edit</span>
+                        </Button>
+                      </TableCell>
                     </TableRow>
                   ))
                 )}
@@ -118,6 +142,15 @@ export function PredikatTableView({ predikatList }: PredikatTableViewProps) {
           </div>
         </CardContent>
       </Card>
+
+      <PredikatDialog
+        open={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+        predikat={selectedPredikatForEdit}
+        onSuccess={() => {
+          router.refresh();
+        }}
+      />
     </div>
   );
 }
