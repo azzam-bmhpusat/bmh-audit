@@ -42,9 +42,9 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
                 <ShieldCheckIcon className="size-5" />
               </div>
               <div className="flex flex-col gap-0.5 leading-none">
-                <span className="font-semibold text-sm">BMH Audit</span>
-                <span className="text-[11px] text-muted-foreground">
-                  {role === "admin" ? "Portal Auditor SIA" : "Portal Audite Cabang"}
+                <span className="font-semibold text-sm">Satuan Internal Audit</span>
+                <span className="text-[9px] text-muted-foreground">
+                  {role === "admin" ? "Portal Auditor BMH" : "Portal Audite Perwakilan"}
                 </span>
               </div>
             </SidebarMenuButton>
@@ -58,39 +58,39 @@ export function AppSidebar({ role, ...props }: AppSidebarProps) {
             <SidebarGroupLabel>{group.label}</SidebarGroupLabel>
             <SidebarMenu className="gap-1">
               {group.items.map((item) => {
-                  // Menentukan status aktif menu
-                  const isExactMatch = pathname === item.url;
-                  const isSubMatch =
-                    item.url !== "/dashboard" &&
-                    item.url !== "/dashboard/admin" &&
-                    item.url !== "/dashboard/user" &&
-                    pathname.startsWith(item.url);
-                  const isActive = isExactMatch || isSubMatch;
+                // Menentukan status aktif menu
+                const isExactMatch = pathname === item.url;
+                const isSubMatch =
+                  item.url !== "/dashboard" &&
+                  item.url !== "/dashboard/admin" &&
+                  item.url !== "/dashboard/user" &&
+                  pathname.startsWith(item.url);
+                const isActive = isExactMatch || isSubMatch;
 
-                  return (
-                    <SidebarMenuItem key={item.url} className="my-0.5">
-                      <SidebarMenuButton
-                        isActive={isActive}
-                        tooltip={item.title}
-                        render={
-                          <Link
-                            href={item.url}
-                            onClick={() => {
-                              if (isMobile) {
-                                setOpenMobile(false);
-                              }
-                            }}
-                          />
-                        }
-                      >
-                        <item.icon className="size-4" />
-                        <span>{item.title}</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                  );
-                })}
-              </SidebarMenu>
-            </SidebarGroup>
+                return (
+                  <SidebarMenuItem key={item.url} className="my-0.5">
+                    <SidebarMenuButton
+                      isActive={isActive}
+                      tooltip={item.title}
+                      render={
+                        <Link
+                          href={item.url}
+                          onClick={() => {
+                            if (isMobile) {
+                              setOpenMobile(false);
+                            }
+                          }}
+                        />
+                      }
+                    >
+                      <item.icon className="size-4" />
+                      <span>{item.title}</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                );
+              })}
+            </SidebarMenu>
+          </SidebarGroup>
         ))}
       </SidebarContent>
 

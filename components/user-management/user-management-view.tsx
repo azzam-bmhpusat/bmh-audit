@@ -299,12 +299,12 @@ export function UserManagementView({
                         {user.role === "admin" ? (
                           <Badge variant="default" className="text-[11px] gap-1 font-medium">
                             <ShieldCheckIcon className="size-3" />
-                            <span>Auditor SIA</span>
+                            <span>Auditor</span>
                           </Badge>
                         ) : (
                           <Badge variant="outline" className="text-[11px] gap-1 font-medium">
                             <Building2Icon className="size-3" />
-                            <span>Cabang</span>
+                            <span>Perwakilan</span>
                           </Badge>
                         )}
                       </TableCell>
