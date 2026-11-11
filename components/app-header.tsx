@@ -68,7 +68,7 @@ function getBreadcrumbs(pathname: string, role: Role): BreadcrumbEntry[] {
   if (pathname === "/dashboard/user") {
     return [
       { label: "Dashboard", href: roleHome },
-      { label: "Cabang" },
+      { label: "Perwakilan" },
     ];
   }
 

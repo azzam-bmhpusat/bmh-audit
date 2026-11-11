@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { getPenilaianCabang } from "@/lib/penilaian/queries";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,9 +17,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { PeriodePicker } from "@/components/penilaian/periode-picker";
+import { UserKepatuhanHero } from "@/components/dashboard/user-kepatuhan-hero";
+import { UserPilarBreakdown } from "@/components/dashboard/user-pilar-breakdown";
 import { nilaiSkor, persen, skorMaksimum, subtotal } from "@/lib/scoring";
 import { formatPersen } from "@/lib/format";
-import { matrixRowCabangSchema } from "@/lib/schemas";
+import { matrixRowCabangSchema, searchParamsSchema } from "@/lib/schemas";
 import type { Periode } from "@/types/audit";
 import { z } from "zod";
 import {
@@ -27,13 +31,18 @@ import {
   ClockIcon,
   FileSpreadsheetIcon,
   ArrowRightIcon,
-  PercentIcon,
+  PaperclipIcon,
+  ShieldCheckIcon,
   InfoIcon,
 } from "lucide-react";
 
 export const instant = false;
 
-export default async function UserDashboardPage() {
+interface PageProps {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}
+
+export default async function UserDashboardPage(props: PageProps) {
   await connection();
   const session = await getCurrentProfile();
 
@@ -62,19 +71,20 @@ export default async function UserDashboardPage() {
     );
   }
 
+  const rawParams = await props.searchParams;
+  const parsedParams = searchParamsSchema.parse(rawParams);
+
   const supabase = await createClient();
 
-  // 1. Ambil periode aktif
+  // 1. Ambil daftar periode
   const { data: rawPeriodeList } = await supabase
     .from("periode")
     .select("*")
     .order("id", { ascending: false });
 
   const periodeList = (rawPeriodeList ?? []) as Periode[];
-  const periodeAktif =
-    periodeList.find((p) => p.is_open) ?? (periodeList[0] || null);
 
-  if (!periodeAktif) {
+  if (periodeList.length === 0) {
     return (
       <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
         <Alert>
@@ -88,13 +98,24 @@ export default async function UserDashboardPage() {
     );
   }
 
-  // 2. Ambil data instrumen audit cabang
-  const { data: rawMatrix, error: matrixError } = await supabase
-    .from("v_audit_matrix_cabang")
-    .select("*")
-    .eq("periode_id", periodeAktif.id)
-    .eq("cabang_id", profile.cabang_id)
-    .order("nomor");
+  const periodeAktif = parsedParams.periode
+    ? periodeList.find((p) => p.id === parsedParams.periode) ?? periodeList[0]
+    : periodeList.find((p) => p.is_open) ?? (periodeList[0] || null);
+
+  const periodeId = periodeAktif?.id ?? periodeList[0].id;
+  const isOpen = periodeAktif?.is_open ?? true;
+
+  // 2. Query paralel: Data matriks cabang & rekapitulasi penilaian resmi
+  const [{ data: rawMatrix, error: matrixError }, penilaianCabang] =
+    await Promise.all([
+      supabase
+        .from("v_audit_matrix_cabang")
+        .select("*")
+        .eq("periode_id", periodeId)
+        .eq("cabang_id", profile.cabang_id)
+        .order("nomor"),
+      getPenilaianCabang(periodeId),
+    ]);
 
   if (matrixError) {
     console.error("Gagal mengambil data matriks cabang:", matrixError);
@@ -107,6 +128,13 @@ export default async function UserDashboardPage() {
   const totalItem = rows.length || 72;
   const itemTerisi = rows.filter((r) => r.skor_audite !== null).length;
   const itemBelumTerisi = totalItem - itemTerisi;
+  const itemBerlampiran =
+    penilaianCabang?.jumlah_butir_berlampiran ??
+    rows.filter(
+      (r) =>
+        Boolean(r.lampiran_link) ||
+        (r.lampiran_links && Object.values(r.lampiran_links).some(Boolean))
+    ).length;
 
   const skorMaks = skorMaksimum(rows.map((r) => r.bobot));
   const totalNilaiSkor = subtotal(
@@ -118,43 +146,61 @@ export default async function UserDashboardPage() {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
-      {/* Header Halaman */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      {/* Header Halaman & Pemilih Periode */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2 border-b">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground">
-            Dashboard Audite Cabang
+          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+            Dashboard Audite Perwakilan
           </h1>
           <p className="text-xs sm:text-sm text-muted-foreground">
-            Perwakilan: {cabangNama || "—"} • Periode: {periodeAktif.nama}
+            Perwakilan: <span className="font-medium text-foreground">{cabangNama || "—"}</span> • Siklus Audit Kepatuhan Integratif
           </p>
         </div>
-        <div className="pt-2 sm:pt-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <PeriodePicker
+            periodeList={periodeList}
+            selectedPeriodeId={periodeId}
+          />
           <Button
             variant="default"
             size="sm"
             render={<Link href="/audit" />}
             nativeButton={false}
-            className="gap-1.5"
+            className="gap-1.5 h-9 text-xs"
+            disabled={!isOpen}
           >
             <FileSpreadsheetIcon className="size-4" />
-            <span>Buka Instrumen Audit</span>
+            <span>Instrumen Audit</span>
           </Button>
         </div>
       </div>
 
       {/* Banner informasi jika periode ditutup */}
-      {!periodeAktif.is_open && (
+      {!isOpen && (
         <Alert>
           <InfoIcon className="size-4" />
-          <AlertTitle>Periode Ditutup</AlertTitle>
+          <AlertTitle>Periode Audit Ditutup</AlertTitle>
           <AlertDescription>
             Periode audit ini telah ditutup oleh Auditor SIA. Pengisian instrumen berstatus hanya-baca (read-only).
           </AlertDescription>
         </Alert>
       )}
 
-      {/* Kartu Ringkasan Metrik */}
+      {/* =========================================================================
+          POSISI PALING ATAS: NILAI KEPATUHAN & PREDIKAT KEPATUHAN LEMBAGA
+          ========================================================================= */}
+      <UserKepatuhanHero
+        penilaian={penilaianCabang}
+        skorMaks={skorMaks}
+        totalNilaiSkor={totalNilaiSkor}
+        isOpen={isOpen}
+      />
+
+      {/* =========================================================================
+          KARTU METRIK OPERASIONAL
+          ========================================================================= */}
       <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+        {/* Card 1: Progres Pengisian */}
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-medium text-muted-foreground">
@@ -178,6 +224,30 @@ export default async function UserDashboardPage() {
           </CardContent>
         </Card>
 
+        {/* Card 2: Butir Berlampiran Bukti */}
+        <Card className="shadow-xs">
+          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-xs font-medium text-muted-foreground">
+              Bukti Pendukung
+            </CardTitle>
+            <PaperclipIcon className="size-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent className="p-4 pt-0">
+            <div className="text-2xl font-bold tabular-nums">
+              {itemBerlampiran}{" "}
+              <span className="text-xs font-normal text-muted-foreground">
+                butir
+              </span>
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {itemBerlampiran > 0
+                ? "Memiliki lampiran file/dokumen"
+                : "Belum ada lampiran diunggah"}
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Card 3: Item Belum Terisi */}
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-medium text-muted-foreground">
@@ -192,52 +262,43 @@ export default async function UserDashboardPage() {
             </div>
             <p className="text-xs text-muted-foreground mt-1">
               {itemBelumTerisi === 0
-                ? "Semua item selesai diisi"
+                ? "Semua butir selesai diisi"
                 : "Perlu segera dilengkapi"}
             </p>
           </CardContent>
         </Card>
 
+        {/* Card 4: Status Keterbukaan & Validasi SIA */}
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
             <CardTitle className="text-xs font-medium text-muted-foreground">
-              Estimasi Capaian Mandiri
+              Status Instrumen
             </CardTitle>
-            <PercentIcon className="size-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent className="p-4 pt-0">
-            <div className="text-2xl font-bold tabular-nums">
-              {formatPersen(persenMandiri)}
-            </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              Total nilai: {totalNilaiSkor} / {skorMaks}
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="shadow-xs">
-          <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
-            <CardTitle className="text-xs font-medium text-muted-foreground">
-              Status Periode
-            </CardTitle>
-            <CheckCircle2Icon className="size-4 text-muted-foreground" />
+            <ShieldCheckIcon className="size-4 text-muted-foreground" />
           </CardHeader>
           <CardContent className="p-4 pt-0">
             <div className="mt-1">
-              <Badge variant={periodeAktif.is_open ? "default" : "secondary"}>
-                {periodeAktif.is_open ? "Terbuka untuk Pengisian" : "Ditutup"}
+              <Badge variant={isOpen ? "default" : "secondary"}>
+                {isOpen ? "Terbuka untuk Pengisian" : "Terkunci (Ditutup)"}
               </Badge>
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              {periodeAktif.is_open
-                ? "Dapat mengisi dan mengubah data"
-                : "Data terkunci"}
+              {isOpen
+                ? "Dapat mengubah jawaban & bukti"
+                : "Arsip riwayat evaluasi"}
             </p>
           </CardContent>
         </Card>
       </div>
 
-      {/* Tabel Item Belum Terisi */}
+      {/* =========================================================================
+          CAPAIAN 5 PILAR KEPATUHAN
+          ========================================================================= */}
+      <UserPilarBreakdown rows={rows} />
+
+      {/* =========================================================================
+          DAFTAR ITEM BELUM DIISI / KARTU TUNTAS
+          ========================================================================= */}
       <Card className="shadow-xs">
         <CardHeader className="p-4 pb-3">
           <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
@@ -246,7 +307,7 @@ export default async function UserDashboardPage() {
                 Daftar Pertanyaan yang Belum Diisi
               </CardTitle>
               <CardDescription className="text-xs">
-                Lengkapi seluruh item penilaian mandiri berikut untuk menyelesaikan instrumen audit kepatuhan.
+                Lengkapi seluruh item penilaian mandiri berikut untuk memaksimalkan capaian kepatuhan cabang Anda.
               </CardDescription>
             </div>
             <Badge variant="outline" className="w-fit">
@@ -257,76 +318,88 @@ export default async function UserDashboardPage() {
         <CardContent className="p-0">
           {daftarBelumTerisi.length === 0 ? (
             <div className="flex flex-col items-center justify-center p-8 text-center space-y-2">
-              <CheckCircle2Icon className="size-8 text-muted-foreground" />
-              <p className="text-sm font-medium">Alhamdulillah, seluruh item telah terisi lengkap!</p>
+              <div className="flex size-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-600 dark:bg-emerald-950/60 dark:text-emerald-400">
+                <CheckCircle2Icon className="size-6" />
+              </div>
+              <p className="text-base font-semibold text-foreground">Alhamdulillah, seluruh 72 item telah terisi lengkap!</p>
               <p className="text-xs text-muted-foreground max-w-md">
-                Anda dapat meninjau kembali isian Anda melalui halaman Instrumen Audit atau menunggu proses evaluasi & validasi dari Auditor SIA.
+                Isian instrumen kepatuhan cabang Anda telah lengkap. Anda dapat meninjau kembali berkas pendukung atau memantau evaluasi penilaian dari Auditor SIA.
               </p>
-              <div className="pt-2">
+              <div className="flex items-center gap-2 pt-2">
                 <Button
                   variant="outline"
                   size="sm"
                   render={<Link href="/audit" />}
                   nativeButton={false}
+                  className="text-xs"
                 >
-                  Tinjau Instrumen Audit
+                  Tinjau Instrumen
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  render={<Link href="/penilaian" />}
+                  nativeButton={false}
+                  className="text-xs"
+                >
+                  Lihat Rekap Penilaian
                 </Button>
               </div>
             </div>
           ) : (
             <Table>
               <TableHeader>
-                  <TableRow>
-                    <TableHead className="w-16 text-center">No</TableHead>
-                    <TableHead className="w-48">Pilar & Variabel</TableHead>
-                    <TableHead>Pertanyaan Instrumen</TableHead>
-                    <TableHead className="w-20 text-center">Bobot</TableHead>
-                    <TableHead className="w-36 text-center">Aksi</TableHead>
+                <TableRow>
+                  <TableHead className="w-16 text-center">No</TableHead>
+                  <TableHead className="w-56">Pilar & Variabel</TableHead>
+                  <TableHead>Pertanyaan Instrumen</TableHead>
+                  <TableHead className="w-20 text-center">Bobot</TableHead>
+                  <TableHead className="w-36 text-center">Aksi</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {daftarBelumTerisi.map((item) => (
+                  <TableRow key={item.nomor}>
+                    <TableCell className="text-center font-medium tabular-nums text-sm">
+                      #{item.nomor}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-col gap-0.5">
+                        <span className="font-semibold text-xs text-primary">
+                          {item.pilar_kode}
+                        </span>
+                        <span className="text-[11px] text-muted-foreground truncate max-w-[220px]">
+                          {item.variabel_nama}
+                        </span>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-xs text-foreground line-clamp-2">
+                        {item.pertanyaan}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-center font-medium tabular-nums text-xs">
+                      {item.bobot}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 gap-1 text-xs"
+                        render={<Link href="/audit" />}
+                        nativeButton={false}
+                        disabled={!isOpen}
+                      >
+                        <span>Isi Sekarang</span>
+                        <ArrowRightIcon className="size-3" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {daftarBelumTerisi.map((item) => (
-                    <TableRow key={item.nomor}>
-                      <TableCell className="text-center font-medium tabular-nums text-sm">
-                        #{item.nomor}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="font-medium text-xs text-foreground">
-                            {item.pilar_kode} — {item.pilar_nama}
-                          </span>
-                          <span className="text-[11px] text-muted-foreground truncate max-w-[200px]">
-                            {item.variabel_nama}
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <p className="text-xs text-foreground line-clamp-2">
-                          {item.pertanyaan}
-                        </p>
-                      </TableCell>
-                      <TableCell className="text-center font-medium tabular-nums text-xs">
-                        {item.bobot}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-8 gap-1 text-xs"
-                          render={<Link href="/audit" />}
-                          nativeButton={false}
-                          disabled={!periodeAktif.is_open}
-                        >
-                          <span>Isi Sekarang</span>
-                          <ArrowRightIcon className="size-3" />
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </CardContent>
       </Card>
     </main>
   );

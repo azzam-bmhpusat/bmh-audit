@@ -12,15 +12,18 @@ import {
   ComboboxList,
 } from "@/components/ui/combobox";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { BarChart3Icon } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { BarChart3Icon, ChevronDownIcon, CheckIcon } from "lucide-react";
 import type { Cabang, Periode } from "@/types/audit";
 
 interface CabangPickerProps {
@@ -114,32 +117,83 @@ export function CabangPicker({
         </div>
       </div>
 
-      {/* 2. Pemilih Periode (Select, hanya jika > 1 periode) */}
+      {/* 2. Pemilih Periode (DropdownMenu, hanya jika > 1 periode) */}
       {showPeriodeSelect && (
         <div className="flex flex-col sm:flex-row sm:items-center gap-2 shrink-0">
           <Label htmlFor="periode-select" className="text-xs font-semibold shrink-0">
             Periode Audit:
           </Label>
-          <Select
-            value={selectedPeriodeId ? String(selectedPeriodeId) : undefined}
-            onValueChange={handlePeriodeChange}
-          >
-            <SelectTrigger
-              id="periode-select"
-              size="sm"
-              className="h-9 min-w-0 sm:min-w-[200px] text-xs font-medium"
-              aria-label="Pilih Periode Audit"
-            >
-              <SelectValue placeholder="Pilih Periode..." />
-            </SelectTrigger>
-            <SelectContent align="end">
-              {(periodeList ?? []).map((p) => (
-                <SelectItem key={p.id} value={String(p.id)} className="text-xs">
-                  {p.nama} {!p.is_open && "(Ditutup)"}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+          <DropdownMenu>
+            <DropdownMenuTrigger
+              render={
+                <Button
+                  id="periode-select"
+                  variant="outline"
+                  size="sm"
+                  className="h-9 min-w-0 sm:min-w-[200px] justify-between text-xs font-medium gap-2 px-3"
+                >
+                  <div className="flex items-center gap-2 truncate">
+                    <span className="truncate">
+                      {periodeList?.find((p) => p.id === selectedPeriodeId)?.nama ?? "Pilih Periode..."}
+                    </span>
+                    {periodeList?.find((p) => p.id === selectedPeriodeId) && (
+                      <Badge
+                        variant={
+                          periodeList.find((p) => p.id === selectedPeriodeId)?.is_open
+                            ? "default"
+                            : "secondary"
+                        }
+                        className="text-[10px] px-1 py-0 h-4 font-normal shrink-0"
+                      >
+                        {periodeList.find((p) => p.id === selectedPeriodeId)?.is_open
+                          ? "Aktif"
+                          : "Tutup"}
+                      </Badge>
+                    )}
+                  </div>
+                  <ChevronDownIcon className="size-3.5 opacity-60 shrink-0" />
+                </Button>
+              }
+            />
+            <DropdownMenuContent align="end" className="w-[240px] p-1">
+              <DropdownMenuGroup>
+                <DropdownMenuLabel className="text-[11px] font-semibold text-muted-foreground px-2 py-1.5">
+                  Pilih Periode Audit
+                </DropdownMenuLabel>
+              </DropdownMenuGroup>
+              <DropdownMenuSeparator />
+              <DropdownMenuGroup>
+                {(periodeList ?? []).map((p) => {
+                  const isSelected = p.id === selectedPeriodeId;
+                  return (
+                    <DropdownMenuItem
+                      key={p.id}
+                      onClick={() => handlePeriodeChange(String(p.id))}
+                      className={`flex items-center justify-between text-xs cursor-pointer py-2 px-2.5 rounded-md transition-colors ${
+                        isSelected ? "bg-accent font-medium text-accent-foreground" : ""
+                      }`}
+                    >
+                      <div className="flex flex-col gap-0.5 min-w-0">
+                        <span className="font-medium text-foreground truncate">{p.nama}</span>
+                        <span className="text-[10px] text-muted-foreground">
+                          {p.is_open ? "Terbuka untuk pengisian" : "Periode ditutup (hanya-baca)"}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0 ml-2">
+                        <Badge
+                          variant={p.is_open ? "default" : "secondary"}
+                          className="text-[10px] px-1.5 py-0 h-4 font-normal"
+                        >
+                          {p.is_open ? "Aktif" : "Tutup"}
+                        </Badge>
+                        {isSelected && <CheckIcon className="size-3.5 text-primary" />}
+                      </div>
+                    </DropdownMenuItem>
+                  );
+                })}
+              </DropdownMenuGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       )}
 

@@ -9,6 +9,7 @@ import {
   RingkasanCabangTable,
   type CabangSummaryItem,
 } from "@/components/audit/ringkasan-cabang-table";
+import { PeriodePicker } from "@/components/penilaian/periode-picker";
 import type { Cabang, Periode, TotalAdmin } from "@/types/audit";
 import { Building2Icon, CheckCircle2Icon, PercentIcon } from "lucide-react";
 
@@ -108,14 +109,20 @@ export default async function RingkasanPage(props: PageProps) {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
-      {/* Header Halaman */}
-      <div className="space-y-1">
-        <h1 className="text-xl font-bold tracking-tight uppercase">
-          Ringkasan Hasil Audit Seluruh Cabang
-        </h1>
-        <p className="text-xs text-muted-foreground">
-          Satuan Internal Audit BMH | Periode: {periodeAktif?.nama ?? "—"}
-        </p>
+      {/* Header Halaman & Pemilih Periode */}
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2 border-b">
+        <div className="space-y-1">
+          <h1 className="text-xl font-bold tracking-tight uppercase">
+            Ringkasan Hasil Audit Seluruh Cabang
+          </h1>
+          <p className="text-xs text-muted-foreground">
+            Satuan Internal Audit BMH | Rekapitulasi Nasional Kepatuhan Integratif
+          </p>
+        </div>
+        <PeriodePicker
+          periodeList={periodeList}
+          selectedPeriodeId={periodeId}
+        />
       </div>
 
       {/* Kartu Metrik Agregat Nasional */}
