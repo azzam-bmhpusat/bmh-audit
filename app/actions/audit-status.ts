@@ -60,7 +60,7 @@ export async function updateStatusAuditAction(
       );
       return {
         ok: false,
-        error: `Gagal memperbarui status audit di sistem: ${upsertError.message}`,
+        error: "Gagal memperbarui status audit di sistem.",
       };
     }
 

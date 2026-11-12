@@ -5,13 +5,16 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Badge } from "@/components/ui/badge";
 import type { PenilaianAdmin } from "@/types/audit";
 import { AwardIcon, AlertTriangleIcon, CheckCircle2Icon } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface AdminPredikatDistributionProps {
   penilaianList: PenilaianAdmin[];
+  className?: string;
 }
 
 export function AdminPredikatDistribution({
   penilaianList,
+  className,
 }: AdminPredikatDistributionProps) {
   const stats = React.useMemo(() => {
     let countA = 0;
@@ -58,8 +61,8 @@ export function AdminPredikatDistribution({
   }, [penilaianList]);
 
   return (
-    <Card className="border shadow-xs">
-      <CardHeader className="p-4 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <Card className={cn("border shadow-xs", className)}>
+      <CardHeader className="p-4 pb-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b">
         <div>
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <AwardIcon className="size-4 text-primary" />
@@ -70,14 +73,14 @@ export function AdminPredikatDistribution({
           </CardDescription>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 shrink-0">
           {stats.countWajibPTK > 0 ? (
             <Badge variant="destructive" className="gap-1 text-xs">
               <AlertTriangleIcon className="size-3" />
               <span>{stats.countWajibPTK} Cabang Wajib PTK</span>
             </Badge>
           ) : (
-            <Badge variant="success" className="gap-1 text-xs">
+            <Badge variant="secondary" className="gap-1 text-xs text-success-text bg-success-bg border-success-border">
               <CheckCircle2Icon className="size-3" />
               <span>0 Cabang Wajib PTK</span>
             </Badge>
@@ -85,52 +88,67 @@ export function AdminPredikatDistribution({
         </div>
       </CardHeader>
 
-      <CardContent className="p-4 pt-0 space-y-4">
+      <CardContent className="p-4 pt-4 space-y-4">
         {/* Bar visualisasi proporsi sebaran nasional */}
-        <div className="h-3 w-full rounded-full overflow-hidden flex bg-muted/60 p-0.5 gap-0.5">
+        <div className="h-3 w-full rounded-full overflow-hidden flex bg-muted/70 p-0.5 gap-0.5">
           {stats.countA > 0 && (
             <div
-              style={{ width: `${stats.percentA}%` }}
-              className="h-full bg-emerald-500 rounded-l-full transition-all"
+              style={{
+                width: `${stats.percentA}%`,
+                backgroundColor: "var(--color-chart-success)",
+              }}
+              className="h-full rounded-l-full transition-all"
               title={`Predikat A: ${stats.countA} cabang (${stats.percentA}%)`}
             />
           )}
           {stats.countB > 0 && (
             <div
-              style={{ width: `${stats.percentB}%` }}
-              className="h-full bg-blue-500 transition-all"
+              style={{
+                width: `${stats.percentB}%`,
+                backgroundColor: "var(--color-chart-info)",
+              }}
+              className="h-full transition-all"
               title={`Predikat B: ${stats.countB} cabang (${stats.percentB}%)`}
             />
           )}
           {stats.countC > 0 && (
             <div
-              style={{ width: `${stats.percentC}%` }}
-              className="h-full bg-amber-500 transition-all"
+              style={{
+                width: `${stats.percentC}%`,
+                backgroundColor: "var(--color-chart-warning)",
+              }}
+              className="h-full transition-all"
               title={`Predikat C: ${stats.countC} cabang (${stats.percentC}%)`}
             />
           )}
           {stats.countDE > 0 && (
             <div
-              style={{ width: `${stats.percentDE}%` }}
-              className="h-full bg-rose-500 transition-all"
+              style={{
+                width: `${stats.percentDE}%`,
+                backgroundColor: "var(--color-chart-danger)",
+              }}
+              className="h-full transition-all"
               title={`Predikat D/E: ${stats.countDE} cabang (${stats.percentDE}%)`}
             />
           )}
           {stats.countBelumDiaudit > 0 && (
             <div
-              style={{ width: `${stats.percentBelum}%` }}
-              className="h-full bg-muted-foreground/30 rounded-r-full transition-all"
+              style={{
+                width: `${stats.percentBelum}%`,
+                backgroundColor: "var(--color-chart-neutral)",
+              }}
+              className="h-full rounded-r-full transition-all"
               title={`Belum Selesai: ${stats.countBelumDiaudit} cabang (${stats.percentBelum}%)`}
             />
           )}
         </div>
 
-        {/* Kartu Grid 5 Kategori Predikat */}
+        {/* Kartu Grid 5 Kategori Predikat (Responsif: 2 kolom mobile, 3 tablet, 5 desktop) */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {/* Predikat A */}
-          <div className="rounded-lg border border-emerald-200/80 bg-emerald-50/40 dark:border-emerald-950 dark:bg-emerald-950/20 p-3 flex flex-col justify-between">
+          <div className="rounded-lg border border-success-border bg-success-bg p-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-emerald-700 dark:text-emerald-400">
+              <span className="font-bold text-xs text-success-text">
                 Predikat A
               </span>
               <span className="text-[10px] text-muted-foreground">90 - 100</span>
@@ -141,15 +159,15 @@ export function AdminPredikatDistribution({
               </span>
               <span className="text-xs text-muted-foreground">cabang ({stats.percentA}%)</span>
             </div>
-            <span className="text-[11px] font-medium text-emerald-600 dark:text-emerald-400 mt-1">
+            <span className="text-[11px] font-medium text-success-text mt-1">
               Sangat Baik (Patuh)
             </span>
           </div>
 
           {/* Predikat B */}
-          <div className="rounded-lg border border-blue-200/80 bg-blue-50/40 dark:border-blue-950 dark:bg-blue-950/20 p-3 flex flex-col justify-between">
+          <div className="rounded-lg border border-info-border bg-info-bg p-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-blue-700 dark:text-blue-400">
+              <span className="font-bold text-xs text-info-text">
                 Predikat B
               </span>
               <span className="text-[10px] text-muted-foreground">80 - 89.99</span>
@@ -160,15 +178,15 @@ export function AdminPredikatDistribution({
               </span>
               <span className="text-xs text-muted-foreground">cabang ({stats.percentB}%)</span>
             </div>
-            <span className="text-[11px] font-medium text-blue-600 dark:text-blue-400 mt-1">
+            <span className="text-[11px] font-medium text-info-text mt-1">
               Baik (Cukup Patuh)
             </span>
           </div>
 
           {/* Predikat C */}
-          <div className="rounded-lg border border-amber-200/80 bg-amber-50/40 dark:border-amber-950 dark:bg-amber-950/20 p-3 flex flex-col justify-between">
+          <div className="rounded-lg border border-warning-border bg-warning-bg p-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-amber-700 dark:text-amber-400">
+              <span className="font-bold text-xs text-warning-text">
                 Predikat C
               </span>
               <span className="text-[10px] text-muted-foreground">70 - 79.99</span>
@@ -179,15 +197,15 @@ export function AdminPredikatDistribution({
               </span>
               <span className="text-xs text-muted-foreground">cabang ({stats.percentC}%)</span>
             </div>
-            <span className="text-[11px] font-medium text-amber-600 dark:text-amber-400 mt-1">
+            <span className="text-[11px] font-medium text-warning-text mt-1">
               Cukup (Kurang Patuh)
             </span>
           </div>
 
           {/* Predikat D & E */}
-          <div className="rounded-lg border border-rose-200/80 bg-rose-50/40 dark:border-rose-950 dark:bg-rose-950/20 p-3 flex flex-col justify-between">
+          <div className="rounded-lg border border-danger-border bg-danger-bg p-3 flex flex-col justify-between">
             <div className="flex items-center justify-between">
-              <span className="font-bold text-xs text-rose-700 dark:text-rose-400">
+              <span className="font-bold text-xs text-danger-text">
                 Predikat D & E
               </span>
               <span className="text-[10px] text-muted-foreground">&lt; 70</span>
@@ -198,13 +216,13 @@ export function AdminPredikatDistribution({
               </span>
               <span className="text-xs text-muted-foreground">cabang ({stats.percentDE}%)</span>
             </div>
-            <span className="text-[11px] font-medium text-rose-600 dark:text-rose-400 mt-1">
+            <span className="text-[11px] font-medium text-danger-text mt-1">
               Kurang (Wajib PTK)
             </span>
           </div>
 
-          {/* Belum Selesai */}
-          <div className="rounded-lg border border-border bg-muted/20 p-3 flex flex-col justify-between col-span-2 sm:col-span-1">
+          {/* Belum Selesai / Proses Audit */}
+          <div className="rounded-lg border border-border bg-muted/40 p-3 flex flex-col justify-between col-span-2 sm:col-span-1">
             <div className="flex items-center justify-between">
               <span className="font-bold text-xs text-muted-foreground">
                 Proses Audit

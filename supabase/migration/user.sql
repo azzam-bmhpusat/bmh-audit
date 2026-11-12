@@ -7,7 +7,7 @@
 --
 -- LOGIN (form Next.js):
 --   Nama     : nama daerah cabang, contoh "Jawa Timur"  (tidak peka huruf besar/kecil)
---   Password : default "www.bmh.or.id"
+--   Password : default "password"
 -- Supabase Auth butuh email, jadi Nama diubah otomatis menjadi email internal:
 --   "Jawa Timur" -> jawa-timur@audit.bmh.or.id
 -- Email ini hanya identitas login, tidak pernah dikirimi email.
@@ -42,17 +42,18 @@ $$;
 create or replace function public.buat_user(
   p_nama     text,
   p_role     public.app_role default 'user',
-  p_password text default 'www.bmh.or.id'
+  p_password text default encode(gen_random_bytes(8), 'hex')
 )
 returns uuid
 language plpgsql
 set search_path = ''
 as $$
 declare
-  v_nama   text := regexp_replace(trim(p_nama), '\s+', ' ', 'g');
-  v_email  text := public.nama_to_email(p_nama);
-  v_uid    uuid;
-  v_cabang bigint;
+  v_nama     text := regexp_replace(trim(p_nama), '\s+', ' ', 'g');
+  v_email    text := public.nama_to_email(p_nama);
+  v_uid      uuid;
+  v_cabang   bigint;
+  v_password text := coalesce(nullif(p_password, ''), encode(gen_random_bytes(8), 'hex'));
 begin
   if v_nama is null or v_nama = '' then
     raise exception 'Nama tidak boleh kosong';
@@ -81,7 +82,7 @@ begin
     email_change_token_current, phone_change, phone_change_token, reauthentication_token
   ) values (
     '00000000-0000-0000-0000-000000000000', v_uid, 'authenticated', 'authenticated',
-    v_email, extensions.crypt(p_password, extensions.gen_salt('bf')), now(),
+    v_email, extensions.crypt(v_password, extensions.gen_salt('bf')), now(),
     '{"provider":"email","providers":["email"]}'::jsonb,
     jsonb_build_object('nama', v_nama),
     now(), now(),
@@ -108,17 +109,18 @@ begin
 end;
 $$;
 
--- Reset password ke default (atau password lain), misal jika cabang lupa password
+-- Reset password ke password baru aman, misal jika cabang lupa password
 create or replace function public.reset_password_user(
   p_nama     text,
-  p_password text default 'www.bmh.or.id'
+  p_password text default encode(gen_random_bytes(8), 'hex')
 )
 returns void
 language plpgsql
 set search_path = ''
 as $$
 declare
-  v_uid uuid;
+  v_uid      uuid;
+  v_password text := coalesce(nullif(p_password, ''), encode(gen_random_bytes(8), 'hex'));
 begin
   select id into v_uid from auth.users where email = public.nama_to_email(p_nama);
   if v_uid is null then
@@ -126,7 +128,7 @@ begin
   end if;
 
   update auth.users
-     set encrypted_password = extensions.crypt(p_password, extensions.gen_salt('bf')),
+     set encrypted_password = extensions.crypt(v_password, extensions.gen_salt('bf')),
          updated_at = now()
    where id = v_uid;
 
@@ -183,9 +185,9 @@ alter table public.audit_penilaian_auditor enable row level security;
 
 -- 6a. ADMIN  -> login: Nama "Admin"
 --     GANTI password di bawah ini sebelum dijalankan! Jangan pakai password default untuk admin.
-select public.buat_user('Admin', 'admin', 'www.bmh.or.id');
+select public.buat_user('Admin', 'admin', 'password');
 
--- 6b. USER CABANG  -> login: Nama = nama daerah, Password = www.bmh.or.id
+-- 6b. USER CABANG  -> login: Nama = nama daerah, Password = 
 select public.buat_user('Jawa Timur');
 
 -- Tambah cabang lain (ganti/ tambah nama daerah sesuai kebutuhan):
@@ -206,7 +208,3 @@ select tablename, rowsecurity as rls_aktif
 from pg_tables
 where schemaname = 'public'
 order by tablename;
-
--- Utilitas (jalankan manual jika perlu):
---   select public.reset_password_user('Jawa Timur');                 -- kembali ke www.bmh.or.id
---   select public.reset_password_user('Admin', 'password-baru');     -- ganti password admin

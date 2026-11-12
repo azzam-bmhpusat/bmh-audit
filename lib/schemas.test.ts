@@ -25,6 +25,7 @@ import {
   urutanSchema,
 } from "./schemas";
 import { getLampiranLink, getValidasiStatus, type MatrixRowAdmin, type MatrixRowCabang } from "@/types/audit";
+import { COLUMNS_CABANG, COLUMNS_ADMIN } from "@/components/audit/columns";
 
 describe("schemas", () => {
   describe("skorSchema", () => {
@@ -128,16 +129,16 @@ describe("schemas", () => {
   });
 
   describe("resetUserPasswordSchema", () => {
-    it("menerima password baru minimal 6 karakter dengan default www.bmh.or.id", () => {
+    it("menerima password baru minimal 8 karakter", () => {
       const res = resetUserPasswordSchema.safeParse({
         id: "123e4567-e89b-12d3-a456-426614174000",
-        passwordBaru: "www.bmh.or.id",
+        passwordBaru: "PasswordAman123!",
         wajib_ganti_password: true,
       });
       expect(res.success).toBe(true);
     });
 
-    it("menolak jika id bukan uuid atau password kurang dari 6 karakter", () => {
+    it("menolak jika id bukan uuid atau password kurang dari 8 karakter", () => {
       expect(
         resetUserPasswordSchema.safeParse({
           id: "invalid-id",
@@ -249,16 +250,36 @@ describe("schemas", () => {
   });
 
   describe("gantiPasswordSchema", () => {
-    it("menerima password baru >= 8 karakter yang cocok dengan konfirmasi", () => {
+    it("menerima password baru >= 8 karakter yang cocok dengan konfirmasi dan password lama valid", () => {
       const res = gantiPasswordSchema.safeParse({
+        passwordLama: "passwordLama123",
         passwordBaru: "rahasia123",
         konfirmasiPassword: "rahasia123",
       });
       expect(res.success).toBe(true);
     });
 
+    it("menolak jika password lama kosong", () => {
+      const res = gantiPasswordSchema.safeParse({
+        passwordLama: "",
+        passwordBaru: "rahasia123",
+        konfirmasiPassword: "rahasia123",
+      });
+      expect(res.success).toBe(false);
+    });
+
+    it("menolak password baru yang sama dengan password lama", () => {
+      const res = gantiPasswordSchema.safeParse({
+        passwordLama: "rahasia123",
+        passwordBaru: "rahasia123",
+        konfirmasiPassword: "rahasia123",
+      });
+      expect(res.success).toBe(false);
+    });
+
     it("menolak password default www.bmh.or.id", () => {
       const res = gantiPasswordSchema.safeParse({
+        passwordLama: "passwordLama123",
         passwordBaru: "www.bmh.or.id",
         konfirmasiPassword: "www.bmh.or.id",
       });
@@ -267,6 +288,7 @@ describe("schemas", () => {
 
     it("menolak jika konfirmasi tidak cocok", () => {
       const res = gantiPasswordSchema.safeParse({
+        passwordLama: "passwordLama123",
         passwordBaru: "rahasia123",
         konfirmasiPassword: "berbeda123",
       });
@@ -311,6 +333,30 @@ describe("schemas", () => {
       expect(parsed.bobot).toBe(3);
       expect(parsed.skor_audite).toBe(4);
       expect(parsed.nilai_skor).toBe(12);
+      expect(parsed.catatan).toBeUndefined();
+    });
+
+    it("menerima kolom catatan auditor opsional", () => {
+      const row = {
+        periode_id: 1,
+        cabang_id: 2,
+        pilar_kode: "I",
+        pilar_nama: "Pilar I",
+        variabel_kode: "V-1",
+        variabel_nama: "Variabel 1",
+        nomor: 1,
+        pertanyaan: "Pertanyaan 1",
+        regulasi_utama: null,
+        regulasi_tambahan: null,
+        ranah: null,
+        bobot: 10,
+        lampiran_link: null,
+        skor_audite: 4,
+        nilai_skor: 40,
+        catatan: "Catatan auditor untuk perwakilan",
+      };
+      const parsed = matrixRowCabangSchema.parse(row);
+      expect(parsed.catatan).toBe("Catatan auditor untuk perwakilan");
     });
   });
 
@@ -547,6 +593,17 @@ describe("schemas", () => {
         predikat: "   ",
       };
       expect(updatePredikatSchema.safeParse(emptyPredikat).success).toBe(false);
+    });
+  });
+
+  describe("COLUMNS_CABANG", () => {
+    it("memiliki kolom Catatan Auditor tepat di sebelah kanan kolom Nilai Skor", () => {
+      const nilaiSkorIdx = COLUMNS_CABANG.findIndex((c) => c.id === "nilai_skor");
+      const catatanIdx = COLUMNS_CABANG.findIndex((c) => c.id === "catatan");
+
+      expect(nilaiSkorIdx).toBeGreaterThan(-1);
+      expect(catatanIdx).toBe(nilaiSkorIdx + 1);
+      expect(COLUMNS_CABANG[catatanIdx].label).toBe("Catatan Auditor");
     });
   });
 });

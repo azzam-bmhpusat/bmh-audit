@@ -67,6 +67,9 @@ export function TotalsFooter({ data, mode }: TotalsFooterProps) {
           <TableCell className="text-right tabular-nums font-bold w-24 px-3">
             {formatAngka(data.totalNilaiSkor)}
           </TableCell>
+
+          {/* 11. Catatan Auditor */}
+          <TableCell className="w-28" />
         </TableRow>
       </TableFooter>
     );

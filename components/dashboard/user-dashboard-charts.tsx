@@ -143,7 +143,7 @@ export function UserDashboardCharts({
             <div>
               <CardTitle className="text-sm font-semibold flex items-center gap-2">
                 <BarChart3Icon className="size-4 text-primary" />
-                <span>Grafik Capaian 5 Pilar Kepatuhan</span>
+                <span>Grafik Capaian 3 Pilar Kepatuhan</span>
               </CardTitle>
               <CardDescription className="text-xs">
                 Performa persentase perolehan nilai instrumen per pilar audit.
@@ -249,8 +249,8 @@ export function UserDashboardCharts({
                 persenSelesai === 100
                   ? "success"
                   : persenSelesai >= 60
-                  ? "info"
-                  : "warning"
+                    ? "info"
+                    : "warning"
               }
               size="xs"
               label={`${persenSelesai}% Terisi`}

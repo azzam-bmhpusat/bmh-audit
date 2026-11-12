@@ -54,6 +54,7 @@ export const loginSchema = z.object({
 
 export const gantiPasswordSchema = z
   .object({
+    passwordLama: z.string().min(1, "Password saat ini wajib diisi"),
     passwordBaru: z
       .string()
       .min(8, "Password minimal 8 karakter")
@@ -68,6 +69,10 @@ export const gantiPasswordSchema = z
   .refine((data) => data.passwordBaru === data.konfirmasiPassword, {
     message: "Konfirmasi password tidak cocok",
     path: ["konfirmasiPassword"],
+  })
+  .refine((data) => data.passwordBaru !== data.passwordLama, {
+    message: "Password baru tidak boleh sama dengan password saat ini",
+    path: ["passwordBaru"],
   });
 
 // ---------------------------------------------------------------------
@@ -89,8 +94,8 @@ export const createUserSchema = z.object({
   cabang_id: z.coerce.number().int().positive().nullable().optional(),
   password: z
     .string()
-    .min(6, "Password minimal 6 karakter")
-    .default("www.bmh.or.id"),
+    .min(8, "Password minimal 8 karakter")
+    .optional(),
   wajib_ganti_password: z.boolean().default(true),
 });
 
@@ -113,7 +118,7 @@ export const updateUserSchema = z.object({
 
 export const resetUserPasswordSchema = z.object({
   id: z.string().uuid("ID pengguna tidak valid"),
-  passwordBaru: z.string().min(6, "Password minimal 6 karakter").default("www.bmh.or.id"),
+  passwordBaru: z.string().min(8, "Password minimal 8 karakter"),
   wajib_ganti_password: z.boolean().default(true),
 });
 
@@ -200,6 +205,7 @@ export const matrixRowCabangSchema = z.object({
   lampiran_link: z.string().nullable().default(null),
   skor_audite: z.coerce.number().int().nullable(),
   nilai_skor: z.coerce.number().nullable(),
+  catatan: z.string().nullable().optional(),
 });
 
 export const matrixRowAdminSchema = matrixRowCabangSchema.extend({

@@ -67,8 +67,8 @@ export default async function AuditPage() {
     );
   }
 
-  // 2. Query paralel matriks cabang, poin item, dan status kunci cabang
-  const [matrixRes, poinRes, lockStatusRes] = await Promise.all([
+  // 2. Query paralel matriks cabang, poin item, status kunci cabang, dan catatan auditor
+  const [matrixRes, poinRes, lockStatusRes, penilaianRes] = await Promise.all([
     supabase
       .from("v_audit_matrix_cabang")
       .select("*")
@@ -86,6 +86,11 @@ export default async function AuditPage() {
       .eq("periode_id", periodeAktif.id)
       .eq("cabang_id", profile.cabang_id)
       .maybeSingle(),
+    supabase
+      .from("audit_penilaian_auditor")
+      .select("item_nomor, catatan")
+      .eq("periode_id", periodeAktif.id)
+      .eq("cabang_id", profile.cabang_id),
   ]);
 
   if (matrixRes.error) {
@@ -99,12 +104,25 @@ export default async function AuditPage() {
   }
 
   // 3. Validasi skema toleran
-  const rows = z.array(matrixRowCabangSchema).parse(matrixRes.data);
+  const baseRows = z.array(matrixRowCabangSchema).parse(matrixRes.data);
   const poinList = z.array(itemPoinSchema).parse(poinRes.data);
   const isFormLocked = lockStatusRes?.data?.is_locked ?? false;
   const isReadOnly = !periodeAktif.is_open || isFormLocked;
 
-  // 4. Susun struktur pohon matriks (Pilar -> Variabel -> Item)
+  // 4. Peta catatan auditor per item (jika ada catatan yang diberikan oleh auditor)
+  const catatanMap = new Map<number, string | null>();
+  (penilaianRes?.data ?? []).forEach((p) => {
+    if (p.catatan) {
+      catatanMap.set(p.item_nomor, p.catatan);
+    }
+  });
+
+  const rows = baseRows.map((r) => ({
+    ...r,
+    catatan: catatanMap.get(r.nomor) ?? null,
+  }));
+
+  // 5. Susun struktur pohon matriks (Pilar -> Variabel -> Item)
   const tree = buildMatrixTree(rows, poinList);
 
   return (

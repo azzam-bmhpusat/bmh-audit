@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { generateSecurePassword } from "@/lib/auth/password";
 import {
   createUserSchema,
   updateUserSchema,
@@ -42,6 +43,7 @@ export async function createUserAction(
     }
 
     const { nama, email, role, cabang_id, password, wajib_ganti_password } = parsed.data;
+    const finalPassword = password || generateSecurePassword(12);
 
     const adminClient = createAdminClient();
 
@@ -49,7 +51,7 @@ export async function createUserAction(
     const { data: authData, error: authError } =
       await adminClient.auth.admin.createUser({
         email: email.toLowerCase(),
-        password,
+        password: finalPassword,
         email_confirm: true,
         user_metadata: {
           nama,
@@ -61,7 +63,7 @@ export async function createUserAction(
       if (authError?.message.includes("already registered") || authError?.message.includes("unique")) {
         return { ok: false, error: "Email sudah terdaftar untuk pengguna lain." };
       }
-      return { ok: false, error: authError?.message || "Gagal membuat akun pengguna." };
+      return { ok: false, error: "Gagal mendaftarkan akun pengguna ke sistem autentikasi." };
     }
 
     const newUserId = authData.user.id;
@@ -82,7 +84,7 @@ export async function createUserAction(
       console.error("[USER_MGMT] Gagal mengupdate profil pengguna:", profileError.message);
       // Bersihkan auth user jika pembuatan profil gagal
       await adminClient.auth.admin.deleteUser(newUserId);
-      return { ok: false, error: `Gagal menyimpan data profil: ${profileError.message}` };
+      return { ok: false, error: "Gagal menyimpan data profil pengguna." };
     }
 
     revalidatePath("/manajemen-user");
@@ -175,7 +177,7 @@ export async function resetUserPasswordAction(
 
     if (authError) {
       console.error("[USER_MGMT] Gagal mereset password di auth:", authError.message);
-      return { ok: false, error: `Gagal mereset password: ${authError.message}` };
+      return { ok: false, error: "Gagal memperbarui password di sistem autentikasi." };
     }
 
     // 2. Set wajib_ganti_password = true di tabel profiles
@@ -193,7 +195,7 @@ export async function resetUserPasswordAction(
     revalidatePath("/manajemen-user");
     return {
       ok: true,
-      message: `Password berhasil direset ke "${passwordBaru}". Pengguna wajib mengganti password saat login berikutnya.`,
+      message: "Password pengguna berhasil diperbarui. Pengguna wajib mengganti password saat login berikutnya.",
     };
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Terjadi kesalahan internal server.";
@@ -349,7 +351,7 @@ export async function importUsersAction(
       const { data: authData, error: authError } =
         await adminClient.auth.admin.createUser({
           email: trimmedEmail,
-          password: item.password || "www.bmh.or.id",
+          password: item.password || generateSecurePassword(12),
           email_confirm: true,
           user_metadata: {
             nama: trimmedNama,

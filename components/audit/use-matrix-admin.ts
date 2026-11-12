@@ -417,11 +417,83 @@ export function useMatrixAdmin({
     [saveField]
   );
 
+  // 10. Pembaruan massal (batch) hasil impor Excel penilaian secara instan di UI admin
+  const applyBatchImportAdmin = React.useCallback(
+    (
+      importedRows: {
+        itemNomor: number;
+        skorAudite?: number | null;
+        skorAuditor?: number | null;
+        lampiranLinks?: Record<string, string | null>;
+        validasi?: Record<string, boolean | null>;
+      }[]
+    ) => {
+      const importedMap = new Map(importedRows.map((r) => [r.itemNomor, r]));
+
+      setFlatRows((prevRows) =>
+        prevRows.map((row) => {
+          const imported = importedMap.get(row.nomor);
+          if (!imported) return row;
+
+          const nextSkorAudite =
+            imported.skorAudite !== undefined && imported.skorAudite !== null
+              ? imported.skorAudite
+              : row.skor_audite;
+          const nextNilaiSkor =
+            nextSkorAudite !== null ? nextSkorAudite * row.bobot : null;
+
+          const nextSkorAuditor =
+            imported.skorAuditor !== undefined && imported.skorAuditor !== null
+              ? imported.skorAuditor
+              : row.skor_auditor;
+          const nextNilaiSkorAuditor =
+            nextSkorAuditor !== null ? nextSkorAuditor * row.bobot : null;
+
+          const mergedLinks = {
+            ...(row.lampiran_links ?? {}),
+            ...(imported.lampiranLinks ?? {}),
+          };
+          const nextLampiranLink = mergedLinks["1"] ?? row.lampiran_link ?? null;
+
+          const currentValidasi =
+            typeof row.validasi === "object" && row.validasi !== null
+              ? { ...row.validasi }
+              : {};
+          const mergedValidasi = {
+            ...currentValidasi,
+            ...(imported.validasi ?? {}),
+          };
+
+          // Perbarui juga savedValuesRef
+          savedValuesRef.current.set(row.nomor, {
+            validasi: mergedValidasi,
+            skor_auditor: nextSkorAuditor,
+            catatan: row.catatan ?? null,
+            bobot: row.bobot,
+          });
+
+          return {
+            ...row,
+            skor_audite: nextSkorAudite,
+            nilai_skor: nextNilaiSkor,
+            skor_auditor: nextSkorAuditor,
+            nilai_skor_auditor: nextNilaiSkorAuditor,
+            lampiran_links: mergedLinks,
+            lampiran_link: nextLampiranLink,
+            validasi: mergedValidasi,
+          };
+        })
+      );
+    },
+    []
+  );
+
   return {
     tree: currentTree,
     saveStatuses,
     saveField,
     saveBobot,
     retry,
+    applyBatchImportAdmin,
   };
 }

@@ -299,6 +299,22 @@ export const ItemRows = React.memo(function ItemRows({
               </TableCell>
             )}
 
+            {/* 11b. Catatan Auditor (hanya mode cabang, view-only, rowspan) */}
+            {mode === "cabang" && isFirst && (
+              <TableCell
+                rowSpan={rowSpanCount}
+                className="align-top text-center w-28 px-2"
+              >
+                <div className="flex items-center justify-center">
+                  <CatatanPopover
+                    itemNomor={item.nomor}
+                    catatan={item.catatan}
+                    viewOnly={true}
+                  />
+                </div>
+              </TableCell>
+            )}
+
             {/* 12. Skor Auditor (hanya mode admin, rowspan) */}
             {mode === "admin" && isFirst && (
               <TableCell
@@ -341,8 +357,7 @@ export const ItemRows = React.memo(function ItemRows({
                       <CatatanPopover
                         itemNomor={item.nomor}
                         catatan={adminItem?.catatan}
-                        disabled={true}
-                        onSave={() => {}}
+                        viewOnly={true}
                       />
                     )}
                   </div>

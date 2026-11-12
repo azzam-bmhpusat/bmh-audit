@@ -54,13 +54,7 @@ Isi variabel lingkungan berikut di `.env.local`:
 # Koneksi Supabase (Wajib)
 NEXT_PUBLIC_SUPABASE_URL=https://<project-ref>.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<anon-public-key>
-
-# Kredensial untuk Pengujian Otomatis (scripts/verify-backend.mjs)
-TEST_ADMIN_PASSWORD=www.bmh.or.id
-TEST_USER_A="Jawa Timur"
-TEST_USER_A_PASSWORD=www.bmh.or.id
-TEST_USER_B="Jawa Barat"
-TEST_USER_B_PASSWORD=www.bmh.or.id
+SUPABASE_SERVICE_ROLE_KEY=<service-role-key>
 ```
 
 > **Catatan Keamanan**: Jangan pernah melakukan commit file `.env.local` ke dalam repositori git.

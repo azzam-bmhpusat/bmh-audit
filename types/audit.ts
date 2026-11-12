@@ -77,6 +77,7 @@ export interface MatrixRowCabang {
   lampiran_link: string | null;
   skor_audite: number | null;
   nilai_skor: number | null;
+  catatan?: string | null;
 }
 
 /**

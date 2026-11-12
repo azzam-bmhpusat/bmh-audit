@@ -86,6 +86,9 @@ export function PilarGroup({
           {formatAngka(pilar.totalNilaiSkor)}
         </TableCell>
 
+        {/* 11b. Catatan Auditor (hanya mode cabang) */}
+        {mode === "cabang" && <TableCell className="w-28" />}
+
         {/* 12. Skor Auditor (hanya mode admin) */}
         {mode === "admin" && <TableCell className="w-24" />}
 

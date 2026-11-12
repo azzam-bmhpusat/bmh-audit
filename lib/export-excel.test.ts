@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { buildMatrixWorksheetData } from "./export-excel";
+import { buildMatrixWorksheetData, sanitizeExcelCell } from "./export-excel";
 import type { MatrixRowAdmin, MatrixRowCabang, MatrixTree } from "@/types/audit";
 
 function createMockCabangTree(): MatrixTree<MatrixRowCabang> {
@@ -218,5 +218,23 @@ describe("export-excel builder", () => {
     expect(result.data[8][11]).toBe(5);
     expect(result.data[8][12]).toBe(50);
     expect(result.data[8][13]).toBe("Dokumen sangat lengkap dan sesuai.");
+  });
+
+  describe("sanitizeExcelCell", () => {
+    it("menambahkan kutip tunggal jika diawali simbol formula berbahaya", () => {
+      expect(sanitizeExcelCell("=1+1")).toBe("'=1+1");
+      expect(sanitizeExcelCell("+cmd")).toBe("'+cmd");
+      expect(sanitizeExcelCell("-cmd")).toBe("'-cmd");
+      expect(sanitizeExcelCell("@SUM(A1:A5)")).toBe("'@SUM(A1:A5)");
+      expect(sanitizeExcelCell("\tcmd")).toBe("'\tcmd");
+      expect(sanitizeExcelCell("\rcmd")).toBe("'\rcmd");
+    });
+
+    it("tidak mengubah string normal, angka, atau nilai kosong", () => {
+      expect(sanitizeExcelCell("Laporan Audit")).toBe("Laporan Audit");
+      expect(sanitizeExcelCell(100)).toBe(100);
+      expect(sanitizeExcelCell(null)).toBe(null);
+      expect(sanitizeExcelCell(undefined)).toBe(undefined);
+    });
   });
 });

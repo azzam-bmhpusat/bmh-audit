@@ -16,7 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { resetUserPasswordAction } from "@/app/actions/user-management";
 import { resetUserPasswordSchema } from "@/lib/schemas";
-import { KeyRoundIcon, RotateCcwIcon } from "lucide-react";
+import { generateSecurePassword } from "@/lib/auth/password";
+import { KeyRoundIcon, ShuffleIcon } from "lucide-react";
 import type { UserListItem } from "@/types/audit";
 
 interface ResetPasswordDialogProps {
@@ -73,18 +74,19 @@ function ResetPasswordFormContent({
   onOpenChange: (open: boolean) => void;
   onSuccess?: () => void;
 }) {
-  const [passwordBaru, setPasswordBaru] = React.useState("www.bmh.or.id");
+  const [passwordBaru, setPasswordBaru] = React.useState(() => generateSecurePassword(12));
   const [wajibGantiPassword, setWajibGantiPassword] = React.useState(true);
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleQuickResetDefault = async () => {
+  const handleQuickResetRandom = async () => {
     if (isLoading) return;
     setIsLoading(true);
 
+    const generated = generateSecurePassword(12);
     try {
       const res = await resetUserPasswordAction({
         id: user.id,
-        passwordBaru: "www.bmh.or.id",
+        passwordBaru: generated,
         wajib_ganti_password: true,
       });
 
@@ -93,7 +95,10 @@ function ResetPasswordFormContent({
         return;
       }
 
-      toast.success(res.message || "Password berhasil direset ke www.bmh.or.id");
+      toast.success("Password baru berhasil dibuat", {
+        description: `Password sementara: ${generated}`,
+        duration: 10000,
+      });
       onOpenChange(false);
       onSuccess?.();
     } catch {
@@ -142,44 +147,50 @@ function ResetPasswordFormContent({
 
   return (
     <div className="space-y-4 py-2">
-      {/* Opsi 1: Aksi Cepat 1-Klik Reset ke www.bmh.or.id */}
+      {/* Opsi 1: Aksi Cepat 1-Klik Reset ke Password Acak Kuat */}
       <div className="rounded-lg border border-border p-3.5 space-y-2 bg-muted/40">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold">Opsi Cepat: Password Default</span>
-          <span className="text-xs font-mono bg-background border px-2 py-0.5 rounded">
-            www.bmh.or.id
-          </span>
+          <span className="text-xs font-semibold">Opsi Cepat: Buat Password Acak Aman</span>
         </div>
         <p className="text-[11px] text-muted-foreground">
-          Mengatur ulang password langsung ke password standar BMH dan mewajibkan pengguna mengganti password saat login berikutnya.
+          Menghasilkan password sementara 12 karakter acak yang aman dan mewajibkan pengguna mengganti password saat login berikutnya.
         </p>
         <Button
           type="button"
           variant="default"
           size="sm"
           className="w-full gap-2 mt-1"
-          onClick={handleQuickResetDefault}
+          onClick={handleQuickResetRandom}
           disabled={isLoading}
         >
-          <RotateCcwIcon className="size-3.5" />
-          <span>{isLoading ? "Mereset..." : "Reset ke www.bmh.or.id"}</span>
+          <ShuffleIcon className="size-3.5" />
+          <span>{isLoading ? "Mereset..." : "Reset dengan Password Acak"}</span>
         </Button>
       </div>
 
       <div className="relative flex items-center justify-center">
         <span className="bg-background px-2 text-[11px] text-muted-foreground uppercase font-medium">
-          Atau Tentukan Password Baru
+          Atau Tentukan Password Manual
         </span>
       </div>
 
       {/* Opsi 2: Password Kustom */}
       <form onSubmit={handleCustomSubmit} className="space-y-3">
         <div className="space-y-1.5">
-          <Label htmlFor="input-custom-pw">Password Baru</Label>
+          <div className="flex items-center justify-between">
+            <Label htmlFor="input-custom-pw">Password Baru</Label>
+            <button
+              type="button"
+              onClick={() => setPasswordBaru(generateSecurePassword(12))}
+              className="text-xs text-primary hover:underline"
+            >
+              Acak Ulang
+            </button>
+          </div>
           <Input
             id="input-custom-pw"
             type="text"
-            placeholder="Minimal 6 karakter"
+            placeholder="Minimal 8 karakter"
             value={passwordBaru}
             onChange={(e) => setPasswordBaru(e.target.value)}
             disabled={isLoading}

@@ -5,6 +5,7 @@ import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
 import { getPenilaianAdmin } from "@/lib/penilaian/queries";
 import { PeriodePicker } from "@/components/penilaian/periode-picker";
+import { AdminCabangMonitoringChart } from "@/components/dashboard/admin-cabang-monitoring-chart";
 import { AdminPredikatDistribution } from "@/components/dashboard/admin-predikat-distribution";
 import { AdminWorkQueue } from "@/components/dashboard/admin-work-queue";
 import { Button } from "@/components/ui/button";
@@ -47,7 +48,7 @@ export default async function AdminDashboardPage(props: PageProps) {
 
   const supabase = await createClient();
 
-  // 1. Ambil data cabang dan periode
+  // 1. Ambil data cabang dan periode secara paralel
   const [{ data: rawCabangList }, { data: rawPeriodeList }] = await Promise.all([
     supabase.from("cabang").select("*").order("nama"),
     supabase.from("periode").select("*").order("id", { ascending: false }),
@@ -58,7 +59,7 @@ export default async function AdminDashboardPage(props: PageProps) {
 
   if (periodeList.length === 0) {
     return (
-      <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6">
+      <main className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6">
         <Alert>
           <InfoIcon className="size-4" />
           <AlertTitle>Informasi</AlertTitle>
@@ -115,14 +116,14 @@ export default async function AdminDashboardPage(props: PageProps) {
       : 0;
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-6 sm:px-6 space-y-6">
+    <main className="mx-auto w-full max-w-7xl px-3 sm:px-6 py-4 sm:py-6 space-y-5 sm:space-y-6">
       {/* Header Halaman & Filter Periode */}
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between pb-2 border-b">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between pb-3 border-b">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground">
             Dashboard Auditor SIA
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
             Pusat Kendali Pengawasan & Ringkasan Kepatuhan Integratif Nasional LAZNAS BMH
           </p>
         </div>
@@ -157,8 +158,9 @@ export default async function AdminDashboardPage(props: PageProps) {
 
       {/* =========================================================================
           KARTU METRIK EKSEKUTIF (TOP KPI STATS)
+          Responsif: 1 kolom di mobile sangat kecil, 2 kolom di tablet kecil, 4 di desktop
           ========================================================================= */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
         {/* Card 1: Total Perwakilan Cabang */}
         <Card className="shadow-xs">
           <CardHeader className="p-4 pb-2 flex flex-row items-center justify-between">
@@ -246,12 +248,19 @@ export default async function AdminDashboardPage(props: PageProps) {
       </div>
 
       {/* =========================================================================
+          CHART MONITORING SELURUH CABANG (BARU)
+          Visualisasi interaktif: Capaian Skor, Progres Butir, & Sebaran Status Kesiapan
+          ========================================================================= */}
+      <AdminCabangMonitoringChart penilaianList={penilaianList} />
+
+      {/* =========================================================================
           DISTRIBUSI PREDIKAT KEPATUHAN NASIONAL
           ========================================================================= */}
       <AdminPredikatDistribution penilaianList={penilaianList} />
 
       {/* =========================================================================
           PUSAT KENDALI & ANTREAN KERJA AUDITOR SIA
+          Menu bar 4 tab: Siap Diaudit | Belum Lengkap | Selesai Dinilai | Semua Cabang
           ========================================================================= */}
       <AdminWorkQueue
         penilaianList={penilaianList}

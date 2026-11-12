@@ -102,6 +102,14 @@ export function ImportUserDialog({
       return;
     }
 
+    const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5 MB
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error("Ukuran file terlalu besar", {
+        description: "Maksimal ukuran file spreadsheet yang diizinkan adalah 5 MB.",
+      });
+      return;
+    }
+
     setSelectedFile(file);
     setIsParsing(true);
     setImportResult(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useRouter } from "next/navigation";
 import {
   Table,
   TableBody,
@@ -13,6 +14,7 @@ import { getColumns } from "./columns";
 import { PilarGroup } from "./pilar-group";
 import { CardList } from "./card-list";
 import { ExportExcelButton } from "./export-excel-button";
+import { ImportExcelButton } from "./import-excel-button";
 import { TotalsFooter, TotalsSummaryCard, TotalsAdminSummaryCard } from "./totals-bar";
 import { useMatrixJawaban } from "./use-matrix-jawaban";
 import { useMatrixAdmin } from "./use-matrix-admin";
@@ -57,6 +59,8 @@ interface MatrixTableViewProps {
   mode: "cabang" | "admin";
   activeTree: MatrixTree<MatrixRowCabang | MatrixRowAdmin>;
   readOnly: boolean;
+  periodeId?: number;
+  cabangId?: number;
   showSummaryCard: boolean;
   headerInfo?: {
     title?: string;
@@ -79,12 +83,15 @@ interface MatrixTableViewProps {
   onSaveBobot?: (itemNomor: number, newBobot: number) => void;
   saveStatuses: Record<number, { status: SaveStatus; error?: string }>;
   onRetry: (itemNomor: number) => void;
+  onImportSuccess?: (importedRows: any[]) => void;
 }
 
 function MatrixTableView({
   mode,
   activeTree,
   readOnly,
+  periodeId,
+  cabangId,
   showSummaryCard,
   headerInfo,
   onSaveField,
@@ -92,6 +99,7 @@ function MatrixTableView({
   onSaveBobot,
   saveStatuses,
   onRetry,
+  onImportSuccess,
 }: MatrixTableViewProps) {
   const columns = React.useMemo(() => getColumns(mode), [mode]);
 
@@ -357,6 +365,17 @@ function MatrixTableView({
               headerInfo={headerInfo}
             />
 
+            {/* Tombol import excel (mode cabang & mode admin) */}
+            <ImportExcelButton
+              mode={mode}
+              periodeId={periodeId}
+              cabangId={cabangId}
+              tree={activeTree}
+              readOnly={readOnly}
+              headerInfo={headerInfo}
+              onImportSuccess={onImportSuccess}
+            />
+
             {isAllExpanded ? (
               <Button
                 type="button"
@@ -500,23 +519,40 @@ function MatrixTableCabangContainer({
     periodeNama?: string;
   };
 }) {
-  const { tree, saveStatuses, saveField, retry } = useMatrixJawaban({
+  const router = useRouter();
+  const { tree, saveStatuses, saveField, retry, applyBatchImport } = useMatrixJawaban({
     initialTree: data,
     periodeId,
     poinList,
     readOnly,
   });
 
+  const handleImportSuccess = React.useCallback(
+    (
+      importedRows: {
+        itemNomor: number;
+        skorAudite: number | null;
+        lampiranLinks: Record<string, string | null>;
+      }[]
+    ) => {
+      applyBatchImport(importedRows);
+      router.refresh();
+    },
+    [applyBatchImport, router]
+  );
+
   return (
     <MatrixTableView
       mode="cabang"
       activeTree={tree}
       readOnly={readOnly}
+      periodeId={periodeId}
       showSummaryCard={showSummaryCard}
       headerInfo={headerInfo}
       onSaveField={saveField}
       saveStatuses={saveStatuses}
       onRetry={retry}
+      onImportSuccess={handleImportSuccess}
     />
   );
 }
@@ -545,7 +581,15 @@ function MatrixTableAdminContainer({
   };
   onSavedSuccess?: () => void;
 }) {
-  const { tree, saveStatuses, saveField, saveBobot, retry } = useMatrixAdmin({
+  const router = useRouter();
+  const {
+    tree,
+    saveStatuses,
+    saveField,
+    saveBobot,
+    retry,
+    applyBatchImportAdmin,
+  } = useMatrixAdmin({
     initialTree: data,
     periodeId,
     cabangId,
@@ -554,17 +598,31 @@ function MatrixTableAdminContainer({
     onSavedSuccess,
   });
 
+  const handleImportSuccess = React.useCallback(
+    (importedRows: any[]) => {
+      applyBatchImportAdmin(importedRows);
+      router.refresh();
+      if (onSavedSuccess) {
+        onSavedSuccess();
+      }
+    },
+    [applyBatchImportAdmin, router, onSavedSuccess]
+  );
+
   return (
     <MatrixTableView
       mode="admin"
       activeTree={tree}
       readOnly={readOnly}
+      periodeId={periodeId}
+      cabangId={cabangId}
       showSummaryCard={showSummaryCard}
       headerInfo={headerInfo}
       onSaveAdminField={saveField}
       onSaveBobot={saveBobot}
       saveStatuses={saveStatuses}
       onRetry={retry}
+      onImportSuccess={handleImportSuccess}
     />
   );
 }

@@ -37,6 +37,7 @@ export function GantiPasswordDialog({
     }
   };
 
+  const [passwordLama, setPasswordLama] = React.useState("");
   const [passwordBaru, setPasswordBaru] = React.useState("");
   const [konfirmasiPassword, setKonfirmasiPassword] = React.useState("");
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -46,6 +47,11 @@ export function GantiPasswordDialog({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg(null);
+
+    if (!passwordLama) {
+      setErrorMsg("Password saat ini wajib diisi");
+      return;
+    }
 
     if (passwordBaru.length < 8) {
       setErrorMsg("Password minimal 8 karakter");
@@ -57,6 +63,11 @@ export function GantiPasswordDialog({
       return;
     }
 
+    if (passwordBaru === passwordLama) {
+      setErrorMsg("Password baru tidak boleh sama dengan password saat ini");
+      return;
+    }
+
     if (passwordBaru !== konfirmasiPassword) {
       setErrorMsg("Konfirmasi password tidak cocok");
       return;
@@ -65,6 +76,7 @@ export function GantiPasswordDialog({
     setIsSubmitting(true);
     try {
       const res = await gantiPasswordAction({
+        passwordLama,
         passwordBaru,
         konfirmasiPassword,
       });
@@ -76,6 +88,7 @@ export function GantiPasswordDialog({
       }
 
       toast.success("Password berhasil diperbarui");
+      setPasswordLama("");
       setPasswordBaru("");
       setKonfirmasiPassword("");
 
@@ -120,6 +133,20 @@ export function GantiPasswordDialog({
               <AlertDescription>{errorMsg}</AlertDescription>
             </Alert>
           )}
+
+          <div className="space-y-1.5">
+            <Label htmlFor="password-lama">Password Saat Ini</Label>
+            <Input
+              id="password-lama"
+              type="password"
+              value={passwordLama}
+              onChange={(e) => setPasswordLama(e.target.value)}
+              placeholder="Masukkan password saat ini"
+              disabled={isSubmitting || isLoggingOut}
+              autoComplete="current-password"
+              required
+            />
+          </div>
 
           <div className="space-y-1.5">
             <Label htmlFor="password-baru">Password Baru</Label>

@@ -83,7 +83,7 @@ export async function createCabangAction(
 
     if (insertError) {
       console.error("[CABANG_MGMT] Gagal insert cabang:", insertError.message);
-      return { ok: false, error: `Gagal menambahkan perwakilan: ${insertError.message}` };
+      return { ok: false, error: "Gagal menambahkan perwakilan ke sistem." };
     }
 
     revalidatePath("/manajemen-perwakilan");
@@ -163,7 +163,7 @@ export async function updateCabangAction(
 
     if (updateError) {
       console.error("[CABANG_MGMT] Gagal update cabang:", updateError.message);
-      return { ok: false, error: `Gagal memperbarui perwakilan: ${updateError.message}` };
+      return { ok: false, error: "Gagal memperbarui data perwakilan di sistem." };
     }
 
     revalidatePath("/manajemen-perwakilan");

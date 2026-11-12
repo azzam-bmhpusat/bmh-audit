@@ -82,7 +82,7 @@ export async function createPeriodeAction(
       console.error("[PERIODE] Gagal insert periode baru:", insertError.message);
       return {
         ok: false,
-        error: `Gagal menambahkan periode: ${insertError.message}`,
+        error: "Gagal menambahkan periode ke sistem.",
       };
     }
 
@@ -158,7 +158,7 @@ export async function updatePeriodeAction(
       console.error("[PERIODE] Gagal update periode:", updateError.message);
       return {
         ok: false,
-        error: `Gagal memperbarui periode: ${updateError.message}`,
+        error: "Gagal memperbarui data periode di sistem.",
       };
     }
 

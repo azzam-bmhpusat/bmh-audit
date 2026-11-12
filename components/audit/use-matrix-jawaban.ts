@@ -76,12 +76,12 @@ export function useMatrixJawaban({
             lampiran_link: it.lampiran_link,
             skor_audite: it.skor_audite,
             nilai_skor: it.nilai_skor,
+            catatan: it.catatan,
             ...("validasi" in it
               ? {
                   validasi: (it as MatrixRowAdmin).validasi,
                   skor_auditor: (it as MatrixRowAdmin).skor_auditor,
                   nilai_skor_auditor: (it as MatrixRowAdmin).nilai_skor_auditor,
-                  catatan: (it as MatrixRowAdmin).catatan,
                 }
               : {}),
           };
@@ -304,10 +304,56 @@ export function useMatrixJawaban({
     [saveField]
   );
 
+  // 9. Pembaruan massal (batch) hasil impor Excel secara instan di UI
+  const applyBatchImport = React.useCallback(
+    (
+      importedRows: {
+        itemNomor: number;
+        skorAudite: number | null;
+        lampiranLinks: Record<string, string | null>;
+      }[]
+    ) => {
+      const importedMap = new Map(importedRows.map((r) => [r.itemNomor, r]));
+
+      setFlatRows((prevRows) =>
+        prevRows.map((row) => {
+          const imported = importedMap.get(row.nomor);
+          if (!imported) return row;
+
+          const nextSkor =
+            imported.skorAudite !== null ? imported.skorAudite : row.skor_audite;
+          const nextNilai = nextSkor !== null ? nextSkor * row.bobot : null;
+          const mergedLinks = {
+            ...(row.lampiran_links ?? {}),
+            ...imported.lampiranLinks,
+          };
+          const nextLampiranLink = mergedLinks["1"] ?? row.lampiran_link ?? null;
+
+          // Perbarui juga savedValuesRef
+          savedValuesRef.current.set(row.nomor, {
+            skor_audite: nextSkor,
+            lampiran_links: mergedLinks,
+            lampiran_link: nextLampiranLink,
+          });
+
+          return {
+            ...row,
+            skor_audite: nextSkor,
+            nilai_skor: nextNilai,
+            lampiran_links: mergedLinks,
+            lampiran_link: nextLampiranLink,
+          };
+        })
+      );
+    },
+    []
+  );
+
   return {
     tree: currentTree,
     saveStatuses,
     saveField,
     retry,
+    applyBatchImport,
   };
 }

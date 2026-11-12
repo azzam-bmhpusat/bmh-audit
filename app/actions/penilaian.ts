@@ -304,3 +304,229 @@ export async function savePenilaianAuditor(
 
   return { ok: true, row: upsertData as Record<string, unknown> };
 }
+
+export interface ImportPenilaianAdminItemPayload {
+  itemNomor: number;
+  skorAudite?: number | null;
+  skorAuditor?: number | null;
+  lampiranLinks?: Record<string, string>;
+  validasi?: Record<string, boolean | null>;
+}
+
+export interface ImportPenilaianAdminBatchInput {
+  periodeId: number;
+  cabangId: number;
+  items: ImportPenilaianAdminItemPayload[];
+}
+
+export type ImportPenilaianAdminBatchResult =
+  | {
+      ok: true;
+      count: number;
+      message: string;
+      importedRows: {
+        itemNomor: number;
+        skorAudite: number | null;
+        skorAuditor: number | null;
+        lampiranLinks: Record<string, string | null>;
+        validasi: Record<string, boolean | null>;
+      }[];
+    }
+  | { ok: false; error: string };
+
+/**
+ * Server Action untuk mengimpor data penilaian audit dari Excel oleh Auditor SIA.
+ * HANYA mengimpor 4 kolom:
+ * 1. Lampiran (Link Evidence)
+ * 2. Validasi (Benar / Tidak Benar)
+ * 3. Skor Audite (1–5)
+ * 4. Skor Auditor (1–5)
+ * Kolom lainnya (bobot, regulasi, catatan auditor, dll.) sama sekali tidak diubah.
+ */
+export async function importPenilaianAdminBatch(
+  input: ImportPenilaianAdminBatchInput
+): Promise<ImportPenilaianAdminBatchResult> {
+  const { periodeId, cabangId, items } = input;
+
+  if (!periodeId || !cabangId || !Array.isArray(items) || items.length === 0) {
+    return { ok: false, error: "Data impor penilaian tidak boleh kosong." };
+  }
+
+  // 1. Autentikasi dan otorisasi role 'admin' di server
+  const supabase = await createClient();
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return { ok: false, error: "Sesi telah berakhir. Silakan login kembali." };
+  }
+
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .single();
+
+  if (profileError || !profile || profile.role !== "admin") {
+    return {
+      ok: false,
+      error: "Hanya akun Auditor SIA (admin) yang berwenang mengimpor penilaian audit.",
+    };
+  }
+
+  // 2. Verifikasi keberadaan cabang dan periode
+  const [{ data: cabang, error: cabangError }, { data: periode, error: periodeError }] =
+    await Promise.all([
+      supabase.from("cabang").select("id, nama").eq("id", cabangId).single(),
+      supabase.from("periode").select("id, nama").eq("id", periodeId).single(),
+    ]);
+
+  if (cabangError || !cabang) {
+    return { ok: false, error: "Cabang/perwakilan yang dituju tidak ditemukan." };
+  }
+
+  if (periodeError || !periode) {
+    return { ok: false, error: "Periode audit tidak ditemukan." };
+  }
+
+  // 3. Ambil data eksisting dari audit_jawaban dan audit_penilaian_auditor
+  const [{ data: existingJawaban }, { data: existingPenilaian }] = await Promise.all([
+    supabase
+      .from("audit_jawaban")
+      .select("item_nomor, skor_audite, lampiran_links, lampiran_link")
+      .eq("periode_id", periodeId)
+      .eq("cabang_id", cabangId),
+    supabase
+      .from("audit_penilaian_auditor")
+      .select("item_nomor, validasi, skor_auditor, catatan")
+      .eq("periode_id", periodeId)
+      .eq("cabang_id", cabangId),
+  ]);
+
+  const jawabanMap = new Map<
+    number,
+    {
+      skor_audite: number | null;
+      lampiran_links: Record<string, string | null>;
+      lampiran_link: string | null;
+    }
+  >();
+  for (const j of existingJawaban ?? []) {
+    jawabanMap.set(j.item_nomor, {
+      skor_audite: j.skor_audite ?? null,
+      lampiran_links: (j.lampiran_links as Record<string, string | null>) ?? {},
+      lampiran_link: j.lampiran_link ?? null,
+    });
+  }
+
+  const penilaianMap = new Map<
+    number,
+    {
+      validasi: Record<string, boolean | null>;
+      skor_auditor: number | null;
+      catatan: string | null;
+    }
+  >();
+  for (const p of existingPenilaian ?? []) {
+    penilaianMap.set(p.item_nomor, {
+      validasi: (p.validasi as Record<string, boolean | null>) ?? {},
+      skor_auditor: p.skor_auditor ?? null,
+      catatan: p.catatan ?? null,
+    });
+  }
+
+  const nowIso = new Date().toISOString();
+  const penilaianPayloads: {
+    periode_id: number;
+    cabang_id: number;
+    item_nomor: number;
+    validasi: Record<string, boolean | null>;
+    skor_auditor: number | null;
+    catatan: string | null;
+    updated_by: string;
+    updated_at: string;
+  }[] = [];
+
+  const importedRowsResult: {
+    itemNomor: number;
+    skorAudite: number | null;
+    skorAuditor: number | null;
+    lampiranLinks: Record<string, string | null>;
+    validasi: Record<string, boolean | null>;
+  }[] = [];
+
+  for (const item of items) {
+    if (!item.itemNomor || item.itemNomor < 1) continue;
+
+    const existJ = jawabanMap.get(item.itemNomor);
+    const existP = penilaianMap.get(item.itemNomor);
+
+    // 1. Lampiran & Skor Mandiri Cabang tetap dipertahankan dari data cabang (tidak ditimpa admin)
+    const cabangLinks = existJ?.lampiran_links ?? {};
+    const finalSkorAudite = existJ?.skor_audite ?? null;
+
+    // 2. Validasi (1..5)
+    const mergedValidasi = { ...(existP?.validasi ?? {}) };
+    if (item.validasi && typeof item.validasi === "object") {
+      for (const [seq, val] of Object.entries(item.validasi)) {
+        const seqNum = Number(seq);
+        if (seqNum >= 1 && seqNum <= 5 && typeof val === "boolean") {
+          mergedValidasi[String(seqNum)] = val;
+        }
+      }
+    }
+
+    // 3. Skor Auditor (1-5)
+    let finalSkorAuditor = existP?.skor_auditor ?? null;
+    if (
+      typeof item.skorAuditor === "number" &&
+      item.skorAuditor >= 1 &&
+      item.skorAuditor <= 5
+    ) {
+      finalSkorAuditor = item.skorAuditor;
+    }
+
+    // Susun payload penilaian auditor
+    penilaianPayloads.push({
+      periode_id: periodeId,
+      cabang_id: cabangId,
+      item_nomor: item.itemNomor,
+      validasi: mergedValidasi,
+      skor_auditor: finalSkorAuditor,
+      catatan: existP?.catatan ?? null,
+      updated_by: user.id,
+      updated_at: nowIso,
+    });
+
+    importedRowsResult.push({
+      itemNomor: item.itemNomor,
+      skorAudite: finalSkorAudite,
+      skorAuditor: finalSkorAuditor,
+      lampiranLinks: cabangLinks,
+      validasi: mergedValidasi,
+    });
+  }
+
+  // Admin menyimpan hasil penilaian auditor (audit_penilaian_auditor)
+  if (penilaianPayloads.length > 0) {
+    const { error: pError } = await supabase
+      .from("audit_penilaian_auditor")
+      .upsert(penilaianPayloads, {
+        onConflict: "periode_id,cabang_id,item_nomor",
+      });
+
+    if (pError) {
+      console.error("[importPenilaianAdminBatch] Gagal upsert audit_penilaian_auditor:", pError.message);
+      return { ok: false, error: "Gagal menyimpan penilaian auditor ke database." };
+    }
+  }
+
+  return {
+    ok: true,
+    count: items.length,
+    message: `Berhasil mengimpor penilaian untuk ${items.length} butir instrumen audit BMH Perwakilan ${cabang.nama}.`,
+    importedRows: importedRowsResult,
+  };
+}

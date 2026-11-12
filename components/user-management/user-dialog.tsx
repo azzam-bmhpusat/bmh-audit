@@ -24,6 +24,7 @@ import {
 import { createUserAction, updateUserAction } from "@/app/actions/user-management";
 import { createUserSchema, updateUserSchema } from "@/lib/schemas";
 import { namaToEmail } from "@/lib/auth/nama-email";
+import { generateSecurePassword } from "@/lib/auth/password";
 import type { Cabang, Role, UserListItem } from "@/types/audit";
 
 interface UserDialogProps {
@@ -93,7 +94,7 @@ function UserFormContent({
   const [cabangId, setCabangId] = React.useState<string>(
     userToEdit?.cabang_id ? String(userToEdit.cabang_id) : "none"
   );
-  const [password, setPassword] = React.useState("www.bmh.or.id");
+  const [password, setPassword] = React.useState(() => generateSecurePassword(12));
   const [wajibGantiPassword, setWajibGantiPassword] = React.useState(
     userToEdit ? userToEdit.wajib_ganti_password : true
   );
@@ -272,18 +273,26 @@ function UserFormContent({
           {/* 5. Password Awal (Hanya mode Create) */}
           {!isEditMode && (
             <div className="space-y-1.5">
-              <Label htmlFor="input-password">Password Awal</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="input-password">Password Sementara</Label>
+                <button
+                  type="button"
+                  onClick={() => setPassword(generateSecurePassword(12))}
+                  className="text-xs text-primary hover:underline"
+                >
+                  Acak Ulang
+                </button>
+              </div>
               <Input
                 id="input-password"
                 type="text"
-                placeholder="Default: www.bmh.or.id"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 disabled={isLoading}
                 required
               />
               <p className="text-[11px] text-muted-foreground">
-                Default bersama: <span className="font-mono font-medium">www.bmh.or.id</span>
+                Password acak sementara dibuat secara otomatis untuk keamanan akun.
               </p>
             </div>
           )}

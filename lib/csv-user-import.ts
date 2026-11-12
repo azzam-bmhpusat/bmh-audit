@@ -40,7 +40,7 @@ export const SAMPLE_TEMPLATE_ROWS: UserImportTemplateData[] = [
     email: "jawa-timur@audit.bmh.or.id",
     role: "user",
     cabang: "Jawa Timur",
-    password: "www.bmh.or.id",
+    password: "PasswordKuat2026!",
     wajib_ganti_password: "ya",
   },
   {
@@ -48,7 +48,7 @@ export const SAMPLE_TEMPLATE_ROWS: UserImportTemplateData[] = [
     email: "jawa-barat@audit.bmh.or.id",
     role: "user",
     cabang: "Jawa Barat",
-    password: "www.bmh.or.id",
+    password: "PasswordKuat2026!",
     wajib_ganti_password: "ya",
   },
   {
@@ -56,7 +56,7 @@ export const SAMPLE_TEMPLATE_ROWS: UserImportTemplateData[] = [
     email: "auditor.pusat@audit.bmh.or.id",
     role: "admin",
     cabang: "",
-    password: "www.bmh.or.id",
+    password: "PasswordKuat2026!",
     wajib_ganti_password: "ya",
   },
 ];

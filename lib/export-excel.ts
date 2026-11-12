@@ -20,6 +20,36 @@ export interface BuildWorksheetResult {
   cols: XLSX.ColInfo[];
 }
 
+/**
+ * Mencegah Formula / CSV Injection (CWE-1236):
+ * Karakter awal =, +, -, @, \t, atau \r pada nilai string di-escape dengan tanda kutip tunggal
+ * agar spreadsheet membacanya sebagai teks literal, bukan rumus formula yang dieksekusi.
+ */
+export function sanitizeExcelCell<T extends string | number | null | undefined>(val: T): T {
+  if (typeof val === "string") {
+    if (
+      val.startsWith("=") ||
+      val.startsWith("+") ||
+      val.startsWith("-") ||
+      val.startsWith("@") ||
+      val.startsWith("\t") ||
+      val.startsWith("\r")
+    ) {
+      return `'${val}` as T;
+    }
+    const trimmed = val.trim();
+    if (
+      trimmed.startsWith("=") ||
+      trimmed.startsWith("+") ||
+      trimmed.startsWith("-") ||
+      trimmed.startsWith("@")
+    ) {
+      return `'${val}` as T;
+    }
+  }
+  return val;
+}
+
 export function buildMatrixWorksheetData(
   tree: MatrixTree<MatrixRowCabang | MatrixRowAdmin>,
   mode: "cabang" | "admin",
@@ -131,13 +161,13 @@ export function buildMatrixWorksheetData(
           if (isCabang) {
             data.push([
               isFirstPoin ? item.nomor : "",
-              isFirstPoin ? item.pertanyaan : "",
-              isFirstPoin ? regulasi : "",
+              isFirstPoin ? sanitizeExcelCell(item.pertanyaan) : "",
+              isFirstPoin ? sanitizeExcelCell(regulasi) : "",
               isFirstPoin ? item.bobot : "",
-              `${poin.urutan}. ${poin.fokus_pemeriksaan}`,
-              poin.bukti_evidence ? `${poin.urutan}. ${poin.bukti_evidence}` : "—",
-              link,
-              `${poin.urutan}. ${poin.kriteria_skor}`,
+              sanitizeExcelCell(`${poin.urutan}. ${poin.fokus_pemeriksaan}`),
+              poin.bukti_evidence ? sanitizeExcelCell(`${poin.urutan}. ${poin.bukti_evidence}`) : "—",
+              sanitizeExcelCell(link),
+              sanitizeExcelCell(`${poin.urutan}. ${poin.kriteria_skor}`),
               isFirstPoin ? (item.skor_audite ?? "") : "",
               isFirstPoin
                 ? (item.nilai_skor ?? (item.skor_audite ? item.skor_audite * item.bobot : ""))
@@ -154,14 +184,14 @@ export function buildMatrixWorksheetData(
 
             data.push([
               isFirstPoin ? item.nomor : "",
-              isFirstPoin ? item.pertanyaan : "",
-              isFirstPoin ? regulasi : "",
+              isFirstPoin ? sanitizeExcelCell(item.pertanyaan) : "",
+              isFirstPoin ? sanitizeExcelCell(regulasi) : "",
               isFirstPoin ? item.bobot : "",
-              `${poin.urutan}. ${poin.fokus_pemeriksaan}`,
-              poin.bukti_evidence ? `${poin.urutan}. ${poin.bukti_evidence}` : "—",
-              link,
+              sanitizeExcelCell(`${poin.urutan}. ${poin.fokus_pemeriksaan}`),
+              poin.bukti_evidence ? sanitizeExcelCell(`${poin.urutan}. ${poin.bukti_evidence}`) : "—",
+              sanitizeExcelCell(link),
               validasiText,
-              `${poin.urutan}. ${poin.kriteria_skor}`,
+              sanitizeExcelCell(`${poin.urutan}. ${poin.kriteria_skor}`),
               isFirstPoin ? (item.skor_audite ?? "") : "",
               isFirstPoin
                 ? (item.nilai_skor ?? (item.skor_audite ? item.skor_audite * item.bobot : ""))
@@ -171,7 +201,7 @@ export function buildMatrixWorksheetData(
                 ? (adminItem?.nilai_skor_auditor ??
                   (adminItem?.skor_auditor ? adminItem.skor_auditor * item.bobot : ""))
                 : "",
-              isFirstPoin ? (adminItem?.catatan || "") : "",
+              isFirstPoin ? sanitizeExcelCell(adminItem?.catatan || "") : "",
             ]);
           }
 

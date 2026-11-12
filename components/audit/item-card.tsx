@@ -273,8 +273,8 @@ export const ItemCard = React.memo(function ItemCard({
         {/* Input & Kontrol Interaktif (Skor & Nilai) */}
         <div className="space-y-3">
           {mode === "cabang" ? (
-            /* Kontrol Cabang: Skor Audite & Nilai Skor */
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-end">
+            /* Kontrol Cabang: Skor Audite, Nilai Skor, & Catatan Auditor (View-Only) */
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 items-end">
               <div className="space-y-1.5">
                 <span className="font-semibold text-foreground">Skor Audite (1–5):</span>
                 {isEditableCabang ? (
@@ -299,6 +299,17 @@ export const ItemCard = React.memo(function ItemCard({
                   <span className="text-sm font-bold tabular-nums text-foreground">
                     {nilaiSkorAudite !== null ? formatAngka(nilaiSkorAudite) : "—"}
                   </span>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <span className="font-semibold text-foreground">Catatan Auditor:</span>
+                <div className="h-9 flex items-center">
+                  <CatatanPopover
+                    itemNomor={item.nomor}
+                    catatan={item.catatan}
+                    viewOnly={true}
+                  />
                 </div>
               </div>
             </div>
@@ -349,8 +360,7 @@ export const ItemCard = React.memo(function ItemCard({
                         <CatatanPopover
                           itemNomor={item.nomor}
                           catatan={adminItem?.catatan}
-                          disabled={true}
-                          onSave={() => {}}
+                          viewOnly={true}
                         />
                       )}
                     </>

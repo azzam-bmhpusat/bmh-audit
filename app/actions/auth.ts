@@ -41,7 +41,7 @@ export async function loginAction(
   });
 
   if (signInError || !data.user) {
-    console.error("[AUTH] Gagal login untuk email:", email, signInError?.message);
+    console.error("[AUTH] Gagal login:", signInError?.message);
     return {
       ok: false,
       error: "Email atau password salah",
@@ -87,9 +87,10 @@ export async function logoutAction(): Promise<void> {
 
 /**
  * Server action untuk mengganti password (mode wajib maupun sukarela).
+ * Memvalidasi kepemilikan akun dengan memverifikasi password saat ini.
  */
 export async function gantiPasswordAction(
-  input: { passwordBaru: string; konfirmasiPassword: string }
+  input: { passwordLama: string; passwordBaru: string; konfirmasiPassword: string }
 ): Promise<AuthActionResult> {
   const parsed = gantiPasswordSchema.safeParse(input);
   if (!parsed.success) {
@@ -109,10 +110,23 @@ export async function gantiPasswordAction(
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError || !user) {
+  if (userError || !user || !user.email) {
     return {
       ok: false,
       error: "Sesi telah berakhir. Silakan keluar lalu masuk kembali.",
+    };
+  }
+
+  // Verifikasi password saat ini
+  const { error: verifyError } = await supabase.auth.signInWithPassword({
+    email: user.email,
+    password: parsed.data.passwordLama,
+  });
+
+  if (verifyError) {
+    return {
+      ok: false,
+      error: "Password saat ini salah. Pastikan Anda memasukkan password yang benar.",
     };
   }
 

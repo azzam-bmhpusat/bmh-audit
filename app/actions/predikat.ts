@@ -97,7 +97,7 @@ export async function updatePredikatAction(
       console.error("[PREDIKAT] Gagal memperbarui audit_predikat:", updateError.message);
       return {
         ok: false,
-        error: `Gagal memperbarui standar predikat: ${updateError.message}`,
+        error: "Gagal memperbarui standar predikat di sistem.",
       };
     }
 

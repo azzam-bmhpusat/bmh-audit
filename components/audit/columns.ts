@@ -25,6 +25,7 @@ export const COLUMNS_CABANG: ColumnDef[] = [
   { id: "kriteria", label: "Kriteria Skor Penilaian (1–5)", minWidth: "min-w-[300px]", isSubRow: true },
   { id: "skor_audite", label: "Skor Audite", width: "w-28", minWidth: "min-w-[112px]", align: "center" },
   { id: "nilai_skor", label: "Nilai Skor", width: "w-24", minWidth: "min-w-[96px]", align: "right" },
+  { id: "catatan", label: "Catatan Auditor", width: "w-28", minWidth: "min-w-[112px]", align: "center" },
 ];
 
 export const COLUMNS_ADMIN: ColumnDef[] = [
