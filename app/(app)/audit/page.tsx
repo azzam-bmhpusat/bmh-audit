@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { connection } from "next/server";
 import { getCurrentProfile } from "@/lib/auth/session";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { AlertCircleIcon, InfoIcon, LockIcon } from "lucide-react";
 import { itemPoinSchema, matrixRowCabangSchema } from "@/lib/schemas";
@@ -68,6 +69,7 @@ export default async function AuditPage() {
   }
 
   // 2. Query paralel matriks cabang, poin item, status kunci cabang, dan catatan auditor
+  const adminClient = createAdminClient();
   const [matrixRes, poinRes, lockStatusRes, penilaianRes] = await Promise.all([
     supabase
       .from("v_audit_matrix_cabang")
@@ -86,7 +88,7 @@ export default async function AuditPage() {
       .eq("periode_id", periodeAktif.id)
       .eq("cabang_id", profile.cabang_id)
       .maybeSingle(),
-    supabase
+    adminClient
       .from("audit_penilaian_auditor")
       .select("item_nomor, catatan")
       .eq("periode_id", periodeAktif.id)
